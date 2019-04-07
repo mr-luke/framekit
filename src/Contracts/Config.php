@@ -1,5 +1,5 @@
 <?php
 
-namespace Mrluke\Framekit\Contracts;
+namespace Framekit\Contracts;
 
 interface Config {}

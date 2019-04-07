@@ -4,20 +4,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Serializer drivers
+    | Default Drivers
     |--------------------------------------------------------------------------
     |
-    | Framekit allows provides two drivers for serialization. States are
-    | serialized by string driver while Events uses json driver. You can
-    | set your own implementation of serializing.
-    |
-    | Drivers: "json", "string"
+    | Framekit allows to use different drivers for Steram & Snapshots support.
+    | By default it uses Database drivers based on Illuminate\Database.
     |
     */
 
     'drivers' => [
-        'event' => \Mrluke\Framekit\Serializers\JsonSerializer::class,
-        'state' => \Mrluke\Framekit\Serializers\PlainSerializer::class,
+        'command_bus' => \Framekit\Drivers\CommandBus::class,
+        'event_bus'   => \Framekit\Drivers\EventBus::class,
+        'event_store' => \Framekit\Drivers\EventStore::class,
+        'projector'   => \Framekit\Drivers\Projector::class,
     ],
 
     /*

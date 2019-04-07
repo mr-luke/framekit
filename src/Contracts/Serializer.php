@@ -1,6 +1,8 @@
 <?php
 
-namespace Mrluke\Framekit\Contracts;
+declare(strict_types=1);
+
+namespace Framekit\Contracts;
 
 /**
  * Serializer contract.
@@ -15,16 +17,16 @@ interface Serializer
     /**
      * Serialize object to string.
      *
-     * @param  \Mrluke\Framekit\Contracts\Sarializable  $toSerialize
+     * @param  \Framekit\Contracts\Serializable  $toSerialize
      * @return string
      */
-    public function serialize(Sarializable $toSerialize): string;
+    public function serialize(Serializable $toSerialize): string;
 
     /**
      * Unserialize to object.
      *
      * @param  string  $serialized
-     * @return \Mrluke\Framekit\Contracts\Serializable
+     * @return \Framekit\Contracts\Serializable
      */
     public function unserialize(string $serialized): Serializable;
 }

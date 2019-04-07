@@ -2,5 +2,5 @@
     "drivers": "required|array",
     "snapshot_after": "nullable|integer",
     "database": "required|string",
-    "tables": "required|array",
+    "tables": "required|array"
 }

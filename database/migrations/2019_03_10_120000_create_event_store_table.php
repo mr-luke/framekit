@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-use Mrluke\Framekit\Contracts\Config;
+use Framekit\Contracts\Config;
 
 class CreateEventStoreTable extends Migration
 {
@@ -32,8 +32,9 @@ class CreateEventStoreTable extends Migration
             $table->uuid('stream_id');
             $table->string('event');
             $table->jsonb('payload');
-            $table->jsonb('meta');
+            $table->unsignedSmallInteger('version');
             $table->unsignedInteger('sequence_no')->default(0);
+            $table->jsonb('meta');
             $table->timestamp('commited_at');
         });
     }

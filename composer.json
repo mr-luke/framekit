@@ -13,7 +13,8 @@
     "require": {
         "php": ">=7.1",
         "laravel/framework": "^5.7",
-        "mr-luke/configuration": "^1.0"
+        "mr-luke/configuration": "^1.0",
+        "nesbot/carbon": "^2.16.0"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.9",
@@ -23,7 +24,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Mrluke\\Framekit\\": "src/"
+            "Framekit\\": "src/"
         }
     },
     "autoload-dev": {
@@ -34,7 +35,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Mrluke\\Framekit\\ServiceProvider"
+                "Framekit\\Providers\\FramekitServiceProvider"
             ]
         }
     },

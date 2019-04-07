@@ -1,5 +1,9 @@
+/tests-coverage
 /vendor
 .DS_Store
 .env*
+develop
+docker-compose*
 result*.svg
 result.xml
+unit-report.xml*
