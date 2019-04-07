@@ -16,6 +16,6 @@ class EventStoreRepository extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'framekit.event.respoitory';
+        return \Framekit\Contracts\EventRepository::class;
     }
 }

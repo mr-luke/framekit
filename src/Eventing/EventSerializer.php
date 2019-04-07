@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Framekit\Eventing;
 
 use ReflectionClass;
@@ -59,7 +61,7 @@ final class EventSerializer implements Serializer
         $instance = $reflection->newInstanceWithoutConstructor();
 
         foreach ($payload['attributes'] as $a => $v) {
-            if (@unserialize($v) !== false) {
+            if (@unserialize((string)$v) !== false) {
                 $v = unserialize($v);
             }
             $instance->{$a} = $v;

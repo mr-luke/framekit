@@ -16,6 +16,6 @@ class CommandBus extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'framekit.command.bus';
+        return \Framekit\Contracts\CommandBus::class;
     }
 }

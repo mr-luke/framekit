@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Framekit\Drivers;
 
 use Illuminate\Support\Facades\DB;

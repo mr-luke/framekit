@@ -54,43 +54,33 @@ class FramekitServiceProvider extends ServiceProvider
             );
         });
 
-        // $this->app->singleton(\Framekit\Contracts\Serializer::class, function ($app) {
-        //
-        //     return new \Framekit\Eventing\Serializer(
-        //         $app->make(\Framekit\Contracts\Config::class)
-        //     );
-        // });
-        //
-        // $this->app->singleton(\Framekit\Contracts\Snapshot::class, function ($app) {
-        //
-        //     $config = $app->make(\Framekit\Contracts\Config::class);
-        //     $class  = $config->get('drivers.snapshot');
-        //
-        //     return new $class($config);
-        // });
-        //
-        // $this->app->singleton(\Framekit\Contracts\Stream::class, function ($app) {
-        //
-        //     $config = $app->make(\Framekit\Contracts\Config::class);
-        //     $class  = $config->get('drivers.stream');
-        //
-        //     return new $class($config);
-        // });
-        //
-        // $this->app->singleton(\Framekit\Contracts\Store::class, function ($app) {
-        //
-        //     return new \Framekit\Eventing\EventStore(
-        //         $app->make(\Framekit\Contracts\Stream::class),
-        //         $app->make(\Framekit\Contracts\Snapshot::class)
-        //     );
-        // });
-        //
-        // $this->app->singleton(\Framekit\Contracts\Bus::class, function ($app) {
-        //
-        //     return new \Framekit\Eventing\EventBus([
-        //         \Framekit\Base\AggregateCreated::class => \Framekit\Base\CreationReducer::class,
-        //         \Framekit\Base\AggregateRemoved::class => \Framekit\Base\RemovalReducer::class
-        //     ]);
-        // });
+        $this->app->singleton(\Framekit\Contracts\CommandBus::class, function ($app) {
+            return new \Framekit\Drivers\CommandBus($app);
+        });
+
+        $this->app->singleton(\Framekit\Contracts\EventBus::class, function ($app) {
+            return new \Framekit\Drivers\EventBus($app);
+        });
+
+        $this->app->singleton(\Framekit\Contracts\Store::class, function ($app) {
+
+            return new \Framekit\Drivers\EventStore(
+                $app->make(\Framekit\Contracts\Config::class),
+                new \Framekit\Eventing\EventSerializer
+            );
+        });
+
+        $this->app->singleton(\Framekit\Contracts\Projector::class, function ($app) {
+            return new \Framekit\Drivers\Projector($app);
+        });
+
+        $this->app->singleton(\Framekit\Contracts\EventRepository::class, function ($app) {
+
+            return new \Framekit\Eventing\EventStoreRepository(
+                $app->make(\Framekit\Contracts\EventBus::class),
+                $app->make(\Framekit\Contracts\Store::class),
+                $app->make(\Framekit\Contracts\Projector::class)
+            );
+        });
     }
 }
