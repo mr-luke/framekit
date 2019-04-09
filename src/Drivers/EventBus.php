@@ -6,7 +6,7 @@ namespace Framekit\Drivers;
 
 use Illuminate\Foundation\Application;
 
-use Framekit\Contracts\Bus;
+use Framekit\Contracts\EventBus as Bus;
 use Framekit\Contracts\Publishable;
 use Framekit\Exceptions\UnsupportedEvent;
 use Framekit\Extentions\ClassResolver;

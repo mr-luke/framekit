@@ -6,7 +6,7 @@ namespace Framekit\Drivers;
 
 use Illuminate\Foundation\Application;
 
-use Framekit\Contracts\Bus;
+use Framekit\Contracts\CommandBus as Bus;
 use Framekit\Contracts\Publishable;
 use Framekit\Exceptions\MissingHandler;
 use Framekit\Extentions\ClassResolver;
