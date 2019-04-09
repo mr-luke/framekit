@@ -15,8 +15,8 @@ final class EventSerializer implements Serializer
     /**
      * Serialize object to string.
      *
-     * @param  \Framekit\Contracts\Sarializable  $toSerialize
-     * @param  string                                   $subject
+     * @param  \Framekit\Contracts\Serializable  $toSerialize
+     * @param  string                            $subject
      * @return string
      *
      * @throws \InvalidArgumentException

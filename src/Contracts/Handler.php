@@ -2,8 +2,8 @@
 
 namespace Mrluke\Framekit\Contracts;
 
-use Mrluke\Framekit\Event;
-use Mrluke\Framekit\State;
+use Framekit\Event;
+use Framekit\State;
 
 /**
  * EventHandler contract.

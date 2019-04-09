@@ -15,7 +15,7 @@ use InvalidArgumentException;
  * @link      http://github.com/mr-luke/framekit
  * @license   MIT
  */
-class State implements DTO
+class TransferObject implements DTO
 {
     /**
      * Attributes of transfered object.
@@ -40,7 +40,7 @@ class State implements DTO
      */
     public function __get(string $name)
     {
-        if (! array_key_exists($this->attributes[$name])) {
+        if (! array_key_exists($name, $this->attributes)) {
             throw new InvalidArgumentException(
                 sprintf('Trying to access non-existing property %s', $name)
             );

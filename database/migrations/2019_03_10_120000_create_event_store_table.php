@@ -11,7 +11,7 @@ class CreateEventStoreTable extends Migration
     /**
      * Instance of EventStore.
      *
-     * @var \Mrluke\Configuration\Contracts\ArrayHost;
+     * @var \Framekit\Contracts\Config
      */
     protected $config;
 
