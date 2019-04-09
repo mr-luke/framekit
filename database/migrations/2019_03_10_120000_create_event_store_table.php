@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-use Framekit\Contracts\Config;
+use Framekit\Contracts\Config as FramekitConfig;
 
 class CreateEventStoreTable extends Migration
 {
@@ -17,7 +17,7 @@ class CreateEventStoreTable extends Migration
 
     public function __construct()
     {
-        $this->config = app()->make(Config::class);
+        $this->config = app()->make(FramekitConfig::class);
     }
 
     /**
