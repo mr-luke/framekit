@@ -58,19 +58,6 @@ trait EventSourcedAggregate
     }
 
     /**
-     * Return uncommited events.
-     *
-     * @return array
-     */
-    public function getUncommitedEvents(): array
-    {
-        $events = $this->aggreagateEvents;
-        $this->aggreagateEvents = [];
-
-        return $events;
-    }
-
-    /**
      * Fire Event on aggregate & add event to uncommited.
      *
      * @param  \Framekit\Event  $event
@@ -82,6 +69,19 @@ trait EventSourcedAggregate
 
         $this->aggreagateEvents[] = $event;
         $this->increaseVersion();
+    }
+
+    /**
+     * Return uncommited events.
+     *
+     * @return array
+     */
+    public function getUncommitedEvents(): array
+    {
+        $events = $this->aggreagateEvents;
+        $this->aggreagateEvents = [];
+
+        return $events;
     }
 
     /**
