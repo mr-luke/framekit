@@ -25,7 +25,7 @@ abstract class Validator
      *
      * @throws InvariantViolation
      */
-    abstract public function protectInvariant(): void {}
+    abstract public function protectInvariant(): void;
 
     /**
      * Return attribute of ValueObject.
