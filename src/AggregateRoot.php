@@ -89,4 +89,18 @@ abstract class AggregateRoot
             sprintf('Trying to call unknown method [%s]', $name)
         );
     }
+
+    /**
+     * Capture all bad calls.
+     *
+     * @param  string $name
+     * @param  array  $arguments
+     * @return \Framekit\Exceptions\MethodUnknown
+     */
+    public static function __callStatic(string $name, array $arguments)
+    {
+        throw new MethodUnknown(
+            sprintf('Trying to call unknown method [%s]', $name)
+        );
+    }
 }
