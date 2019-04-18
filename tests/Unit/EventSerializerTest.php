@@ -81,7 +81,8 @@ class EventSerializerTest extends UnitCase
         return \json_encode([
             'class'      => 'Tests\Components\DateAdded',
             'attributes' => [
-                'date' => serialize($date),
+                'date'        => serialize($date),
+                'aggregateId' => null
             ]
         ]);
     }
@@ -91,7 +92,8 @@ class EventSerializerTest extends UnitCase
         return \json_encode([
             'class'      => 'Tests\Components\IntegerAdded',
             'attributes' => [
-                'toAdd' => 1,
+                'toAdd'       => 1,
+                'aggregateId' => null
             ]
         ]);
     }
