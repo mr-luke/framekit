@@ -18,6 +18,13 @@ use Framekit\Contracts\Serializable;
 abstract class Event implements Publishable, Serializable
 {
     /**
+     * Id of aggregate that fired event.
+     *
+     * @var string
+     */
+    public $aggregateId;
+
+    /**
      * Determine version of an event.
      *
      * @var int
