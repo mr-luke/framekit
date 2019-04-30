@@ -8,8 +8,8 @@ use ReflectionClass;
 
 use Framekit\AggregateRoot;
 use Framekit\Contracts\Bus;
+use Framekit\Contracts\EventRepository;
 use Framekit\Contracts\Projector;
-use Framekit\Contracts\Repository;
 use Framekit\Contracts\Store;
 use Framekit\Exceptions\UnsupportedEvent;
 
@@ -22,7 +22,7 @@ use Framekit\Exceptions\UnsupportedEvent;
  * @license   MIT
  * @version   1.0.0
  */
-class EventStoreRepository implements Repository
+class EventStoreRepository implements EventRepository
 {
     /**
      * @var \Framekit\Contracts\Bus
