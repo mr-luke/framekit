@@ -37,7 +37,7 @@ class AggregateRemovedTest extends UnitCase
 
         $this->assertEquals(
             'test',
-            $event->aggreagateId
+            $event->aggregateId
         );
     }
 
