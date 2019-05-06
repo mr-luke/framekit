@@ -20,7 +20,7 @@ class AggregateCreated extends Event
     /**
      * @var string
      */
-    public $aggreagateId;
+    public $aggregateId;
 
     /**
      * @var \Carbon\Carbon
@@ -28,12 +28,12 @@ class AggregateCreated extends Event
     public $createdAt;
 
     /**
-     * @param string         $aggreagateId
+     * @param string         $aggregateId
      * @param \Carbon\Carbon $created_at
      */
-    public function __construct(string $aggreagateId, Carbon $created_at = null)
+    public function __construct(string $aggregateId, Carbon $created_at = null)
     {
-        $this->aggreagateId = $aggreagateId;
+        $this->aggreagateId = $aggregateId;
         $this->createdAt    = $created_at ?? Carbon::now();
     }
 }

@@ -29,11 +29,6 @@ final class EventStore implements Store
     protected $config;
 
     /**
-     * @var \Illuminate\Database\Query\Builder;
-     */
-    protected $db;
-
-    /**
      * @var \Framekit\Contracts\Serializer
      */
     protected $serializer;
@@ -46,8 +41,6 @@ final class EventStore implements Store
     {
         $this->config     = $config;
         $this->serializer = $serializer;
-
-        $this->setupDBConnection();
     }
 
     /**
@@ -59,7 +52,9 @@ final class EventStore implements Store
      */
     public function commitToStream(string $stream_id, array $events): void
     {
-        $last = $this->db->where('stream_id', $stream_id)->orderBy('commited_at', 'DESC')->first();
+        $last = $this->setupDBConnection()->where('stream_id', $stream_id)
+                                          ->orderBy('commited_at', 'DESC')
+                                          ->first();
         $last = $last->sequence_no ?? 0;
 
         DB::beginTransaction();
@@ -75,7 +70,7 @@ final class EventStore implements Store
                 );
             }
 
-            $this->db->insert(array_merge($common, [
+            $this->setupDBConnection()->insert(array_merge($common, [
                 'event'       => get_class($e),
                 'payload'     => $this->serializer->serialize($e),
                 'version'     => $e::$eventVersion,
@@ -95,7 +90,9 @@ final class EventStore implements Store
     public function loadStream(string $stream_id): array
     {
         $events = [];
-        $raw    = $this->db->where('stream_id', $stream_id)->orderBy('commited_at')->get();
+        $raw    = $this->setupDBConnection()->where('stream_id', $stream_id)
+                                            ->orderBy('commited_at')
+                                            ->get();
 
         foreach ($raw as $r) {
             if ($this->isVersionConflict($r->payload, $r->version)) {
@@ -154,11 +151,11 @@ final class EventStore implements Store
     /**
      * Create DB connection instance.
      *
-     * @return void
+     * @return \Illuminate\Database\Query\Builder
      */
-    private function setupDBConnection(): void
+    private function setupDBConnection()
     {
-        $this->db = DB::connection($this->config->get('database'))
-                      ->table($this->config->get('tables.eventstore'));
+        return DB::connection($this->config->get('database'))
+                 ->table($this->config->get('tables.eventstore'));
     }
 }

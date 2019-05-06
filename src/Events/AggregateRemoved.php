@@ -20,7 +20,7 @@ class AggregateRemoved extends Event
     /**
      * @var string
      */
-    public $aggreagateId;
+    public $aggregateId;
 
     /**
      * @var \Carbon\Carbon
@@ -28,12 +28,12 @@ class AggregateRemoved extends Event
     public $deletedAt;
 
     /**
-     * @param string         $aggreagateId
+     * @param string         $aggregateId
      * @param \Carbon\Carbon $created_at
      */
-    public function __construct(string $aggreagateId, Carbon $deleted_at = null)
+    public function __construct(string $aggregateId, Carbon $deleted_at = null)
     {
-        $this->aggreagateId = $aggreagateId;
+        $this->aggreagateId = $aggregateId;
         $this->deletedAt    = $deleted_at ?? Carbon::now();
     }
 }
