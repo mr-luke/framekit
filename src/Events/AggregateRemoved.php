@@ -33,7 +33,7 @@ class AggregateRemoved extends Event
      */
     public function __construct(string $aggregateId, Carbon $deleted_at = null)
     {
-        $this->aggreagateId = $aggregateId;
-        $this->deletedAt    = $deleted_at ?? Carbon::now();
+        $this->aggregateId = $aggregateId;
+        $this->deletedAt   = $deleted_at ?? Carbon::now();
     }
 }
