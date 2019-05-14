@@ -53,6 +53,7 @@ class TransferObject implements DTO
      * Cast all attributes to array.
      *
      * @return array
+     * @codeCoverageIgnore
      */
     public function toArray(): array
     {

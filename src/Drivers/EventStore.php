@@ -10,6 +10,7 @@ use Mrluke\Configuration\Contracts\ArrayHost;
 
 use Framekit\Contracts\Serializer;
 use Framekit\Contracts\Store;
+use Framekit\Exceptions\MethodUnknown;
 use Framekit\Event;
 
 /**
@@ -157,5 +158,19 @@ final class EventStore implements Store
     {
         return DB::connection($this->config->get('database'))
                  ->table($this->config->get('tables.eventstore'));
+    }
+
+    /**
+     * Capture all bad calls.
+     *
+     * @param  string $name
+     * @param  array  $arguments
+     * @return \Framekit\Exceptions\MethodUnknown
+     */
+    public function __call(string $name, array $arguments)
+    {
+        throw new MethodUnknown(
+            sprintf('Trying to call unknown method [%s]. Assert methods available only in testing mode.', $name)
+        );
     }
 }

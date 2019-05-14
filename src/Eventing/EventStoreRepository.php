@@ -46,7 +46,7 @@ class EventStoreRepository implements EventRepository
      */
     function __construct(Bus $bus, Store $store, Projector $projector)
     {
-        $this->eventBus    =  $bus;
+        $this->eventBus    = $bus;
         $this->eventStore  = $store;
         $this->projector   = $projector;
     }

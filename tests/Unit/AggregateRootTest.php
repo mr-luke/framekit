@@ -47,6 +47,13 @@ class AggregateRootTest extends UnitCase
         $aggreagate->testNotExisting();
     }
 
+    public function testThrowWhenStaticMagicCall()
+    {
+        $this->expectException(MethodUnknown::class);
+
+        \Tests\Components\TestAggregate::dummyMethod();
+    }
+
     public function testApplyChangeMethod()
     {
         $event = new \Tests\Components\IntegerAdded(2);
