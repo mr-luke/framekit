@@ -62,7 +62,23 @@ class FramekitServiceProvider extends ServiceProvider
             return new \Framekit\Drivers\EventBus($app);
         });
 
-        $this->app->singleton(\Framekit\Contracts\Store::class, function ($app) {
+        $this->app->bind(\Framekit\Contracts\Projector::class, function ($app) {
+            return $app->make('framekit.projector');
+        });
+
+        $this->app->bind(\Framekit\Contracts\Store::class, function ($app) {
+            return $app->make('framekit.event.store');
+        });
+
+        $this->app->bind(\Framekit\Contracts\EventRepository::class, function ($app) {
+            return $app->make('framekit.event.repository');
+        });
+
+        $this->app->singleton('framekit.projector', function ($app) {
+            return new \Framekit\Drivers\Projector($app);
+        });
+
+        $this->app->singleton('framekit.event.store', function ($app) {
 
             return new \Framekit\Drivers\EventStore(
                 $app->make(\Framekit\Contracts\Config::class),
@@ -70,16 +86,12 @@ class FramekitServiceProvider extends ServiceProvider
             );
         });
 
-        $this->app->singleton(\Framekit\Contracts\Projector::class, function ($app) {
-            return new \Framekit\Drivers\Projector($app);
-        });
-
-        $this->app->singleton(\Framekit\Contracts\EventRepository::class, function ($app) {
+        $this->app->singleton('framekit.event.repository', function ($app) {
 
             return new \Framekit\Eventing\EventStoreRepository(
                 $app->make(\Framekit\Contracts\EventBus::class),
-                $app->make(\Framekit\Contracts\Store::class),
-                $app->make(\Framekit\Contracts\Projector::class)
+                $app->make('framekit.event.store'),
+                $app->make('framekit.projector')
             );
         });
     }

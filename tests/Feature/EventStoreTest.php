@@ -9,6 +9,7 @@ use Framekit\Contracts\Config;
 use Framekit\Contracts\Serializer;
 use Framekit\Contracts\Store;
 use Framekit\Drivers\EventStore;
+use Framekit\Exceptions\MethodUnknown;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Mrluke\Configuration\Contracts\ArrayHost;
@@ -188,5 +189,16 @@ class EventStoreTest extends AppCase
             \Tests\Components\IntegerAdded::class,
             $events[0]
         );
+    }
+
+    public function testThrowsWhenCallingAssertForProd()
+    {
+        $this->expectException(MethodUnknown::class);
+
+        $eventStore = new EventStore(
+            $this->app->make(Config::class),
+            new \Framekit\Eventing\EventSerializer
+        );
+        $eventStore->assertHasEvent();
     }
 }

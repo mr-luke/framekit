@@ -10,8 +10,9 @@ use InvalidArgumentException;
 use Framekit\AggregateRoot;
 use Framekit\Projection;
 use Framekit\Contracts\Projector as Contract;
-use Framekit\Exceptions\MissingProjection;
 use Framekit\Extentions\ClassResolver;
+use Framekit\Exceptions\MethodUnknown;
+use Framekit\Exceptions\MissingProjection;
 use Framekit\Event;
 
 /**
@@ -34,7 +35,8 @@ final class Projector implements Contract
     protected $register;
 
     /**
-     * @param array $stack
+     * @param \Illuminate\Foundation\Application  $app
+     * @param array                               $stack
      */
     public function __construct(Application $app, array $stack = [])
     {
@@ -46,6 +48,8 @@ final class Projector implements Contract
      * Return registered Projections list.
      *
      * @return array
+     *
+     * @codeCoverageIgnore
      */
     public function projections(): array
     {
@@ -79,6 +83,8 @@ final class Projector implements Contract
      *
      * @param  array $stack
      * @return void
+     *
+     * @codeCoverageIgnore
      */
     public function register(array $stack): void
     {
@@ -102,5 +108,19 @@ final class Projector implements Contract
         }
 
         return $this->resolveClass($this->register[$aggregate]);
+    }
+
+    /**
+     * Capture all bad calls.
+     *
+     * @param  string $name
+     * @param  array  $arguments
+     * @return \Framekit\Exceptions\MethodUnknown
+     */
+    public function __call(string $name, array $arguments)
+    {
+        throw new MethodUnknown(
+            sprintf('Trying to call unknown method [%s]. Assert methods available only in testing mode.', $name)
+        );
     }
 }

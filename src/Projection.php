@@ -18,6 +18,21 @@ use Framekit\Event;
 abstract class Projection
 {
     /**
+     * Return name of method that should be invoke.
+     *
+     * @param  \Framekit\Event $event
+     * @return string
+     *
+     * @codeCoverageIgnore
+     */
+    public static function detectMethod(Event $event): string
+    {
+        $namespace = explode('\\', get_class($event));
+
+        return 'when'. end($namespace);
+    }
+
+    /**
      * Handle projection.
      *
      * @param  \Framekit\Event  $event
@@ -25,8 +40,7 @@ abstract class Projection
      */
     public function handle(Event $event): void
     {
-        $class  = explode('\\', get_class($event));
-        $method = 'when'. end($class);
+        $method = static::detectMethod($event);
 
         $this->{$method}($event);
     }

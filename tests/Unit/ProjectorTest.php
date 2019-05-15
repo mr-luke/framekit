@@ -8,6 +8,7 @@ use Tests\NonPublicMethodTool;
 use Framekit\Contracts\Projector as Contract;
 use Framekit\Contracts\Publishable;
 use Framekit\Drivers\Projector;
+use Framekit\Exceptions\MethodUnknown;
 use Framekit\Exceptions\MissingProjection;
 use Illuminate\Foundation\Application;
 
@@ -30,33 +31,7 @@ class ProjectorTest extends UnitCase
         );
     }
 
-    public function testRegisterHandlerViaConstructor()
-    {
-        $projector = new Projector($this->createMock(Application::class), [
-            'from' => 'to'
-        ]);
-
-        $this->assertEquals(
-            ['from' => 'to'],
-            $projector->projections()
-        );
-    }
-
-    public function testRegisterHandlers()
-    {
-        $projector = new Projector($this->createMock(Application::class));
-
-        $this->assertTrue(!$projector->projections());
-
-        $projector->register(['from' => 'to']);
-
-        $this->assertEquals(
-            ['from' => 'to'],
-            $projector->projections()
-        );
-    }
-
-    public function testThrowsWhenCommandNotRegistered()
+    public function testThrowsWhenAggregateNotRegistered()
     {
         $this->expectException(MissingProjection::class);
 
@@ -66,7 +41,7 @@ class ProjectorTest extends UnitCase
         $compose->invokeArgs($projector, ['BadClass']);
     }
 
-    public function testThrowsWhenCommandHasNoHandlerRegistered()
+    public function testThrowsWhenAggregateHasNoProjectionRegistered()
     {
         $this->expectException(MissingProjection::class);
 
@@ -74,5 +49,13 @@ class ProjectorTest extends UnitCase
 
         $compose = self::getMethodOfClass(Projector::class, 'getProjection');
         $compose->invokeArgs($projector, ['BadClass']);
+    }
+
+    public function testThrowsWhenCallingAssertForProd()
+    {
+        $this->expectException(MethodUnknown::class);
+
+        $projector = new Projector($this->createMock(Application::class));
+        $projector->badMethod();
     }
 }
