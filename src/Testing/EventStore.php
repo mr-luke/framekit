@@ -33,16 +33,14 @@ final class EventStore implements Store
      * Determine if strema has event(s).
      *
      * @param  string $stream_id
-     * @param  string $event
+     * @param  mixed  $event
      * @return self
      *
      * @codeCoverageIgnore
      */
     public function assertHasEvent(string $stream_id, $event): self
     {
-        $events = $this->wrap($event);
-
-        foreach ($events as $e) {
+        foreach ($this->wrap($event) as $e) {
             PHPUnit::assertTrue(
                 $this->hasEvent($stream_id, $e),
                 "Missing event [".get_class($e)."] for given stream [{$stream_id}]"
@@ -56,16 +54,14 @@ final class EventStore implements Store
      * Determine if strema has event(s).
      *
      * @param  string $stream_id
-     * @param  string $event
+     * @param  mixed  $event
      * @return self
      *
      * @codeCoverageIgnore
      */
     public function assertMissingEvent(string $stream_id, $event): self
     {
-        $events = $this->wrap($event);
-
-        foreach ($events as $e) {
+        foreach ($this->wrap($event) as $e) {
             PHPUnit::assertFalse(
                 $this->hasEvent($stream_id, $e),
                 "Unexpected event [".get_class($e)."] in stream [{$stream_id}]"
