@@ -62,7 +62,7 @@ final class Projector implements Contract
     ): self {
         PHPUnit::assertTrue(
             $this->isCalled($aggregate, $projection, $method),
-            "Given projection [{$p}@{$method}] hasn't called for an aggregate [{$aggregate}]."
+            "Given projection [{$projection}@{$method}] hasn't called for an aggregate [{$aggregate}]."
         );
 
         return $this;
@@ -85,7 +85,7 @@ final class Projector implements Contract
     ): self {
         PHPUnit::assertFalse(
             $this->isCalled($aggregate, $projection, $method),
-            "Unexpected projection [{$p}@{$method}] called for an aggregate [{$aggregate}]."
+            "Unexpected projection [{$projection}@{$method}] called for an aggregate [{$aggregate}]."
         );
 
         return $this;

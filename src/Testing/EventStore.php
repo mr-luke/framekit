@@ -77,6 +77,23 @@ final class EventStore implements Store
     }
 
     /**
+     * Wrap $event to always be array.
+     *
+     * @param  mixed $event
+     * @return array
+     *
+     * @codeCoverageIgnore
+     */
+    private function wrap($event): array
+    {
+        if (is_null($event)) {
+            return [];
+        }
+
+        return is_array($event) ? $event : [$event];
+    }
+
+    /**
      * Determine if given Event exists in stream & is equal.
      *
      * @param  string           $stream_id
