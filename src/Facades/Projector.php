@@ -25,7 +25,9 @@ class Projector extends Facade
      */
     public static function fake(): Contract
     {
-        static::swap(new Fake());
+        static::swap(new Fake(
+            static::projections()
+        ));
 
         return static::getFacadeRoot();
     }

@@ -16,6 +16,6 @@ class EventBus extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'framekit.event.bus';
+        return \Framekit\Contracts\EventBus::class;
     }
 }
