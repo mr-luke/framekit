@@ -35,7 +35,7 @@ class CreateEventStoreTable extends Migration
             $table->unsignedSmallInteger('version');
             $table->unsignedInteger('sequence_no')->default(0);
             $table->jsonb('meta');
-            $table->timestamp('commited_at');
+            $table->timestamp('commited_at', 6);
         });
     }
 

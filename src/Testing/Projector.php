@@ -31,7 +31,7 @@ final class Projector implements Contract
     private $projected = [];
 
     /**
-     * Register of Event->Reactor pairs.
+     * Register of Event->Projector pairs.
      *
      * @var array
      */

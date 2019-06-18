@@ -49,6 +49,23 @@ class TestingEventStoreTest extends UnitCase
         );
     }
 
+    public function testWhenStreamHasEventOfGivenType()
+    {
+        $event = new IntegerAdded(2);
+
+        $store = new EventStore();
+        $store->commitToStream('uuid1', [$event]);
+
+        $compose = self::getMethodOfClass(EventStore::class, 'hasEvent');
+
+        $this->assertTrue(
+            $compose->invokeArgs($store, [
+                'uuid1',
+                IntegerAdded::class
+            ])
+        );
+    }
+
     public function testWhenStreamHasTheSameEvent()
     {
         $event = new IntegerAdded(2);

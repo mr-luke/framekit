@@ -53,12 +53,13 @@ final class EventStore implements Store
      */
     public function commitToStream(string $stream_id, array $events): void
     {
+        DB::beginTransaction();
+
         $last = $this->setupDBConnection()->where('stream_id', $stream_id)
                                           ->orderBy('commited_at', 'DESC')
+                                          ->lockForUpdate()
                                           ->first();
         $last = $last->sequence_no ?? 0;
-
-        DB::beginTransaction();
 
         $common = $this->composeCommon($stream_id);
 
@@ -93,6 +94,7 @@ final class EventStore implements Store
         $events = [];
         $raw    = $this->setupDBConnection()->where('stream_id', $stream_id)
                                             ->orderBy('commited_at')
+                                            ->orderBy('sequence_no')
                                             ->get();
 
         foreach ($raw as $r) {
@@ -114,13 +116,15 @@ final class EventStore implements Store
      */
     protected function composeCommon(string $stream_id): array
     {
+        $now = now();
+
         return [
             'stream_id'   => $stream_id,
             'meta'        => json_encode([
                 'auth' => auth()->check() ? auth()->user()->id : null,
                 'ip'   => request()->ip(),
             ]),
-            'commited_at' => now(),
+            'commited_at' => $now->toDateTimeString() .'.'. $now->micro,
         ];
     }
 

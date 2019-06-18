@@ -92,14 +92,16 @@ final class EventStore implements Store
     /**
      * Determine if given Event exists in stream & is equal.
      *
-     * @param  string           $stream_id
-     * @param  \Framekit\Event  $event
+     * @param  string                  $stream_id
+     * @param  \Framekit\Event|string  $event
      * @return bool
      */
-    private function hasEvent(string $stream_id, Event $event): bool
+    private function hasEvent(string $stream_id, $event): bool
     {
+        $shallowTest = is_string($event);
+
         foreach ($this->loadStream($stream_id) as $e) {
-            if ($e == $event) {
+            if ((!$shallowTest && $e == $event) || ($shallowTest && $e instanceof $event)) {
                 return true;
             }
         }

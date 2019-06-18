@@ -16,6 +16,7 @@ class EventStoreRepository extends Facade
      */
     public static function fake(): void
     {
+        EventBus::fake();
         EventStore::fake();
         Projector::fake();
     }

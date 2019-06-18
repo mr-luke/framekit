@@ -59,7 +59,7 @@ class FramekitServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(\Framekit\Contracts\EventBus::class, function ($app) {
-            return new \Framekit\Drivers\EventBus($app);
+            return $app->make('framekit.event.bus');
         });
 
         $this->app->bind(\Framekit\Contracts\Projector::class, function ($app) {
@@ -76,6 +76,10 @@ class FramekitServiceProvider extends ServiceProvider
 
         $this->app->singleton('framekit.projector', function ($app) {
             return new \Framekit\Drivers\Projector($app);
+        });
+
+        $this->app->singleton('framekit.event.bus', function ($app) {
+            return new \Framekit\Drivers\EventBus($app);
         });
 
         $this->app->singleton('framekit.event.store', function ($app) {
