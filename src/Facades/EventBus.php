@@ -28,7 +28,7 @@ class EventBus extends Facade
     public static function fake(): Contract
     {
         static::swap(new Fake(
-            static::projections()
+            static::handlers(), static::globalHandlers()
         ));
 
         return static::getFacadeRoot();

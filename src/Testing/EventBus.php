@@ -62,7 +62,7 @@ final class EventBus implements Bus
     public function assertReactorCalled(string $event, string $reactor): self
     {
         PHPUnit::assertTrue(
-            $this->isCalled($event, $reactors),
+            $this->isCalled($event, $reactor),
             "Given reactor [{$reactor}] hasn't called for an event [{$event}]."
         );
 
@@ -81,7 +81,7 @@ final class EventBus implements Bus
     public function assertReactorHasntCalled(string $event, string $reactor): self
     {
         PHPUnit::assertFalse(
-            $this->isCalled($event, $reactors),
+            $this->isCalled($event, $reactor),
             "Unexpected reactor [{$reactor}] called for an event [{$event}]."
         );
 
