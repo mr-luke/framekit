@@ -19,6 +19,12 @@ class EventStoreRepository extends Facade
         EventBus::fake();
         EventStore::fake();
         Projector::fake();
+
+        static::swap(
+            app()->make('framekit.event.bus'),
+            app()->make('framekit.event.store'),
+            app()->make('framekit.projector')
+        );
     }
 
     /**
