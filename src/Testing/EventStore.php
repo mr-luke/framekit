@@ -43,7 +43,7 @@ final class EventStore implements Store
         foreach ($this->wrap($event) as $e) {
             PHPUnit::assertTrue(
                 $this->hasEvent($stream_id, $e),
-                "Missing event [".get_class($e)."] for given stream [{$stream_id}]"
+                "Missing event [".is_string($e) ? $e : get_class($e)."] for given stream [{$stream_id}]"
             );
         }
 
@@ -64,7 +64,7 @@ final class EventStore implements Store
         foreach ($this->wrap($event) as $e) {
             PHPUnit::assertFalse(
                 $this->hasEvent($stream_id, $e),
-                "Unexpected event [".get_class($e)."] in stream [{$stream_id}]"
+                "Unexpected event [".is_string($e) ? $e : get_class($e)."] in stream [{$stream_id}]"
             );
         }
 
