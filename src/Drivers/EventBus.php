@@ -71,13 +71,15 @@ final class EventBus implements Bus
     /**
      * Handle Publishable with coresponding Handler.
      *
-     * @param  \Framekit\Contracts\Publishable  $source
+     * @param \Framekit\Contracts\Publishable $source
+     *
      * @return void
+     * @throws UnsupportedEvent
      */
     public function publish(Publishable $source): void
     {
         if (isset($this->register[get_class($source)])) {
-            $this->fireEventReactor($source, $this->register[get_class($source)]);
+            $this->fireEventReactors($source, $this->register[get_class($source)]);
         }
 
         $this->publishForGlobals($source);
@@ -119,35 +121,54 @@ final class EventBus implements Bus
     /**
      * Handle Publishable with global Handlers.
      *
-     * @param  \Framekit\Contracts\Publishable  $source
+     * @param \Framekit\Contracts\Publishable $source
+     *
      * @return void
+     * @throws UnsupportedEvent
      */
     protected function publishForGlobals(Publishable $source): void
     {
-        foreach ($this->globals as $g) {
-            $this->fireEventReactor($source, $g);
-        }
+        $this->fireEventReactors($source, $this->globals);
     }
 
     /**
      * Resolve and fire handler.
      *
-     * @param  \Framekit\Contracts\Publishable  $source
-     * @param  string                           $destination
+     * @param  \Framekit\Contracts\Publishable $source
+     * @param  string|array                    $destinations
+     *
      * @return void
+     * @throws \Framekit\Exceptions\UnsupportedEvent
+     */
+    private function fireEventReactors(Publishable $source, $destinations): void
+    {
+        if(!is_array($destinations)) {
+            $destinations = [$destinations];
+        }
+
+        $this->validateReactors($destinations);
+
+        foreach($destinations as $destination) {
+            $destination->handle($source);
+        }
+    }
+
+    /**
+     * Resolve and vaidate reactors
+     *
+     * @param $destinations
      *
      * @throws \Framekit\Exceptions\UnsupportedEvent
      */
-    private function fireEventReactor(Publishable $source, string $destination): void
+    private function validateReactors(&$destinations)
     {
-        $class = $this->resolveClass($destination);
-
-        if (! $class instanceof Reactor) {
-            throw new UnsupportedEvent(
-                sprintf('Reactor has to extend %s', Reactor::class)
-            );
+        foreach($destinations as &$destination) {
+            $destination = $this->resolveClass($destination);
+            if (! $destination instanceof Reactor) {
+                throw new UnsupportedEvent(
+                    sprintf('Reactor has to extend %s', Reactor::class)
+                );
+            }
         }
-
-        $class->handle($source);
     }
 }
