@@ -19,7 +19,7 @@
     "require-dev": {
         "fzaninotto/faker": "^1.9",
         "orchestra/testbench": "^3.7.0|^4.0",
-        "phpunit/phpunit": "^8.0",
+        "phpunit/phpunit": "^7.0|^8.0",
         "pdepend/pdepend": "^2.5"
     },
     "autoload": {
