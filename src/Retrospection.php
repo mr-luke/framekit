@@ -11,6 +11,8 @@ namespace Framekit;
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
  * @license   MIT
+ *
+ * @codeCoverageIgnore
  */
 abstract class Retrospection
 {
@@ -19,28 +21,28 @@ abstract class Retrospection
      *
      * @var array
      */
-    protected $filterReactors = [];
+    public $filterReactors = [];
 
     /**
      * Determine which stream should be ommitter.
      *
      * @var array
      */
-    protected $filterStreams = [];
+    public $filterStreams = [];
 
     /**
      * Deremine if retrospection should project events.
      *
      * @var boolean
      */
-    protected $useProjections = true;
+    public $useProjections = true;
 
     /**
      * Deremine if retrospection should publish events.
      *
      * @var boolean
      */
-    protected $useReactors = true;
+    public $useReactors = true;
 
     /**
      * Perform post-action on Event.

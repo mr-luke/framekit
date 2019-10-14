@@ -57,5 +57,56 @@ class Retrospector implements Contract
     public function perform(Retrospection $retrospection): void
     {
         $streams = $this->eventStore->getAvailableStreams();
+
+        if (
+            isset($retrospection->filterStreams['include']) ||
+            isset($retrospection->filterStreams['exclude'])
+        ) {
+            $streams = $this->filterStreams($streams, $map);
+        }
+
+        foreach ($streams as $s) {
+            $events = $this->eventStore->loadStream($s['stream_id']);
+
+            foreach ($events as $e) {
+
+                $e = $retrospection->preAction($e);
+
+                if ($retrospection->useProjections) {
+                    $this->projector->projectByEvent($s['stream_type'], $event);
+                }
+
+                if ($retrospection->useReactors) {
+                    // TODO: filter reactors
+                    $this->eventBus->publish($e);
+                }
+
+                $retrospection->postAction($e);
+            }
+        }
+    }
+
+    /**
+     * Filter streams.
+     *
+     * @param  array $stream
+     * @param  array $map
+     * @return array
+     */
+    protected function filterStreams(array $stream, array $map): array
+    {
+        if (isset($map['include']) && isset($map['exclude'])) {
+            throw new \InvalidArgumentException(
+                'Invalid Retrospection configuration. [include] & [exclude] not allowed simultanously'
+            );
+        }
+
+        if (isset($map['include']) && count($map['include'])) {
+            // TODO: Filter streams
+        } elseif (isset($map['exclude']) && count($map['exclude'])) {
+            // TODO: Filter streams
+        }
+
+        return $stream;
     }
 }
