@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Mrluke\Configuration\Contracts\ArrayHost;
 
+use Framekit\Contracts\Mapper;
 use Framekit\Contracts\Serializer;
 use Framekit\Contracts\Store;
 use Framekit\Exceptions\MethodUnknown;
@@ -30,6 +31,11 @@ final class EventStore implements Store
     protected $config;
 
     /**
+     * @var \Framekit\Contracts\Mapper
+     */
+    protected $mapper;
+
+    /**
      * @var \Framekit\Contracts\Serializer
      */
     protected $serializer;
@@ -38,30 +44,32 @@ final class EventStore implements Store
      * @param \Mrluke\Configuration\Contracts\ArrayHost $connection
      * @param \Framekit\Contracts\Serializer
      */
-    function __construct(ArrayHost $config, Serializer $serializer)
+    function __construct(ArrayHost $config, Serializer $serializer, Mapper $mapper)
     {
         $this->config     = $config;
+        $this->mapper     = $mapper;
         $this->serializer = $serializer;
     }
 
     /**
      * Store new payload in stream.
      *
+     * @param  string $stream_type
      * @param  string $stream_id
      * @param  array  $events
      * @return void
      */
-    public function commitToStream(string $stream_id, array $events): void
+    public function commitToStream(string $stream_type, string $stream_id, array $events): void
     {
         DB::beginTransaction();
 
         $last = $this->setupDBConnection()->where('stream_id', $stream_id)
-                                          ->orderBy('commited_at', 'DESC')
+                                          ->orderBy('sequence_no', 'DESC')
                                           ->lockForUpdate()
                                           ->first();
         $last = $last->sequence_no ?? 0;
 
-        $common = $this->composeCommon($stream_id);
+        $common = $this->composeCommon($stream_type, $stream_id);
 
         foreach ($events as $e) {
             if (! $e instanceof Event) {
@@ -84,25 +92,45 @@ final class EventStore implements Store
     }
 
     /**
-     * Load Stream based on id.
+     * Load available streams.
      *
-     * @param  string $stream_id
      * @return array
      */
-    public function loadStream(string $stream_id): array
+    public function getAvailableStreams(): array
+    {
+        $collection = $this->setupDBConnection()->distinct()->select('stream_type', 'stream_id')
+            ->get();
+
+        return $collection->toArray();
+    }
+
+    /**
+     * Load Stream based on id.
+     *
+     * @param  string|null $stream_id
+     * @return array
+     */
+    public function loadStream(string $stream_id = null): array
     {
         $events = [];
-        $raw    = $this->setupDBConnection()->where('stream_id', $stream_id)
-                                            ->orderBy('commited_at')
-                                            ->orderBy('sequence_no')
-                                            ->get();
+        $query = $this->setupDBConnection();
 
-        foreach ($raw as $r) {
-            if ($this->isVersionConflict($r->payload, $r->version)) {
-                $r->payload = $this->mapVersion($r->payload);
+        if (!empty($stream_id)) {
+            $query->where('stream_id', $stream_id);
+        }
+
+        $raw = $query->orderBy('sequence_no')->get();
+
+        for ($i=0; $i < count($raw); $i++) {
+            if ($this->isVersionConflict($raw[$i]->payload, $raw[$i]->version)) {
+                $raw[$i]->payload = $this->mapVersion(
+                    $raw[$i]->payload,
+                    $raw[$i]->version,
+                    array_slice($raw->toArray(), 0, $i + 1)
+                );
             }
 
-            $events[] = $this->serializer->unserialize($r->payload);
+            $events[] = $this->serializer->unserialize($raw[$i]->payload);
         }
 
         return $events;
@@ -111,14 +139,16 @@ final class EventStore implements Store
     /**
      * Compose common data for event entry.
      *
+     * @param  string $stream_type
      * @param  string $stream_id
      * @return array
      */
-    protected function composeCommon(string $stream_id): array
+    protected function composeCommon(string $stream_type, string $stream_id): array
     {
         $now = now();
 
         return [
+            'stream_type' => $stream_type,
             'stream_id'   => $stream_id,
             'meta'        => json_encode([
                 'auth' => auth()->check() ? auth()->user()->id : null,
@@ -144,13 +174,20 @@ final class EventStore implements Store
     /**
      * Map old event to new version to prevent missing data.
      *
-     * @param  string $payload
+     * @param  string  $payload
+     * @param  int     $from
+     * @param  array   $upstream
      * @return string
      */
-    protected function mapVersion(string $payload): string
+    protected function mapVersion(string $payload, int $from, array $upstream): string
     {
-        // TODO!
-        return $payload;
+        $payload = $this->mapper->map(
+            json_decode($payload, true),
+            $from,
+            $upstream
+        );
+
+        return json_encode($payload);
     }
 
     /**

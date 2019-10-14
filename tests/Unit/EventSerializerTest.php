@@ -28,10 +28,11 @@ class EventSerializerTest extends UnitCase
 
     public function testSerializeEventWithoutObject()
     {
+        $event = new \Tests\Components\IntegerAdded(1);
+        $event->firedAt = 12345678;
+
         $serializer = new EventSerializer;
-        $after = $serializer->serialize(
-            new \Tests\Components\IntegerAdded(1)
-        );
+        $after = $serializer->serialize($event);
 
         $this->assertEquals(
             $this->getQualifiedPlainJson(),
@@ -41,11 +42,14 @@ class EventSerializerTest extends UnitCase
 
     public function testUnserializeEventWithoutObject()
     {
+        $event = new \Tests\Components\IntegerAdded(1);
+        $event->firedAt = 12345678;
+
         $serializer = new EventSerializer;
         $class = $serializer->unserialize($this->getQualifiedPlainJson());
 
         $this->assertEquals(
-            new \Tests\Components\IntegerAdded(1),
+            $event,
             $class
         );
     }
@@ -53,10 +57,12 @@ class EventSerializerTest extends UnitCase
     public function testSerializeEventWithObject()
     {
         $now = Carbon::now();
+
+        $event = new \Tests\Components\DateAdded($now);
+        $event->firedAt = 12345678;
+
         $serializer = new EventSerializer;
-        $after = $serializer->serialize(
-            new \Tests\Components\DateAdded($now)
-        );
+        $after = $serializer->serialize($event);
 
         $this->assertEquals(
             $this->getQualifiedDateJson($now),
@@ -67,11 +73,15 @@ class EventSerializerTest extends UnitCase
     public function testUnserializeEventWithObject()
     {
         $now = Carbon::now();
+
+        $event = new \Tests\Components\DateAdded($now);
+        $event->firedAt = 12345678;
+
         $serializer = new EventSerializer;
         $class = $serializer->unserialize($this->getQualifiedDateJson($now));
 
         $this->assertEquals(
-            new \Tests\Components\DateAdded($now),
+            $event,
             $class
         );
     }
@@ -82,7 +92,8 @@ class EventSerializerTest extends UnitCase
             'class'      => 'Tests\Components\DateAdded',
             'attributes' => [
                 'date'        => serialize($date),
-                'aggregateId' => null
+                'aggregateId' => null,
+                'firedAt'     => 12345678
             ]
         ]);
     }
@@ -93,7 +104,8 @@ class EventSerializerTest extends UnitCase
             'class'      => 'Tests\Components\IntegerAdded',
             'attributes' => [
                 'toAdd'       => 1,
-                'aggregateId' => null
+                'aggregateId' => null,
+                'firedAt'     => 12345678
             ]
         ]);
     }

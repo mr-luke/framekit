@@ -116,11 +116,12 @@ final class EventStore implements Store
     /**
      * Store new payload in stream.
      *
+     * @param  string $stream_type
      * @param  string $stream_id
      * @param  array  $events
      * @return void
      */
-    public function commitToStream(string $stream_id, array $events): void
+    public function commitToStream(string $stream_type, string $stream_id, array $events): void
     {
         if (!isset($this->events[$stream_id])) {
             $this->events[$stream_id] = [];
@@ -137,7 +138,7 @@ final class EventStore implements Store
      *
      * @codeCoverageIgnore
      */
-    public function loadStream(string $stream_id): array
+    public function loadStream(string $stream_id = null): array
     {
         return $this->events[$stream_id] ?? [];
     }

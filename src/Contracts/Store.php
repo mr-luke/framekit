@@ -17,17 +17,18 @@ interface Store
     /**
      * Store new payload in stream.
      *
+     * @param  string $stream_type
      * @param  string $stream_id
      * @param  array  $events
      * @return void
      */
-    public function commitToStream(string $stream_id, array $events): void;
+    public function commitToStream(string $stream_type, string $stream_id, array $events): void;
 
     /**
      * Load Stream based on id.
      *
-     * @param  string $stream_id
+     * @param  string|null $stream_id
      * @return array
      */
-    public function loadStream(string $stream_id): array;
+    public function loadStream(string $stream_id = null): array;
 }

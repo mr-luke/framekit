@@ -70,4 +70,21 @@ class ProjectorTest extends FeatureCase
 
         $projector->project($aggregateMock, [$eventMock]);
     }
+
+    public function testProjectByEvent()
+    {
+        $eventMock = $this->getMockBuilder(Event::class)
+                          ->setMethods(['dummy'])
+                          ->getMockForAbstractClass();
+
+        $eventMock->expects($this->once())
+                  ->method('dummy');
+
+        $projector = new Projector(
+            $this->createMock(Application::class),
+            ['AggregateRoot' => 'Tests\Components\DummyProjection']
+        );
+
+        $projector->projectByEvent('AggregateRoot', $eventMock);
+    }
 }

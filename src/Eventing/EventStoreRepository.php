@@ -11,7 +11,7 @@ use Framekit\Contracts\Bus;
 use Framekit\Contracts\EventRepository;
 use Framekit\Contracts\Projector;
 use Framekit\Contracts\Store;
-use Framekit\Exceptions\UnsupportedEvent;
+use Framekit\Exceptions\UnsupportedAggregate;
 
 /**
  * EventStoreRepository class for Framekit.
@@ -61,7 +61,12 @@ class EventStoreRepository implements EventRepository
     {
         $uncommitedEvents = $aggreagate->getUncommitedEvents();
 
-        $this->eventStore->commitToStream($aggreagate->getId(), $uncommitedEvents);
+        $this->eventStore->commitToStream(
+            get_class($aggreagate),
+            $aggreagate->getId(),
+            $uncommitedEvents
+        );
+
         $this->projector->project($aggreagate, $uncommitedEvents);
 
         foreach ($uncommitedEvents as $e) {
@@ -79,7 +84,7 @@ class EventStoreRepository implements EventRepository
     public function retrieve(string $className, string $aggregateId): AggregateRoot
     {
         if (! class_exists($className)) {
-            throw new UnsupportedEvent(
+            throw new UnsupportedAggregate(
                 sprintf('Class not found %s', $className)
             );
         }
@@ -87,7 +92,7 @@ class EventStoreRepository implements EventRepository
         $reflection = new ReflectionClass($className);
 
         if (! $reflection->isInstantiable() || ! $reflection->isSubclassOf(AggregateRoot::class)) {
-            throw new UnsupportedEvent(
+            throw new UnsupportedAggregate(
                 sprintf('Aggregate has to extend %s', AggregateRoot::class)
             );
         }

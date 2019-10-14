@@ -79,6 +79,19 @@ final class Projector implements Contract
     }
 
     /**
+     * Project changes for given aggregate.
+     *
+     * @param  string          $aggregate
+     * @param  Framekit\Event  $events
+     * @return void
+     */
+    public function projectByEvent(string $aggregate, Event $event): void
+    {
+        $projection = $this->getProjection($aggregate);
+        $projection->handle($event);
+    }
+
+    /**
      * Register Projections stack.
      *
      * @param  array $stack

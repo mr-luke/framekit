@@ -11,7 +11,7 @@ use Framekit\Contracts\Repository;
 use Framekit\Contracts\Store;
 use Framekit\Eventing\EventStoreRepository;
 use Framekit\Event;
-use Framekit\Exceptions\UnsupportedEvent;
+use Framekit\Exceptions\UnsupportedAggregate;
 
 /**
  * EventStoreRepository unit tests.
@@ -56,7 +56,7 @@ class EventStoreRepositoryTest extends UnitCase
         $storeMock = $this->createMock(Store::class);
         $storeMock->expects($this->once())
                   ->method('commitToStream')
-                  ->with($this->equalTo('test'));
+                  ->with(get_class($aggreagateMock), $this->equalTo('test'));
 
         $projectorMock = $this->createMock(Projector::class);
         $projectorMock->expects($this->once())
@@ -99,7 +99,7 @@ class EventStoreRepositoryTest extends UnitCase
         $storeMock = $this->createMock(Store::class);
         $storeMock->expects($this->once())
                   ->method('commitToStream')
-                  ->with($this->equalTo('test'));
+                  ->with(get_class($aggreagateMock), $this->equalTo('test'));
 
         $projectorMock = $this->createMock(Projector::class);
         $projectorMock->expects($this->once())
@@ -118,7 +118,7 @@ class EventStoreRepositoryTest extends UnitCase
 
     public function testTrownWhenRetriveHasNoClass()
     {
-        $this->expectException(UnsupportedEvent::class);
+        $this->expectException(UnsupportedAggregate::class);
 
         $repository = new EventStoreRepository(
             $this->createMock(Bus::class),
@@ -131,7 +131,7 @@ class EventStoreRepositoryTest extends UnitCase
 
     public function testTrownWhenRetriveHasNoAggregate()
     {
-        $this->expectException(UnsupportedEvent::class);
+        $this->expectException(UnsupportedAggregate::class);
 
         $repository = new EventStoreRepository(
             $this->createMock(Bus::class),
