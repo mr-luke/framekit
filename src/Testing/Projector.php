@@ -141,6 +141,45 @@ final class Projector implements Contract
     {
         $aggregate = get_class($aggregate);
 
+        $this->addProjectedEvents($aggregate, $events);
+    }
+
+    /**
+     * Project changes for given aggregate.
+     *
+     * @param  string          $aggregate
+     * @param  Framekit\Event  $events
+     * @return void
+     *
+     * @codeCoverageIgnore
+     */
+    public function projectByEvent(string $aggregate, Event $event): void
+    {
+        $this->addProjectedEvents($aggregate, [$event]);
+    }
+
+    /**
+     * Register Projections stack.
+     *
+     * @param  array $stack
+     * @return void
+     *
+     * @codeCoverageIgnore
+     */
+    public function register(array $stack): void
+    {
+        $this->register = array_merge($this->register, $stack);
+    }
+
+    /**
+     * Add projected events to stack.
+     *
+     * @param  string $aggregate
+     * @param  array  $events
+     * @return void
+     */
+    protected function addProjectedEvents(string $aggregate, array $events): void
+    {
         if (!isset($this->register[$aggregate]) || empty($this->register[$aggregate])) {
             throw new MissingProjection(
                 sprintf('Missing projection for aggregate %s', $aggregate)
@@ -156,18 +195,5 @@ final class Projector implements Contract
             $this->projected[$aggregate] = [];
         }
         array_push($this->projected[$aggregate], ...$methods);
-    }
-
-    /**
-     * Register Projections stack.
-     *
-     * @param  array $stack
-     * @return void
-     *
-     * @codeCoverageIgnore
-     */
-    public function register(array $stack): void
-    {
-        $this->register = array_merge($this->register, $stack);
     }
 }

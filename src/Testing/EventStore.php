@@ -131,6 +131,18 @@ final class EventStore implements Store
     }
 
     /**
+     * Load available streams.
+     *
+     * @return array
+     *
+     * @codeCoverageIgnore
+     */
+    public function getAvailableStreams(): array
+    {
+        return array_keys($this->events);
+    }
+
+    /**
      * Load Stream based on id.
      *
      * @param  string $stream_id

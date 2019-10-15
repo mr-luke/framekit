@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Framekit\Contracts;
 
 use Framekit\AggregateRoot;
+use Framekit\Event;
 
 /**
  * Projector contract.
@@ -31,6 +32,15 @@ interface Projector
      * @return void
      */
     public function project(AggregateRoot $aggregate, array $events): void;
+
+    /**
+     * Project changes for given aggregate.
+     *
+     * @param  string          $aggregate
+     * @param  Framekit\Event  $events
+     * @return void
+     */
+    public function projectByEvent(string $aggregate, Event $event): void;
 
     /**
      * Register Projections stack.

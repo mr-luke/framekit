@@ -62,7 +62,7 @@ class Retrospector implements Contract
             isset($retrospection->filterStreams['include']) ||
             isset($retrospection->filterStreams['exclude'])
         ) {
-            $streams = $this->filterStreams($streams, $map);
+            $streams = $this->filterStreams($streams, $retrospection->filterStreams);
         }
 
         foreach ($streams as $s) {
@@ -73,7 +73,7 @@ class Retrospector implements Contract
                 $e = $retrospection->preAction($e);
 
                 if ($retrospection->useProjections) {
-                    $this->projector->projectByEvent($s['stream_type'], $event);
+                    $this->projector->projectByEvent($s['stream_type'], $e);
                 }
 
                 if ($retrospection->useReactors) {
@@ -102,9 +102,13 @@ class Retrospector implements Contract
         }
 
         if (isset($map['include']) && count($map['include'])) {
-            // TODO: Filter streams
+            $stream = array_filter($stream, function ($item) use ($map) {
+                return in_array($item['stream_id'], $map['include']);
+            });
         } elseif (isset($map['exclude']) && count($map['exclude'])) {
-            // TODO: Filter streams
+            $stream = array_filter($stream, function ($item) use ($map) {
+                return !in_array($item['stream_id'], $map['exclude']);
+            });
         }
 
         return $stream;

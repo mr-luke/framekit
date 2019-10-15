@@ -116,6 +116,25 @@ class EventStoreRepositoryTest extends UnitCase
         $repository->persist($aggreagateMock);
     }
 
+    public function testRetriveMethod()
+    {
+        $storeMock = $this->createMock(Store::class);
+        $storeMock->expects($this->once())
+                  ->method('loadStream')
+                  ->with($this->equalTo('test'))
+                  ->willReturn([]);
+
+        $repository = new EventStoreRepository(
+            $this->createMock(Bus::class),
+            $storeMock,
+            $this->createMock(Projector::class)
+        );
+
+        $instance = $repository->retrieve(\Tests\Components\TestAggregate::class, 'test');
+
+        $this->assertInstanceOf(AggregateRoot::class, $instance);
+    }
+
     public function testTrownWhenRetriveHasNoClass()
     {
         $this->expectException(UnsupportedAggregate::class);

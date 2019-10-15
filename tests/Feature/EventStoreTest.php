@@ -207,6 +207,67 @@ class EventStoreTest extends AppCase
         );
     }
 
+    public function testAvailableStreamList()
+    {
+        $config = $this->app->make(Config::class);
+        $mapper = $this->app->make(Mapper::class);
+        $eventStore = new EventStore(
+            $config,
+            new \Framekit\Eventing\EventSerializer,
+            $mapper
+        );
+
+        DB::table($config->get('tables.eventstore'))->insert([
+            [
+                'stream_type' => 'StreamA',
+                'stream_id'   => 'stream_1',
+                'event'       => \Tests\Components\IntegerAdded::class,
+                'payload'     => '',
+                'version'     => 1,
+                'meta'        => '',
+                'commited_at' => now()
+            ],
+            [
+                'stream_type' => 'StreamB',
+                'stream_id'   => 'stream_2',
+                'event'       => \Tests\Components\IntegerAdded::class,
+                'payload'     => '',
+                'version'     => 1,
+                'meta'        => '',
+                'commited_at' => now()
+            ],
+            [
+                'stream_type' => 'StreamA',
+                'stream_id'   => 'stream_1',
+                'event'       => \Tests\Components\IntegerAdded::class,
+                'payload'     => '',
+                'version'     => 1,
+                'meta'        => '',
+                'commited_at' => now()
+            ],
+            [
+                'stream_type' => 'StreamC',
+                'stream_id'   => 'stream_3',
+                'event'       => \Tests\Components\IntegerAdded::class,
+                'payload'     => '',
+                'version'     => 1,
+                'meta'        => '',
+                'commited_at' => now()
+            ]
+        ]);
+
+        $streams = $eventStore->getAvailableStreams();
+
+        $this->assertEquals(
+            [
+                ['stream_type' => 'StreamA', 'stream_id' => 'stream_1'],
+                ['stream_type' => 'StreamB', 'stream_id' => 'stream_2'],
+                ['stream_type' => 'StreamC', 'stream_id' => 'stream_3']
+            ],
+            $streams
+        );
+    }
+
     public function testThrowsWhenCallingAssertForProd()
     {
         $this->expectException(MethodUnknown::class);

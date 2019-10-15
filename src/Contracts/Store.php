@@ -25,6 +25,13 @@ interface Store
     public function commitToStream(string $stream_type, string $stream_id, array $events): void;
 
     /**
+     * Load available streams.
+     *
+     * @return array
+     */
+    public function getAvailableStreams(): array;
+    
+    /**
      * Load Stream based on id.
      *
      * @param  string|null $stream_id

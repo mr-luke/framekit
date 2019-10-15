@@ -101,7 +101,7 @@ final class EventStore implements Store
         $collection = $this->setupDBConnection()->distinct()->select('stream_type', 'stream_id')
             ->get();
 
-        return $collection->toArray();
+        return json_decode(json_encode($collection->toArray()), true);
     }
 
     /**
