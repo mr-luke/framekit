@@ -103,8 +103,11 @@ final class EventStore implements Store
     private function hasEvent(string $stream_id, $event): bool
     {
         $shallowTest = is_string($event);
+        $event->firedAt = null;
 
         foreach ($this->loadStream($stream_id) as $e) {
+            $e->firedAt = null;
+
             if ((!$shallowTest && $e == $event) || ($shallowTest && $e instanceof $event)) {
                 return true;
             }
