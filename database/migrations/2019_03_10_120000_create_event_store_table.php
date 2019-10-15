@@ -29,6 +29,7 @@ class CreateEventStoreTable extends Migration
     {
         Schema::create($this->config->get('tables.eventstore'), function (Blueprint $table) {
             $table->increments('id');
+            $table->string('stream_type');
             $table->uuid('stream_id');
             $table->string('event');
             $table->jsonb('payload');

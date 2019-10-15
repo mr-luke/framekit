@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Framekit;
 
+use Carbon\Carbon;
 use Framekit\Contracts\Publishable;
 use Framekit\Contracts\Serializable;
 
@@ -30,4 +31,18 @@ abstract class Event implements Publishable, Serializable
      * @var int
      */
     public static $eventVersion = 1;
+
+    /**
+     * Microtime when event has been fired.
+     *
+     * @var int
+     */
+    public $firedAt;
+
+    public function __construct()
+    {
+        $now = Carbon::now();
+
+        $this->firedAt = ($now->timestamp * 1000000) + $now->micro;
+    }
 }

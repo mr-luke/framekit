@@ -24,6 +24,8 @@ class IntegerAdded extends Event
      */
     public function __construct(int $toAdd)
     {
+        parent::__construct();
+        
         $this->toAdd = $toAdd;
     }
 }

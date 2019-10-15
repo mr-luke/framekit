@@ -33,6 +33,8 @@ class AggregateCreated extends Event
      */
     public function __construct(string $aggregateId, Carbon $created_at = null)
     {
+        parent::__construct();
+        
         $this->aggregateId = $aggregateId;
         $this->createdAt   = $created_at ?? Carbon::now();
     }

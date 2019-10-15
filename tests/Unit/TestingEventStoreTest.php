@@ -24,7 +24,7 @@ class TestingEventStoreTest extends UnitCase
         $event = new IntegerAdded(2);
 
         $store = new EventStore();
-        $store->commitToStream('uuid1', [$event]);
+        $store->commitToStream('Stream','uuid1', [$event]);
 
         $this->assertEquals(
             $store->loadStream('uuid1'),
@@ -37,7 +37,7 @@ class TestingEventStoreTest extends UnitCase
         $event = new IntegerAdded(2);
 
         $store = new EventStore();
-        $store->commitToStream('uuid1', [$event]);
+        $store->commitToStream('Stream','uuid1', [$event]);
 
         $compose = self::getMethodOfClass(EventStore::class, 'hasEvent');
 
@@ -54,7 +54,7 @@ class TestingEventStoreTest extends UnitCase
         $event = new IntegerAdded(2);
 
         $store = new EventStore();
-        $store->commitToStream('uuid1', [$event]);
+        $store->commitToStream('Stream','uuid1', [$event]);
 
         $compose = self::getMethodOfClass(EventStore::class, 'hasEvent');
 
@@ -71,7 +71,7 @@ class TestingEventStoreTest extends UnitCase
         $event = new IntegerAdded(2);
 
         $store = new EventStore();
-        $store->commitToStream('uuid1', [$event]);
+        $store->commitToStream('Stream','uuid1', [$event]);
 
         $compose = self::getMethodOfClass(EventStore::class, 'hasEvent');
 

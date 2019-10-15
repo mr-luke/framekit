@@ -103,8 +103,13 @@ final class EventStore implements Store
     private function hasEvent(string $stream_id, $event): bool
     {
         $shallowTest = is_string($event);
+        if (!$shallowTest) {
+            $event->firedAt = null;
+        }
 
         foreach ($this->loadStream($stream_id) as $e) {
+            $e->firedAt = null;
+
             if ((!$shallowTest && $e == $event) || ($shallowTest && $e instanceof $event)) {
                 return true;
             }
@@ -116,17 +121,30 @@ final class EventStore implements Store
     /**
      * Store new payload in stream.
      *
+     * @param  string $stream_type
      * @param  string $stream_id
      * @param  array  $events
      * @return void
      */
-    public function commitToStream(string $stream_id, array $events): void
+    public function commitToStream(string $stream_type, string $stream_id, array $events): void
     {
         if (!isset($this->events[$stream_id])) {
             $this->events[$stream_id] = [];
         }
 
         array_push($this->events[$stream_id], ...$events);
+    }
+
+    /**
+     * Load available streams.
+     *
+     * @return array
+     *
+     * @codeCoverageIgnore
+     */
+    public function getAvailableStreams(): array
+    {
+        return array_keys($this->events);
     }
 
     /**
@@ -137,7 +155,7 @@ final class EventStore implements Store
      *
      * @codeCoverageIgnore
      */
-    public function loadStream(string $stream_id): array
+    public function loadStream(string $stream_id = null): array
     {
         return $this->events[$stream_id] ?? [];
     }

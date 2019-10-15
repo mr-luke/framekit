@@ -25,6 +25,8 @@ class DateAdded extends Event
      */
     public function __construct(Carbon $date)
     {
+        parent::__construct();
+        
         $this->date = $date;
     }
 }
