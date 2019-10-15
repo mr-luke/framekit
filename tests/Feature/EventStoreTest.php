@@ -222,36 +222,36 @@ class EventStoreTest extends AppCase
                 'stream_type' => 'StreamA',
                 'stream_id'   => 'stream_1',
                 'event'       => \Tests\Components\IntegerAdded::class,
-                'payload'     => '',
+                'payload'     => '[]',
                 'version'     => 1,
-                'meta'        => '',
+                'meta'        => '[]',
                 'commited_at' => now()
             ],
             [
                 'stream_type' => 'StreamB',
                 'stream_id'   => 'stream_2',
                 'event'       => \Tests\Components\IntegerAdded::class,
-                'payload'     => '',
+                'payload'     => '[]',
                 'version'     => 1,
-                'meta'        => '',
+                'meta'        => '[]',
                 'commited_at' => now()
             ],
             [
                 'stream_type' => 'StreamA',
                 'stream_id'   => 'stream_1',
                 'event'       => \Tests\Components\IntegerAdded::class,
-                'payload'     => '',
+                'payload'     => '[]',
                 'version'     => 1,
-                'meta'        => '',
+                'meta'        => '[]',
                 'commited_at' => now()
             ],
             [
                 'stream_type' => 'StreamC',
                 'stream_id'   => 'stream_3',
                 'event'       => \Tests\Components\IntegerAdded::class,
-                'payload'     => '',
+                'payload'     => '[]',
                 'version'     => 1,
-                'meta'        => '',
+                'meta'        => '[]',
                 'commited_at' => now()
             ]
         ]);
