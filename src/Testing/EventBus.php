@@ -91,14 +91,18 @@ final class EventBus implements Bus
     /**
      * Determine if called.
      *
-     * @param  string $aggregate
-     * @param  string $projection
-     * @param  string $method
+     * @param string $event
+     * @param string $reactor
+     *
      * @return bool
      */
     private function isCalled(string $event, string $reactor): bool
     {
-        return (in_array($reactor, $this->globals) || $reactor === $this->register[$event] || in_array($reactor, $this->register[$event]))
+        if(!is_array($this->register[$event])) {
+            $this->register[$event] = [$this->register[$event]];
+        }
+
+        return (in_array($reactor, $this->globals) || in_array($reactor, $this->register[$event]))
             && in_array($reactor, $this->published[$event] ?? []);
     }
 
