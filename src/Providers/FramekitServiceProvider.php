@@ -78,6 +78,10 @@ class FramekitServiceProvider extends ServiceProvider
             return $app->make('framekit.event.repository');
         });
 
+        $this->app->bind(\Framekit\Contracts\Retrospector::class, function ($app) {
+            return $app->make('framekit.event.retrospector');
+        });
+
         $this->app->singleton('framekit.projector', function ($app) {
             return new \Framekit\Drivers\Projector($app);
         });
@@ -100,6 +104,15 @@ class FramekitServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('framekit.event.repository', function ($app) {
+
+            return new \Framekit\Eventing\EventStoreRepository(
+                $app->make('framekit.event.bus'),
+                $app->make('framekit.event.store'),
+                $app->make('framekit.projector')
+            );
+        });
+
+        $this->app->singleton('framekit.event.retrospector', function ($app) {
 
             return new \Framekit\Eventing\EventStoreRepository(
                 $app->make('framekit.event.bus'),
