@@ -43,19 +43,28 @@ class Retrospector implements Contract
      */
     function __construct(Bus $bus, Store $store, Projector $projector)
     {
-        $this->eventBus    = $bus;
-        $this->eventStore  = $store;
-        $this->projector   = $projector;
+        $this->eventBus   = $bus;
+        $this->eventStore = $store;
+        $this->projector  = $projector;
     }
 
     /**
      * Perform given retrospection.
      *
-     * @param  \Framekit\Retrospection  $retrospection
+     * @param \Framekit\Retrospection $retrospection
+     *
      * @return void
      */
     public function perform(Retrospection $retrospection): void
     {
+        if (
+            isset($retrospection->filterReactors['include']) ||
+            isset($retrospection->filterReactors['exclude'])
+        ) {
+            $handlers = $this->filterReactors($this->eventBus->handlers(), $retrospection->filterReactors);
+            $this->eventBus->replace($handlers);
+        }
+
         $streams = $this->eventStore->getAvailableStreams();
 
         if (
@@ -89,17 +98,14 @@ class Retrospector implements Contract
     /**
      * Filter streams.
      *
-     * @param  array $stream
-     * @param  array $map
+     * @param array $stream
+     * @param array $map
+     *
      * @return array
      */
     protected function filterStreams(array $stream, array $map): array
     {
-        if (isset($map['include']) && isset($map['exclude'])) {
-            throw new \InvalidArgumentException(
-                'Invalid Retrospection configuration. [include] & [exclude] not allowed simultanously'
-            );
-        }
+        $this->validateMap($map);
 
         if (isset($map['include']) && count($map['include'])) {
             $stream = array_filter($stream, function ($item) use ($map) {
@@ -112,5 +118,59 @@ class Retrospector implements Contract
         }
 
         return $stream;
+    }
+
+    /**
+     * @param array $handlers
+     * @param array $map
+     *
+     * @return array
+     */
+    protected function filterReactors(array $handlers, array $map): array
+    {
+        $this->validateMap($map);
+
+        $filteredHandlers = [];
+        if (isset($map['include']) && count($map['include'])) {
+            foreach ($handlers as $event => $handler) {
+                if (is_array($handler)) {
+                    $allowedHandlers = array_values(array_intersect($handler, $map['include']));
+                    if (!empty($allowedHandlers)) {
+                        $filteredHandlers[$event] = $allowedHandlers;
+                    }
+                } else {
+                    if (in_array($handler, $map['include'])) {
+                        $filteredHandlers[$event] = $handler;
+                    }
+                }
+            }
+        } elseif (isset($map['exclude']) && count($map['exclude'])) {
+            foreach ($handlers as $event => $handler) {
+                if (is_array($handler)) {
+                    $allowedHandlers = array_values(array_diff($handler, $map['exclude']));
+                    if (!empty($allowedHandlers)) {
+                        $filteredHandlers[$event] = $allowedHandlers;
+                    }
+                } else {
+                    if (!in_array($handler, $map['exclude'])) {
+                        $filteredHandlers[$event] = $handler;
+                    }
+                }
+            }
+        }
+
+        return $filteredHandlers;
+    }
+
+    /**
+     * @param array $map
+     */
+    private function validateMap(array $map): void
+    {
+        if (isset($map['include']) && isset($map['exclude'])) {
+            throw new \InvalidArgumentException(
+                'Invalid Retrospection configuration. [include] & [exclude] not allowed simultanously'
+            );
+        }
     }
 }
