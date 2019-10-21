@@ -36,10 +36,5 @@ interface Bus
      * @return void
      */
     public function register(array $stack): void;
-
-    /**
-     * @param array $stack
-     */
-    public function replace(array $stack): void;
 }
 
