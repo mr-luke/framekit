@@ -98,7 +98,7 @@ final class EventBus implements Bus
      */
     private function isCalled(string $event, string $reactor): bool
     {
-        return (in_array($reactor, $this->globals) || $reactor == $this->register[$event])
+        return (in_array($reactor, $this->globals) || $reactor === $this->register[$event] || in_array($reactor, $this->register[$event]))
             && in_array($reactor, $this->published[$event] ?? []);
     }
 
@@ -140,7 +140,11 @@ final class EventBus implements Bus
         $reactors  = $this->globals;
 
         if (isset($this->register[$eventType])) {
-            $reactors = array_merge($reactors, [$this->register[$eventType]]);
+            if(!is_array($this->register[$eventType])) {
+                $this->register[$eventType] = [$this->register[$eventType]];
+            }
+
+            $reactors = array_merge($reactors, $this->register[$eventType]);
         }
 
         foreach ($reactors as $r) {
