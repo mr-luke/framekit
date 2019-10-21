@@ -16,10 +16,10 @@ class AppCase extends TestCase
     /**
      * DB configuration.
      */
-    const DB_HOST = 'localhost';
+    const DB_HOST = 'mysql';
     const DB_NAME = 'dev';
     const DB_USER = 'dev';
-    const DB_PASS = '';
+    const DB_PASS = 'dev';
     const DB_PREFIX = '';
 
     /**

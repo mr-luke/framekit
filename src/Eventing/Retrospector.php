@@ -103,9 +103,9 @@ class Retrospector implements Contract
      *
      * @return array
      */
-    protected function filterStreams(array $stream, array $map): array
+    public static function filterStreams(array $stream, array $map): array
     {
-        $this->validateMap($map);
+        self::validateMap($map);
 
         if (isset($map['include']) && count($map['include'])) {
             $stream = array_filter($stream, function ($item) use ($map) {
@@ -126,9 +126,9 @@ class Retrospector implements Contract
      *
      * @return array
      */
-    protected function filterReactors(array $handlers, array $map): array
+    public static function filterReactors(array $handlers, array $map): array
     {
-        $this->validateMap($map);
+        self::validateMap($map);
 
         $filteredHandlers = [];
         if (isset($map['include']) && count($map['include'])) {
@@ -165,7 +165,7 @@ class Retrospector implements Contract
     /**
      * @param array $map
      */
-    private function validateMap(array $map): void
+    private static function validateMap(array $map): void
     {
         if (isset($map['include']) && isset($map['exclude'])) {
             throw new \InvalidArgumentException(

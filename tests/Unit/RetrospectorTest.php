@@ -9,6 +9,7 @@ use Framekit\Contracts\Store;
 use Framekit\Event;
 use Framekit\Eventing\Retrospector;
 use Framekit\Retrospection;
+use Tests\NonPublicMethodTool;
 use Tests\UnitCase;
 
 /**
@@ -20,6 +21,8 @@ use Tests\UnitCase;
  */
 class RetrospectorTest extends UnitCase
 {
+    use NonPublicMethodTool;
+
     public function testClassResolveContract()
     {
         $this->assertInstanceOf(
@@ -58,12 +61,39 @@ class RetrospectorTest extends UnitCase
 
     public function testExcludeReactors()
     {
-        //
+        $handlers = [
+            'EventA' => ['Reactor1', 'Reactor2'],
+            'EventB' => ['Reactor1', 'Reactor2', 'Reactor3'],
+            'EventC' => 'Reactor1',
+            'EventD' => 'Reactor4',
+        ];
+        $map      = [
+            'exclude' => ['Reactor1', 'Reactor2'],
+        ];
+        $handlers = Retrospector::filterReactors($handlers, $map);
+        $this->assertEquals([
+            'EventB' => ['Reactor3'],
+            'EventD' => 'Reactor4',
+        ], $handlers);
     }
 
     public function testIncludeReactors()
     {
-        //
+        $handlers = [
+            'EventA' => ['Reactor1', 'Reactor2'],
+            'EventB' => ['Reactor1', 'Reactor2', 'Reactor3'],
+            'EventC' => 'Reactor1',
+            'EventD' => 'Reactor4',
+        ];
+        $map      = [
+            'include' => ['Reactor1', 'Reactor2'],
+        ];
+        $handlers = Retrospector::filterReactors($handlers, $map);
+        $this->assertEquals([
+            'EventA' => ['Reactor1', 'Reactor2'],
+            'EventB' => ['Reactor1', 'Reactor2'],
+            'EventC' => 'Reactor1',
+        ], $handlers);
     }
 
     public function testExcludeStream()
