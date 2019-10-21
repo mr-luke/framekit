@@ -114,7 +114,7 @@ class FramekitServiceProvider extends ServiceProvider
 
         $this->app->singleton('framekit.event.retrospector', function ($app) {
 
-            return new \Framekit\Eventing\EventStoreRepository(
+            return new \Framekit\Eventing\Retrospector(
                 $app->make('framekit.event.bus'),
                 $app->make('framekit.event.store'),
                 $app->make('framekit.projector')
