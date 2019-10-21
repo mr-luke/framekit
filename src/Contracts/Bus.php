@@ -37,3 +37,4 @@ interface Bus
      */
     public function register(array $stack): void;
 }
+
