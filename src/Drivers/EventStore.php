@@ -107,10 +107,12 @@ final class EventStore implements Store
     /**
      * Load Stream based on id.
      *
-     * @param  string|null $stream_id
+     * @param string|null $stream_id
+     * @param bool        $withMeta
+     *
      * @return array
      */
-    public function loadStream(string $stream_id = null): array
+    public function loadStream(string $stream_id = null, $withMeta = false): array
     {
         $events = [];
         $query = $this->setupDBConnection();
@@ -130,7 +132,11 @@ final class EventStore implements Store
                 );
             }
 
-            $events[] = $this->serializer->unserialize($raw[$i]->payload);
+            $event = $this->serializer->unserialize($raw[$i]->payload);
+            if ($withMeta) {
+                $event->__meta__ = json_decode($raw[$i]->meta, true);
+            }
+            $events[] = $event;
         }
 
         return $events;

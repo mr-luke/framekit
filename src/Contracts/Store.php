@@ -30,12 +30,14 @@ interface Store
      * @return array
      */
     public function getAvailableStreams(): array;
-    
+
     /**
      * Load Stream based on id.
      *
-     * @param  string|null $stream_id
+     * @param string|null $stream_id
+     * @param bool        $withMeta
+     *
      * @return array
      */
-    public function loadStream(string $stream_id = null): array;
+    public function loadStream(string $stream_id = null, $withMeta = false): array;
 }

@@ -150,12 +150,14 @@ final class EventStore implements Store
     /**
      * Load Stream based on id.
      *
-     * @param  string $stream_id
+     * @param string $stream_id
+     * @param bool   $withMeta
+     *
      * @return array
      *
      * @codeCoverageIgnore
      */
-    public function loadStream(string $stream_id = null): array
+    public function loadStream(string $stream_id = null, $withMeta = false): array
     {
         return $this->events[$stream_id] ?? [];
     }

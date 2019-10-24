@@ -140,7 +140,7 @@ class EventStoreTest extends AppCase
         ]);
     }
 
-    public function testLoadStrem()
+    public function testLoadStream()
     {
         $config = $this->app->make(Config::class);
         $mapper = $this->app->make(Mapper::class);
@@ -172,6 +172,43 @@ class EventStoreTest extends AppCase
             \Tests\Components\IntegerAdded::class,
             $events[0]
         );
+    }
+
+    public function testLoadStreamWithMeta()
+    {
+        $config = $this->app->make(Config::class);
+        $mapper = $this->app->make(Mapper::class);
+        $eventStore = new EventStore(
+            $config,
+            new \Framekit\Eventing\EventSerializer,
+            $mapper
+        );
+
+        DB::table($config->get('tables.eventstore'))->insert([
+            'stream_type' => 'Stream',
+            'stream_id'   => 'stream_1',
+            'event'       => \Tests\Components\IntegerAdded::class,
+            'payload'     => json_encode([
+                'class'      => \Tests\Components\IntegerAdded::class,
+                'attributes' => [
+                    'toAdd' => 2
+                ]
+            ]),
+            'version'   => 1,
+            'meta'      => '{"auth":null,"ip":"127.0.0.1"}',
+            'commited_at' => now()
+        ]);
+
+        $events = $eventStore->loadStream('stream_1', true);
+
+        $this->assertTrue(is_array($events));
+        $this->assertInstanceOf(
+            \Tests\Components\IntegerAdded::class,
+            $events[0]
+        );
+
+        $this->assertNotEmpty($events[0]['__meta__']);
+
     }
 
     public function testLoadStreamWithConflict()

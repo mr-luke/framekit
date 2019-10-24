@@ -75,7 +75,7 @@ class Retrospector implements Contract
         }
 
         foreach ($streams as $s) {
-            $events = $this->eventStore->loadStream($s['stream_id']);
+            $events = $this->eventStore->loadStream($s['stream_id'], true);
 
             foreach ($events as $e) {
 
