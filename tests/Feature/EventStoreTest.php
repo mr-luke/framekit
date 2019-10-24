@@ -207,7 +207,7 @@ class EventStoreTest extends AppCase
             $events[0]
         );
 
-        $this->assertNotEmpty($events[0]['__meta__']);
+        $this->assertNotEmpty($events[0]->__meta__);
 
     }
 
