@@ -3,6 +3,7 @@
 // Badges
 
 // Shortcut
+Eventstore, Eventbus, Retrospection, Projections, Reactors
 
 * [Getting Started](#getting-started)
 * [Installation](#installation)
