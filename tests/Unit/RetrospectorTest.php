@@ -142,14 +142,7 @@ class RetrospectorTest extends UnitCase
 
         $storeMock = $this->createMock(Store::class);
         $storeMock->expects($this->once())
-                  ->method('getAvailableStreams')
-                  ->willReturn([
-                      ['stream_type' => 'StreamA', 'stream_id' => 'stream_1'],
-                  ]);
-
-        $storeMock->expects($this->once())
                   ->method('loadStream')
-                  ->with('stream_1')
                   ->willReturn([$event]);
 
         $projectorMock = $this->createMock(Projector::class);
@@ -184,14 +177,7 @@ class RetrospectorTest extends UnitCase
 
         $storeMock = $this->createMock(Store::class);
         $storeMock->expects($this->once())
-                  ->method('getAvailableStreams')
-                  ->willReturn([
-                      ['stream_type' => 'StreamA', 'stream_id' => 'stream_1'],
-                  ]);
-
-        $storeMock->expects($this->once())
                   ->method('loadStream')
-                  ->with('stream_1')
                   ->willReturn([$event]);
 
         $busMock = $this->createMock(Bus::class);
