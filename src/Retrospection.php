@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Framekit;
 
+use Carbon\Carbon;
+
 /**
  * Retrospection abstract class.
  *
@@ -17,18 +19,25 @@ namespace Framekit;
 abstract class Retrospection
 {
     /**
-     * Determine which reactors should be ommitter.
+     * Determine which reactors should be ommitted.
      *
      * @var array
      */
     public $filterReactors = [];
 
     /**
-     * Determine which stream should be ommitter.
+     * Determine which stream should be ommitted.
      *
      * @var array
      */
     public $filterStreams = [];
+
+    /**
+     * Determine which projections should be ommitted.
+     *
+     * @var array
+     */
+    public $filterProjections = [];
 
     /**
      * Deremine if retrospection should project events.
@@ -43,6 +52,20 @@ abstract class Retrospection
      * @var boolean
      */
     public $useReactors = true;
+
+    /**
+     * Info for Retrospectors to get Events since this date
+     *
+     * @var Carbon|null
+     */
+    public $eventsSince = null;
+
+    /**
+     * Info for Retrospectors to get Events till this date
+     *
+     * @var Carbon|null
+     */
+    public $eventsTill = null;
 
     /**
      * Perform post-action on Event.

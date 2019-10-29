@@ -8,6 +8,7 @@ use Framekit\Contracts\Bus;
 use Framekit\Contracts\Projector;
 use Framekit\Contracts\Retrospector as Contract;
 use Framekit\Contracts\Store;
+use Framekit\Event;
 use Framekit\Retrospection;
 
 /**
@@ -57,67 +58,43 @@ class Retrospector implements Contract
      */
     public function perform(Retrospection $retrospection): void
     {
-        if (
-            isset($retrospection->filterReactors['include']) ||
-            isset($retrospection->filterReactors['exclude'])
-        ) {
-            $handlers = $this->filterReactors($this->eventBus->handlers(), $retrospection->filterReactors);
+        $handlers = $this->eventBus->handlers();
+
+        if ($retrospection->useReactors) {
+            $handlers = $this->filterReactors($handlers, $retrospection->filterReactors);
             $this->eventBus->replace($handlers);
         }
 
-        $streams = $this->eventStore->getAvailableStreams();
+        $this->validateMap($retrospection->filterStreams);
+        $this->validateMap($retrospection->filterProjections);
 
-        if (
-            isset($retrospection->filterStreams['include']) ||
-            isset($retrospection->filterStreams['exclude'])
-        ) {
-            $streams = $this->filterStreams($streams, $retrospection->filterStreams);
-        }
+        $events = $this->eventStore
+            ->loadStream(
+                null,
+                $retrospection->eventsSince,
+                $retrospection->eventsTill,
+                true
+            );
 
-        foreach ($streams as $s) {
-            $events = $this->eventStore->loadStream($s['stream_id'], true);
+        foreach ($events as $e) {
+            $meta = $e->__meta__;
 
-            foreach ($events as $e) {
-
-                $e = $retrospection->preAction($e);
-
-                if ($retrospection->useProjections) {
-                    $this->projector->projectByEvent($s['stream_type'], $e);
-                }
-
-                if ($retrospection->useReactors) {
-                    // TODO: filter reactors
-                    $this->eventBus->publish($e);
-                }
-
-                $retrospection->postAction($e);
+            if (!$this->filterStreams($meta['stream_id'], $retrospection->filterStreams)) {
+                continue;
             }
+
+            $e = $retrospection->preAction($e);
+
+            if ($retrospection->useProjections && $this->filterProjections($e, $retrospection->filterProjections)) {
+                $this->projector->projectByEvent($meta['stream_type'], $e);
+            }
+
+            if ($retrospection->useReactors) {
+                $this->eventBus->publish($e);
+            }
+
+            $retrospection->postAction($e);
         }
-    }
-
-    /**
-     * Filter streams.
-     *
-     * @param array $stream
-     * @param array $map
-     *
-     * @return array
-     */
-    public static function filterStreams(array $stream, array $map): array
-    {
-        self::validateMap($map);
-
-        if (isset($map['include']) && count($map['include'])) {
-            $stream = array_filter($stream, function ($item) use ($map) {
-                return in_array($item['stream_id'], $map['include']);
-            });
-        } elseif (isset($map['exclude']) && count($map['exclude'])) {
-            $stream = array_filter($stream, function ($item) use ($map) {
-                return !in_array($item['stream_id'], $map['exclude']);
-            });
-        }
-
-        return $stream;
     }
 
     /**
@@ -126,9 +103,9 @@ class Retrospector implements Contract
      *
      * @return array
      */
-    public static function filterReactors(array $handlers, array $map): array
+    protected function filterReactors(array $handlers, array $map): array
     {
-        self::validateMap($map);
+        $this->validateMap($map);
 
         $filteredHandlers = [];
         if (isset($map['include']) && count($map['include'])) {
@@ -163,9 +140,43 @@ class Retrospector implements Contract
     }
 
     /**
+     * @param string $streamId
+     * @param array  $map
+     *
+     * @return bool
+     */
+    protected function filterStreams(string $streamId, array $map): bool
+    {
+        if (isset($map['include']) && count($map['include'])) {
+            return in_array($streamId, $map['include']);
+        } elseif (isset($map['exclude']) && count($map['exclude'])) {
+            return !in_array($streamId, $map['exclude']);
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * @param \Framekit\Event $event
+     * @param array           $map
+     *
+     * @return bool
+     */
+    protected function filterProjections(Event $event, array $map): bool
+    {
+        if (isset($map['include']) && count($map['include'])) {
+            return in_array(get_class($event), $map['include']);
+        } elseif (isset($map['exclude']) && count($map['exclude'])) {
+            return !in_array(get_class($event), $map['exclude']);
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * @param array $map
      */
-    private static function validateMap(array $map): void
+    private function validateMap(array $map): void
     {
         if (isset($map['include']) && isset($map['exclude'])) {
             throw new \InvalidArgumentException(

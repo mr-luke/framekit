@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Framekit\Contracts;
 
+use Carbon\Carbon;
+
 /**
  * Store contract.
  *
@@ -34,10 +36,12 @@ interface Store
     /**
      * Load Stream based on id.
      *
-     * @param string|null $stream_id
-     * @param bool        $withMeta
+     * @param string|null         $stream_id
+     * @param \Carbon\Carbon|null $since
+     * @param \Carbon\Carbon|null $till
+     * @param bool                $withMeta
      *
      * @return array
      */
-    public function loadStream(string $stream_id = null, $withMeta = false): array;
+    public function loadStream(string $stream_id = null, ?Carbon $since = null, ?Carbon $till = null, bool $withMeta = false): array;
 }

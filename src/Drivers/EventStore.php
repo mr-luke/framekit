@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Framekit\Drivers;
 
-use Illuminate\Support\Facades\DB;
-use InvalidArgumentException;
-use Mrluke\Configuration\Contracts\ArrayHost;
-
+use Carbon\Carbon;
 use Framekit\Contracts\Mapper;
 use Framekit\Contracts\Serializer;
 use Framekit\Contracts\Store;
-use Framekit\Exceptions\MethodUnknown;
 use Framekit\Event;
+use Framekit\Exceptions\MethodUnknown;
+use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
+use Mrluke\Configuration\Contracts\ArrayHost;
 
 /**
  * EventStream driver class for Framekit.
@@ -54,9 +54,10 @@ final class EventStore implements Store
     /**
      * Store new payload in stream.
      *
-     * @param  string $stream_type
-     * @param  string $stream_id
-     * @param  array  $events
+     * @param string $stream_type
+     * @param string $stream_id
+     * @param array  $events
+     *
      * @return void
      */
     public function commitToStream(string $stream_type, string $stream_id, array $events): void
@@ -64,15 +65,15 @@ final class EventStore implements Store
         DB::beginTransaction();
 
         $last = $this->setupDBConnection()->where('stream_id', $stream_id)
-                                          ->orderBy('sequence_no', 'DESC')
-                                          ->lockForUpdate()
-                                          ->first();
+                     ->orderBy('sequence_no', 'DESC')
+                     ->lockForUpdate()
+                     ->first();
         $last = $last->sequence_no ?? 0;
 
         $common = $this->composeCommon($stream_type, $stream_id);
 
         foreach ($events as $e) {
-            if (! $e instanceof Event) {
+            if (!$e instanceof Event) {
                 DB::rollBack();
 
                 throw new InvalidArgumentException(
@@ -99,7 +100,7 @@ final class EventStore implements Store
     public function getAvailableStreams(): array
     {
         $collection = $this->setupDBConnection()->distinct()->select('stream_type', 'stream_id')
-            ->get();
+                           ->get();
 
         return json_decode(json_encode($collection->toArray()), true);
     }
@@ -107,23 +108,36 @@ final class EventStore implements Store
     /**
      * Load Stream based on id.
      *
-     * @param string|null $stream_id
-     * @param bool        $withMeta
+     * @param string|null         $stream_id
+     * @param \Carbon\Carbon|null $since
+     * @param \Carbon\Carbon|null $till
+     * @param bool                $withMeta
      *
      * @return array
      */
-    public function loadStream(string $stream_id = null, $withMeta = false): array
+    public function loadStream(string $stream_id = null, ?Carbon $since = null, ?Carbon $till = null, bool $withMeta = false): array
     {
         $events = [];
-        $query = $this->setupDBConnection();
+        $query  = $this->setupDBConnection();
 
         if (!empty($stream_id)) {
-            $query->where('stream_id', $stream_id);
+            $query->where('stream_id', $stream_id)
+                  ->orderBy('sequence_no');
+        } else {
+            $query->orderBy('id');
         }
 
-        $raw = $query->orderBy('sequence_no')->get();
+        if (!empty($since)) {
+            $query->whereDate('commited_at', '>=', $since);
+        }
 
-        for ($i=0; $i < count($raw); $i++) {
+        if (!empty($till)) {
+            $query->whereDate('commited_at', '<=', $till);
+        }
+
+        $raw = $query->get();
+
+        for ($i = 0; $i < count($raw); $i++) {
             if ($this->isVersionConflict($raw[$i]->payload, $raw[$i]->version)) {
                 $raw[$i]->payload = $this->mapVersion(
                     $raw[$i]->payload,
@@ -134,7 +148,12 @@ final class EventStore implements Store
 
             $event = $this->serializer->unserialize($raw[$i]->payload);
             if ($withMeta) {
-                $event->__meta__ = json_decode($raw[$i]->meta, true);
+                $meta                = json_decode($raw[$i]->meta, true);
+                $meta['id']          = $raw[$i]->id;
+                $meta['stream_id']   = $raw[$i]->stream_id;
+                $meta['stream_type'] = $raw[$i]->stream_type;
+                $meta['commited_at'] = $raw[$i]->commited_at;
+                $event->__meta__     = $meta;
             }
             $events[] = $event;
         }
@@ -143,10 +162,26 @@ final class EventStore implements Store
     }
 
     /**
+     * Capture all bad calls.
+     *
+     * @param string $name
+     * @param array  $arguments
+     *
+     * @return \Framekit\Exceptions\MethodUnknown
+     */
+    public function __call(string $name, array $arguments)
+    {
+        throw new MethodUnknown(
+            sprintf('Trying to call unknown method [%s]. Assert methods available only in testing mode.', $name)
+        );
+    }
+
+    /**
      * Compose common data for event entry.
      *
-     * @param  string $stream_type
-     * @param  string $stream_id
+     * @param string $stream_type
+     * @param string $stream_id
+     *
      * @return array
      */
     protected function composeCommon(string $stream_type, string $stream_id): array
@@ -160,14 +195,15 @@ final class EventStore implements Store
                 'auth' => auth()->check() ? auth()->user()->id : null,
                 'ip'   => request()->ip(),
             ]),
-            'commited_at' => $now->toDateTimeString() .'.'. $now->micro,
+            'commited_at' => $now->toDateTimeString() . '.' . $now->micro,
         ];
     }
 
     /**
      * Check if version of event is actual correct.
      *
-     * @param  string  $event
+     * @param string $event
+     *
      * @return bool
      */
     protected function isVersionConflict(string $payload, int $version): bool
@@ -180,9 +216,10 @@ final class EventStore implements Store
     /**
      * Map old event to new version to prevent missing data.
      *
-     * @param  string  $payload
-     * @param  int     $from
-     * @param  array   $upstream
+     * @param string $payload
+     * @param int    $from
+     * @param array  $upstream
+     *
      * @return string
      */
     protected function mapVersion(string $payload, int $from, array $upstream): string
@@ -205,19 +242,5 @@ final class EventStore implements Store
     {
         return DB::connection($this->config->get('database'))
                  ->table($this->config->get('tables.eventstore'));
-    }
-
-    /**
-     * Capture all bad calls.
-     *
-     * @param  string $name
-     * @param  array  $arguments
-     * @return \Framekit\Exceptions\MethodUnknown
-     */
-    public function __call(string $name, array $arguments)
-    {
-        throw new MethodUnknown(
-            sprintf('Trying to call unknown method [%s]. Assert methods available only in testing mode.', $name)
-        );
     }
 }

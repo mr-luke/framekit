@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Framekit\Testing;
 
-use InvalidArgumentException;
-use PHPUnit\Framework\Assert as PHPUnit;
-
-use Framekit\Contracts\Serializer;
+use Carbon\Carbon;
 use Framekit\Contracts\Store;
-use Framekit\Event;
+use PHPUnit\Framework\Assert as PHPUnit;
 
 /**
  * EventStream testing class for Framekit.
@@ -32,8 +29,9 @@ final class EventStore implements Store
     /**
      * Determine if strema has event(s).
      *
-     * @param  string $stream_id
-     * @param  mixed  $event
+     * @param string $stream_id
+     * @param mixed  $event
+     *
      * @return self
      *
      * @codeCoverageIgnore
@@ -45,7 +43,7 @@ final class EventStore implements Store
 
             PHPUnit::assertTrue(
                 $this->hasEvent($stream_id, $e),
-                "Missing event [".$name."] for given stream [{$stream_id}]"
+                "Missing event [" . $name . "] for given stream [{$stream_id}]"
             );
         }
 
@@ -55,8 +53,9 @@ final class EventStore implements Store
     /**
      * Determine if strema has event(s).
      *
-     * @param  string $stream_id
-     * @param  mixed  $event
+     * @param string $stream_id
+     * @param mixed  $event
+     *
      * @return self
      *
      * @codeCoverageIgnore
@@ -68,7 +67,7 @@ final class EventStore implements Store
 
             PHPUnit::assertFalse(
                 $this->hasEvent($stream_id, $e),
-                "Unexpected event [".$name."] in stream [{$stream_id}]"
+                "Unexpected event [" . $name . "] in stream [{$stream_id}]"
             );
         }
 
@@ -77,53 +76,12 @@ final class EventStore implements Store
     }
 
     /**
-     * Wrap $event to always be array.
-     *
-     * @param  mixed $event
-     * @return array
-     *
-     * @codeCoverageIgnore
-     */
-    private function wrap($event): array
-    {
-        if (is_null($event)) {
-            return [];
-        }
-
-        return is_array($event) ? $event : [$event];
-    }
-
-    /**
-     * Determine if given Event exists in stream & is equal.
-     *
-     * @param  string                  $stream_id
-     * @param  \Framekit\Event|string  $event
-     * @return bool
-     */
-    private function hasEvent(string $stream_id, $event): bool
-    {
-        $shallowTest = is_string($event);
-        if (!$shallowTest) {
-            $event->firedAt = null;
-        }
-
-        foreach ($this->loadStream($stream_id) as $e) {
-            $e->firedAt = null;
-
-            if ((!$shallowTest && $e == $event) || ($shallowTest && $e instanceof $event)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Store new payload in stream.
      *
-     * @param  string $stream_type
-     * @param  string $stream_id
-     * @param  array  $events
+     * @param string $stream_type
+     * @param string $stream_id
+     * @param array  $events
+     *
      * @return void
      */
     public function commitToStream(string $stream_type, string $stream_id, array $events): void
@@ -150,15 +108,61 @@ final class EventStore implements Store
     /**
      * Load Stream based on id.
      *
-     * @param string $stream_id
-     * @param bool   $withMeta
+     * @param string|null         $stream_id
+     * @param \Carbon\Carbon|null $since
+     * @param \Carbon\Carbon|null $till
+     * @param bool                $withMeta
      *
      * @return array
      *
      * @codeCoverageIgnore
      */
-    public function loadStream(string $stream_id = null, $withMeta = false): array
+    public function loadStream(string $stream_id = null, ?Carbon $since = null, ?Carbon $till = null, bool $withMeta = false): array
     {
         return $this->events[$stream_id] ?? [];
+    }
+
+    /**
+     * Wrap $event to always be array.
+     *
+     * @param mixed $event
+     *
+     * @return array
+     *
+     * @codeCoverageIgnore
+     */
+    private function wrap($event): array
+    {
+        if (is_null($event)) {
+            return [];
+        }
+
+        return is_array($event) ? $event : [$event];
+    }
+
+    /**
+     * Determine if given Event exists in stream & is equal.
+     *
+     * @param string                 $stream_id
+     * @param \Framekit\Event|string $event
+     *
+     * @return bool
+     */
+    private function hasEvent(string $stream_id, $event): bool
+    {
+        $shallowTest = is_string($event);
+        if (!$shallowTest) {
+            $event->firedAt = null;
+        }
+
+        foreach ($this->loadStream($stream_id) as $e) {
+            $e->firedAt = null;
+
+            if ((!$shallowTest && $e == $event) || ($shallowTest && $e instanceof $event)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
