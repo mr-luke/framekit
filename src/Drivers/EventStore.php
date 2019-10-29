@@ -136,7 +136,8 @@ final class EventStore implements Store
 
         $raw = $query->get();
 
-        for ($i = 0; $i < count($raw); $i++) {
+        $rowsCount = count($raw);
+        for ($i = 0; $i < $rowsCount; $i++) {
             if ($this->isVersionConflict($raw[$i]->payload, $raw[$i]->version)) {
                 $raw[$i]->payload = $this->mapVersion(
                     $raw[$i]->payload,
