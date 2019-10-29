@@ -127,11 +127,11 @@ final class EventStore implements Store
         }
 
         if (!empty($since)) {
-            $query->whereDate('commited_at', '>=', $since);
+            $query->where('commited_at', '>=', $since);
         }
 
         if (!empty($till)) {
-            $query->whereDate('commited_at', '<=', $till);
+            $query->where('commited_at', '<=', $till);
         }
 
         $raw = $query->get();

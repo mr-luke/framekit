@@ -2,12 +2,10 @@
 
 namespace Tests\Unit;
 
-use Tests\UnitCase;
-
 use Carbon\Carbon;
 use Framekit\Contracts\Serializer;
 use Framekit\Eventing\EventSerializer;
-use Framekit\Event;
+use Tests\UnitCase;
 
 /**
  * EventSerializer unit tests.
@@ -28,11 +26,11 @@ class EventSerializerTest extends UnitCase
 
     public function testSerializeEventWithoutObject()
     {
-        $event = new \Tests\Components\IntegerAdded(1);
+        $event          = new \Tests\Components\IntegerAdded(1);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
-        $after = $serializer->serialize($event);
+        $after      = $serializer->serialize($event);
 
         $this->assertEquals(
             $this->getQualifiedPlainJson(),
@@ -42,11 +40,11 @@ class EventSerializerTest extends UnitCase
 
     public function testUnserializeEventWithoutObject()
     {
-        $event = new \Tests\Components\IntegerAdded(1);
+        $event          = new \Tests\Components\IntegerAdded(1);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
-        $class = $serializer->unserialize($this->getQualifiedPlainJson());
+        $class      = $serializer->unserialize($this->getQualifiedPlainJson());
 
         $this->assertEquals(
             $event,
@@ -58,11 +56,11 @@ class EventSerializerTest extends UnitCase
     {
         $now = Carbon::now();
 
-        $event = new \Tests\Components\DateAdded($now);
+        $event          = new \Tests\Components\DateAdded($now);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
-        $after = $serializer->serialize($event);
+        $after      = $serializer->serialize($event);
 
         $this->assertEquals(
             $this->getQualifiedDateJson($now),
@@ -74,11 +72,11 @@ class EventSerializerTest extends UnitCase
     {
         $now = Carbon::now();
 
-        $event = new \Tests\Components\DateAdded($now);
+        $event          = new \Tests\Components\DateAdded($now);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
-        $class = $serializer->unserialize($this->getQualifiedDateJson($now));
+        $class      = $serializer->unserialize($this->getQualifiedDateJson($now));
 
         $this->assertEquals(
             $event,
@@ -93,8 +91,9 @@ class EventSerializerTest extends UnitCase
             'attributes' => [
                 'date'        => serialize($date),
                 'aggregateId' => null,
-                'firedAt'     => 12345678
-            ]
+                'firedAt'     => 12345678,
+                '__meta__'    => [],
+            ],
         ]);
     }
 
@@ -105,8 +104,9 @@ class EventSerializerTest extends UnitCase
             'attributes' => [
                 'toAdd'       => 1,
                 'aggregateId' => null,
-                'firedAt'     => 12345678
-            ]
+                'firedAt'     => 12345678,
+                '__meta__'    => [],
+            ],
         ]);
     }
 }

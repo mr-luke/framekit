@@ -132,20 +132,24 @@ class Retrospector implements Contract
      */
     public function perform(Retrospection $retrospection): void
     {
+        $this->validateMap($retrospection->filterReactors);
+        $this->validateMap($retrospection->filterStreams);
+        $this->validateMap($retrospection->filterProjections);
+
         $handlers = $this->eventBus->handlers();
 
-        if ($retrospection->useReactors) {
-            $this->validateMap($retrospection->filterReactors);
+        if ($retrospection->useReactors
+            && (
+                isset($retrospection->filterReactors['include']) ||
+                isset($retrospection->filterReactors['exclude'])
+            )
+        ) {
             $handlers = $this->filterReactors($handlers, $retrospection->filterReactors);
             $this->eventBus->replace($handlers);
         }
 
-        $this->validateMap($retrospection->filterStreams);
-
-        if ($retrospection->useProjections) {
-            $this->validateMap($retrospection->filterProjections);
-        }
-
+        // @todo: move filterStreams before loadStream so we dont lead all events
+        // @todo: allow loadStream to get array of uuids of sterams
         $events = $this->eventStore
             ->loadStream(
                 null,
@@ -156,6 +160,7 @@ class Retrospector implements Contract
 
         foreach ($events as $e) {
             $meta = $e->__meta__;
+
 
             if (!$this->filterStreams($meta['stream_id'], $retrospection->filterStreams)) {
                 continue;
