@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Framekit\Drivers;
 
 use Framekit\Contracts\Mapper;
+use Framekit\Contracts\Serializable;
 use Framekit\Contracts\Serializer;
 use Framekit\Contracts\Store;
 use Framekit\Event;
 use Framekit\Exceptions\MethodUnknown;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Mrluke\Configuration\Contracts\ArrayHost;
@@ -116,26 +118,8 @@ final class EventStore implements Store
      */
     public function loadStream(string $stream_id = null, ?string $since = null, ?string $till = null, bool $withMeta = false): array
     {
-        $events = [];
-        $query  = $this->setupDBConnection();
-
-        if (!empty($stream_id)) {
-            $query->where('stream_id', $stream_id)
-                  ->orderBy('sequence_no');
-        } else {
-            $query->orderBy('id');
-        }
-
-        if (!empty($since)) {
-            $query->where('commited_at', '>=', $since);
-        }
-
-        if (!empty($till)) {
-            $query->where('commited_at', '<=', $till);
-        }
-
-        $raw = $query->get();
-
+        $events    = [];
+        $raw       = $this->getEvents($stream_id, $since, $till);
         $rowsCount = count($raw);
         for ($i = 0; $i < $rowsCount; $i++) {
             if ($this->isVersionConflict($raw[$i]->payload, $raw[$i]->version)) {
@@ -147,16 +131,7 @@ final class EventStore implements Store
             }
 
             $event = $this->serializer->unserialize($raw[$i]->payload);
-
-            if ($withMeta && $event instanceof Event) {
-                $meta                = json_decode($raw[$i]->meta, true);
-                $meta['id']          = $raw[$i]->id;
-                $meta['stream_id']   = $raw[$i]->stream_id;
-                $meta['stream_type'] = $raw[$i]->stream_type;
-                $meta['commited_at'] = $raw[$i]->commited_at;
-                $event->__meta__     = $meta;
-            }
-
+            $this->loadMeta($event, $withMeta, $raw[$i]);
             $events[] = $event;
         }
 
@@ -246,5 +221,51 @@ final class EventStore implements Store
     {
         return DB::connection($this->config->get('database'))
                  ->table($this->config->get('tables.eventstore'));
+    }
+
+    /**
+     * @param \Framekit\Contracts\Serializable $event
+     * @param bool                             $withMeta
+     * @param                                  $raw
+     */
+    private function loadMeta(Serializable $event, bool $withMeta, $raw): void
+    {
+        if ($withMeta && $event instanceof Event) {
+            $meta                = json_decode($raw->meta, true);
+            $meta['id']          = $raw->id;
+            $meta['stream_id']   = $raw->stream_id;
+            $meta['stream_type'] = $raw->stream_type;
+            $meta['commited_at'] = $raw->commited_at;
+            $event->__meta__     = $meta;
+        }
+    }
+
+    /**
+     * @param string|null $stream_id
+     * @param string|null $since
+     * @param string|null $till
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    private function getEvents(?string $stream_id = null, ?string $since = null, ?string $till = null): Collection
+    {
+        $query = $this->setupDBConnection();
+
+        if (!empty($stream_id)) {
+            $query->where('stream_id', $stream_id)
+                  ->orderBy('sequence_no');
+        } else {
+            $query->orderBy('id');
+        }
+
+        if (!empty($since)) {
+            $query->where('commited_at', '>=', $since);
+        }
+
+        if (!empty($till)) {
+            $query->where('commited_at', '<=', $till);
+        }
+
+        return $query->get();
     }
 }
