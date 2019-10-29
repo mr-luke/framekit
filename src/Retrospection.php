@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Framekit;
 
-use Carbon\Carbon;
-
 /**
  * Retrospection abstract class.
  *
@@ -54,23 +52,24 @@ abstract class Retrospection
     public $useReactors = true;
 
     /**
-     * Info for Retrospectors to get Events since this date
+     * Info for retrospection to get only Events since this date
      *
-     * @var Carbon|null
+     * @var string|null
      */
     public $eventsSince = null;
 
     /**
-     * Info for Retrospectors to get Events till this date
+     * Info for retrospection to get only Events till this date
      *
-     * @var Carbon|null
+     * @var string|null
      */
     public $eventsTill = null;
 
     /**
      * Perform post-action on Event.
      *
-     * @param  \Framekit\Event  $event
+     * @param \Framekit\Event $event
+     *
      * @return void
      */
     abstract public function postAction(Event $event): void;
@@ -78,7 +77,8 @@ abstract class Retrospection
     /**
      * Perform pre-action on Event.
      *
-     * @param  \Framekit\Event  $event
+     * @param \Framekit\Event $event
+     *
      * @return void
      */
     abstract public function preAction(Event $event): Event;

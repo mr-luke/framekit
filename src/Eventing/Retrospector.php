@@ -50,58 +50,6 @@ class Retrospector implements Contract
     }
 
     /**
-     * Perform given retrospection.
-     *
-     * @param \Framekit\Retrospection $retrospection
-     *
-     * @return void
-     */
-    public function perform(Retrospection $retrospection): void
-    {
-        $handlers = $this->eventBus->handlers();
-
-        if ($retrospection->useReactors) {
-            $this->validateMap($retrospection->filterReactors);
-            $handlers = $this->filterReactors($handlers, $retrospection->filterReactors);
-            $this->eventBus->replace($handlers);
-        }
-
-        $this->validateMap($retrospection->filterStreams);
-
-        if($retrospection->useProjections) {
-            $this->validateMap($retrospection->filterProjections);
-        }
-
-        $events = $this->eventStore
-            ->loadStream(
-                null,
-                $retrospection->eventsSince,
-                $retrospection->eventsTill,
-                true
-            );
-
-        foreach ($events as $e) {
-            $meta = $e->__meta__;
-
-            if (!$this->filterStreams($meta['stream_id'], $retrospection->filterStreams)) {
-                continue;
-            }
-
-            $e = $retrospection->preAction($e);
-
-            if ($retrospection->useProjections && $this->filterProjections($e, $retrospection->filterProjections)) {
-                $this->projector->projectByEvent($meta['stream_type'], $e);
-            }
-
-            if ($retrospection->useReactors) {
-                $this->eventBus->publish($e);
-            }
-
-            $retrospection->postAction($e);
-        }
-    }
-
-    /**
      * @param array $handlers
      * @param array $map
      *
@@ -172,6 +120,58 @@ class Retrospector implements Contract
             return !in_array(get_class($event), $map['exclude']);
         } else {
             return true;
+        }
+    }
+
+    /**
+     * Perform given retrospection.
+     *
+     * @param \Framekit\Retrospection $retrospection
+     *
+     * @return void
+     */
+    public function perform(Retrospection $retrospection): void
+    {
+        $handlers = $this->eventBus->handlers();
+
+        if ($retrospection->useReactors) {
+            $this->validateMap($retrospection->filterReactors);
+            $handlers = $this->filterReactors($handlers, $retrospection->filterReactors);
+            $this->eventBus->replace($handlers);
+        }
+
+        $this->validateMap($retrospection->filterStreams);
+
+        if ($retrospection->useProjections) {
+            $this->validateMap($retrospection->filterProjections);
+        }
+
+        $events = $this->eventStore
+            ->loadStream(
+                null,
+                $retrospection->eventsSince,
+                $retrospection->eventsTill,
+                true
+            );
+
+        foreach ($events as $e) {
+            $meta = $e->__meta__;
+
+            if (!$this->filterStreams($meta['stream_id'], $retrospection->filterStreams)) {
+                continue;
+            }
+
+            $e = $retrospection->preAction($e);
+
+            if ($retrospection->useProjections && $this->filterProjections($e, $retrospection->filterProjections)) {
+                $this->projector->projectByEvent($meta['stream_type'], $e);
+            }
+
+            if ($retrospection->useReactors) {
+                $this->eventBus->publish($e);
+            }
+
+            $retrospection->postAction($e);
         }
     }
 

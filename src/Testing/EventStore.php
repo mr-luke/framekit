@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Framekit\Testing;
 
-use Carbon\Carbon;
 use Framekit\Contracts\Store;
 use PHPUnit\Framework\Assert as PHPUnit;
 
@@ -108,16 +107,16 @@ final class EventStore implements Store
     /**
      * Load Stream based on id.
      *
-     * @param string|null         $stream_id
-     * @param \Carbon\Carbon|null $since
-     * @param \Carbon\Carbon|null $till
-     * @param bool                $withMeta
+     * @param string|null $stream_id
+     * @param string|null $since
+     * @param string|null $till
+     * @param bool        $withMeta
      *
      * @return array
      *
      * @codeCoverageIgnore
      */
-    public function loadStream(string $stream_id = null, ?Carbon $since = null, ?Carbon $till = null, bool $withMeta = false): array
+    public function loadStream(string $stream_id = null, ?string $since = null, ?string $till = null, bool $withMeta = false): array
     {
         return $this->events[$stream_id] ?? [];
     }
