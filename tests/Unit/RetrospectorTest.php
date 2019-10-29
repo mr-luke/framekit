@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use Carbon\Carbon;
 use Framekit\Contracts\Bus;
 use Framekit\Contracts\Projector;
 use Framekit\Contracts\Retrospector as Contract;
@@ -138,7 +139,16 @@ class RetrospectorTest extends UnitCase
 
     public function testWithProjection()
     {
-        $event = $this->getMockForAbstractClass(Event::class);
+        $event           = $this->getMockForAbstractClass(Event::class);
+        $meta            = [
+            'auth'        => 'uuid1',
+            'ip'          => '127.0.0.1',
+            'id'          => 1,
+            'stream_id'   => 'stream_1',
+            'stream_type' => 'stream_type_A',
+            'commited_at' => Carbon::now(),
+        ];
+        $event->__meta__ = $meta;
 
         $storeMock = $this->createMock(Store::class);
         $storeMock->expects($this->once())
@@ -173,7 +183,16 @@ class RetrospectorTest extends UnitCase
 
     public function testWithReactor()
     {
-        $event = $this->getMockForAbstractClass(Event::class);
+        $event           = $this->getMockForAbstractClass(Event::class);
+        $meta            = [
+            'auth'        => 'uuid1',
+            'ip'          => '127.0.0.1',
+            'id'          => 1,
+            'stream_id'   => 'stream_1',
+            'stream_type' => 'stream_type_A',
+            'commited_at' => Carbon::now(),
+        ];
+        $event->__meta__ = $meta;
 
         $storeMock = $this->createMock(Store::class);
         $storeMock->expects($this->once())

@@ -204,7 +204,8 @@ final class EventStore implements Store
     /**
      * Check if version of event is actual correct.
      *
-     * @param string $event
+     * @param string $payload
+     * @param int    $version
      *
      * @return bool
      */
