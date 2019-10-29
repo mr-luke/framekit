@@ -98,71 +98,42 @@ class RetrospectorTest extends UnitCase
 
     public function testExcludeStream()
     {
-        $storeMock = $this->createMock(Store::class);
-        $storeMock->expects($this->once())
-                  ->method('getAvailableStreams')
-                  ->willReturn([
-                      ['stream_type' => 'StreamA', 'stream_id' => 'stream_1'],
-                      ['stream_type' => 'StreamB', 'stream_id' => 'stream_2'],
-                  ]);
-
-        $storeMock->expects($this->once())
-                  ->method('loadStream')
-                  ->with('stream_2')
-                  ->willReturn([]);
-
-        $retrospector = new Retrospector(
-            $this->createMock(Bus::class),
-            $storeMock,
-            $this->createMock(Projector::class)
-        );
-
-        $mock                 = $this->getMockForAbstractClass(Retrospection::class);
-        $mock->filterStreams  = ['exclude' => ['stream_1']];
-        $mock->useProjections = false;
-        $mock->useReactors    = false;
-
-        $retrospector->perform($mock);
+        //
     }
 
     public function testIncludeStream()
     {
-        $event = $this->getMockForAbstractClass(Event::class);
+        //
+    }
 
-        $storeMock = $this->createMock(Store::class);
-        $storeMock->expects($this->once())
-                  ->method('getAvailableStreams')
-                  ->willReturn([
-                      ['stream_type' => 'StreamA', 'stream_id' => 'stream_1'],
-                      ['stream_type' => 'StreamB', 'stream_id' => 'stream_2'],
-                  ]);
+    public function testFilterEventsSince()
+    {
+        //
+    }
 
-        $storeMock->expects($this->once())
-                  ->method('loadStream')
-                  ->with('stream_1')
-                  ->willReturn([$event]);
+    public function testFilterEventsTill()
+    {
+        //
+    }
 
-        $retrospector = new Retrospector(
-            $this->createMock(Bus::class),
-            $storeMock,
-            $this->createMock(Projector::class)
-        );
+    public function testFilterEventsSinceAndTill()
+    {
+        //
+    }
 
-        $mock                 = $this->getMockForAbstractClass(Retrospection::class);
-        $mock->filterStreams  = ['include' => ['stream_1']];
-        $mock->useProjections = false;
-        $mock->useReactors    = false;
+    public function testFilterEventsSinceAndTillForSpecyficStream()
+    {
+        //
+    }
 
-        $mock->expects($this->once())
-             ->method('preAction')
-             ->with($event)
-             ->willReturn($event);
+    public function testIncludeProjections()
+    {
+        //
+    }
 
-        $mock->expects($this->once())
-             ->method('preAction')
-             ->with($event);
-
-        $retrospector->perform($mock);
+    public function testExcludeProjections()
+    {
+        //
     }
 
     public function testWithProjection()
@@ -236,6 +207,7 @@ class RetrospectorTest extends UnitCase
 
         $mock                 = $this->getMockForAbstractClass(Retrospection::class);
         $mock->useProjections = false;
+        $mock->useReactors    = false;
 
         $mock->expects($this->once())
              ->method('preAction')
