@@ -39,6 +39,16 @@ abstract class Event implements Publishable, Serializable
      */
     public $firedAt;
 
+    /**
+     * Helper for accesing meta and steram info from eventstore
+     *
+     * @var array
+     */
+    public $__meta__ = [];
+
+    /**
+     * Event constructor.
+     */
     public function __construct()
     {
         $now = Carbon::now();

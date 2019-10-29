@@ -146,7 +146,8 @@ final class EventStore implements Store
             }
 
             $event = $this->serializer->unserialize($raw[$i]->payload);
-            if ($withMeta) {
+
+            if ($withMeta && $event instanceof Event) {
                 $meta                = json_decode($raw[$i]->meta, true);
                 $meta['id']          = $raw[$i]->id;
                 $meta['stream_id']   = $raw[$i]->stream_id;
@@ -154,6 +155,7 @@ final class EventStore implements Store
                 $meta['commited_at'] = $raw[$i]->commited_at;
                 $event->__meta__     = $meta;
             }
+
             $events[] = $event;
         }
 
@@ -166,7 +168,8 @@ final class EventStore implements Store
      * @param string $name
      * @param array  $arguments
      *
-     * @return \Framekit\Exceptions\MethodUnknown
+     * @return void
+     * @throws \Framekit\Exceptions\MethodUnknown
      */
     public function __call(string $name, array $arguments)
     {
