@@ -199,7 +199,7 @@ class EventStoreTest extends AppCase
             'commited_at' => now()
         ]);
 
-        $events = $eventStore->loadStream('stream_1', true);
+        $events = $eventStore->loadStream('stream_1', null, null, true);
 
         $this->assertTrue(is_array($events));
         $this->assertInstanceOf(

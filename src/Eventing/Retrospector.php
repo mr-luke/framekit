@@ -61,12 +61,16 @@ class Retrospector implements Contract
         $handlers = $this->eventBus->handlers();
 
         if ($retrospection->useReactors) {
+            $this->validateMap($retrospection->filterReactors);
             $handlers = $this->filterReactors($handlers, $retrospection->filterReactors);
             $this->eventBus->replace($handlers);
         }
 
         $this->validateMap($retrospection->filterStreams);
-        $this->validateMap($retrospection->filterProjections);
+
+        if($retrospection->useProjections) {
+            $this->validateMap($retrospection->filterProjections);
+        }
 
         $events = $this->eventStore
             ->loadStream(
@@ -103,10 +107,8 @@ class Retrospector implements Contract
      *
      * @return array
      */
-    protected function filterReactors(array $handlers, array $map): array
+    public static function filterReactors(array $handlers, array $map): array
     {
-        $this->validateMap($map);
-
         $filteredHandlers = [];
         if (isset($map['include']) && count($map['include'])) {
             foreach ($handlers as $event => $handler) {
@@ -145,7 +147,7 @@ class Retrospector implements Contract
      *
      * @return bool
      */
-    protected function filterStreams(string $streamId, array $map): bool
+    public static function filterStreams(string $streamId, array $map): bool
     {
         if (isset($map['include']) && count($map['include'])) {
             return in_array($streamId, $map['include']);
@@ -162,7 +164,7 @@ class Retrospector implements Contract
      *
      * @return bool
      */
-    protected function filterProjections(Event $event, array $map): bool
+    public static function filterProjections(Event $event, array $map): bool
     {
         if (isset($map['include']) && count($map['include'])) {
             return in_array(get_class($event), $map['include']);
