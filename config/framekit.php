@@ -45,7 +45,7 @@ return [
     |
     */
 
-    'database' => 'mysql', //env('EVENTSTORE_CONNECTION', env('DB_CONNECTION')),
+    'database' => env('EVENTSTORE_CONNECTION', env('DB_CONNECTION')),
 
     'tables' => [
         'eventstore' => 'eventstore',
