@@ -11,7 +11,7 @@ use Framekit\Testing\EventStore as Fake;
  * @method self assertHasEvent(string $stream_id, $event)
  * @method self assertMissingEvent(string $stream_id, $event)
  *
- * @method void commitToStream(string $stream_id, array $events)
+ * @method void commitToStream(string $stream_type, string $stream_id, array $events)
  * @method array loadStream(string $stream_id)
  *
  * @codeCoverageIgnore
