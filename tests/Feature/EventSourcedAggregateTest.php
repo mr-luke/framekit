@@ -2,12 +2,13 @@
 
 namespace Tests\Feature;
 
+use Tests\Components\IntegerAdded;
 use Tests\FeatureCase;
 use Tests\Components\TestAggregate;
 
 use Carbon\Carbon;
 use Framekit\Events\AggregateCreated;
-use Framekit\Extentions\EventSourcedAggregate;
+use Framekit\Exceptions\MethodUnknown;
 
 /**
  * EventSourcedAggregate feature tests.
@@ -44,5 +45,27 @@ class EventSourcedAggregateTest extends FeatureCase
         );
 
         $this->assertEquals(1, $aggregate->getVersion());
+    }
+
+    public function testRecreatingFromStreamSkipEvents()
+    {
+        $event = new IntegerAdded(5);
+
+        $aggregate = TestAggregate::recreateFromStream('uuid', [$event], true);
+
+        $this->assertEquals(
+            [],
+            $aggregate->getUncommitedEvents()
+        );
+
+        $this->assertEquals(0, $aggregate->getVersion());
+    }
+
+    public function testRecreatingFromStreamThrowsExceptionOnUnknownEvent()
+    {
+        $this->expectException(MethodUnknown::class);
+        $event = new IntegerAdded(5);
+
+        TestAggregate::recreateFromStream('uuid', [$event], false);
     }
 }
