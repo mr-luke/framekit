@@ -43,7 +43,7 @@ final class EventMapper implements Mapper
      * @param  array  $payload
      * @param  int    $from
      * @param  array  $upstream
-     * @return void
+     * @return array
      */
     public function map(array $payload, int $from, array $upstream): array
     {
