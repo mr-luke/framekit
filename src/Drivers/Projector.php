@@ -16,7 +16,7 @@ use Framekit\Exceptions\MissingProjection;
 use Framekit\Event;
 
 /**
- * Projector is responsible for projectiong cahnges to DB.
+ * Projector is responsible for projecting changes to DB.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
@@ -62,6 +62,9 @@ final class Projector implements Contract
      * @param  \Framekit\AggregateRoot  $aggregate
      * @param  array                    $events
      * @return void
+     *
+     * @throws \Framekit\Exceptions\MissingProjection
+     * @throws \ReflectionException
      */
     public function project(AggregateRoot $aggregate, array $events): void
     {
@@ -81,9 +84,12 @@ final class Projector implements Contract
     /**
      * Project changes for given aggregate.
      *
-     * @param  string          $aggregate
-     * @param  Framekit\Event  $events
+     * @param string $aggregate
+     * @param \Framekit\Event $event
      * @return void
+     *
+     * @throws \Framekit\Exceptions\MissingProjection
+     * @throws \ReflectionException
      */
     public function projectByEvent(string $aggregate, Event $event): void
     {
@@ -111,6 +117,7 @@ final class Projector implements Contract
      * @return \Framekit\Projection
      *
      * @throws \Framekit\Exceptions\MissingProjection
+     * @throws \ReflectionException
      */
     protected function getProjection(string $aggregate): Projection
     {
@@ -128,7 +135,7 @@ final class Projector implements Contract
      *
      * @param  string $name
      * @param  array  $arguments
-     * @return \Framekit\Exceptions\MethodUnknown
+     * @throws \Framekit\Exceptions\MethodUnknown
      */
     public function __call(string $name, array $arguments)
     {

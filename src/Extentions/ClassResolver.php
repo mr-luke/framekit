@@ -38,10 +38,12 @@ trait ClassResolver
     /**
      * Resolve class based on constructor.
      *
-     * @param  string $className
-     * @return object
+     * @param string $className
+     * @return mixed
+     *
+     * @throws \ReflectionException
      */
-    public function resolveClass(string $className): object
+    public function resolveClass(string $className)
     {
         if (! isset($this->resolved[$className])) {
             $reflection  = new ReflectionClass($className);
