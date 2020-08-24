@@ -106,9 +106,9 @@ trait EventSourcedAggregate
     public static function recreateFromStream(string $aggregateId, array $events): AggregateRoot
     {
         $aggregate = new static($aggregateId);
+        $usesEvents = config('framekit.recreating_uses_events', true);
 
         foreach ($events as $e) {
-            $usesEvents = config('framekit.recreating_uses_events', true);
 
             // check is apply change method exists on aggregate
             if (!$aggregate->isApplyChangeMethodExists($e)) {
