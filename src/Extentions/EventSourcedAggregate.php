@@ -105,7 +105,7 @@ trait EventSourcedAggregate
      */
     public static function recreateFromStream(string $aggregateId, array $events): AggregateRoot
     {
-        $aggregate = new static($aggregateId);
+        $aggregate  = new static($aggregateId);
         $usesEvents = config('framekit.recreating_uses_events', true);
 
         foreach ($events as $e) {
