@@ -91,9 +91,9 @@ abstract class AggregateRoot
      */
     protected function applyChange(Event $event): void
     {
-        $applyChangeMethod = $this->composeApplyChangeMethodName($event);
+        $eventApplierMethod = $this->composeApplierMethodName($event);
 
-        $this->{$applyChangeMethod}($event);
+        $this->{$eventApplierMethod}($event);
     }
 
     /**
@@ -102,7 +102,7 @@ abstract class AggregateRoot
      * @param \Framekit\Event $event
      * @return string
      */
-    protected function composeApplyChangeMethodName(Event $event): string
+    protected function composeApplierMethodName(Event $event): string
     {
         $classNameParts = explode('\\', get_class($event));
         $eventName      = end($classNameParts);
@@ -116,11 +116,11 @@ abstract class AggregateRoot
      * @param \Framekit\Event $event
      * @return bool
      */
-    protected function isApplyChangeMethodExists(Event $event): bool
+    protected function understandsEvent(Event $event): bool
     {
         return method_exists(
             $this,
-            $this->composeApplyChangeMethodName($event)
+            $this->composeApplierMethodName($event)
         );
     }
 

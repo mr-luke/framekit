@@ -100,31 +100,31 @@ trait EventSourcedAggregate
      *
      * @param  string  $aggregateId
      * @param  array   $events
+     * @param  bool    $skipEvents
      * @return \Framekit\AggregateRoot
      * @throws \Framekit\Exceptions\MethodUnknown
      */
-    public static function recreateFromStream(string $aggregateId, array $events): AggregateRoot
+    public static function recreateFromStream(string $aggregateId, array $events, bool $skipEvents = true): AggregateRoot
     {
         $aggregate  = new static($aggregateId);
-        $usesEvents = config('framekit.recreating_uses_events', true);
 
         foreach ($events as $e) {
 
             // check is apply change method exists on aggregate
-            if (!$aggregate->isApplyChangeMethodExists($e)) {
+            if (!$aggregate->understandsEvent($e)) {
 
-                // if method does not exists and
-                // configuration does not require uses events to recreate
-                // continue loop
-                if (!$usesEvents) {
+                // if method does not exists
+                // and recreating can skip events
+                // continure loop
+                if ($skipEvents) {
                     continue;
                 }
 
-                // or throw unknown method exception
+                // otherwise throw unknown method exception
                 throw new MethodUnknown(
                     sprintf(
                         'Call to undefined apply change method [%s] on aggregate [%s]',
-                        $aggregate->composeApplyChangeMethodName($e),
+                        $aggregate->composeApplierMethodName($e),
                         get_class($aggregate)
                     )
                 );
