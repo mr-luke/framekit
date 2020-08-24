@@ -54,7 +54,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Recreating uses events
+    | Skip events
     |--------------------------------------------------------------------------
     |
     | Decide if recreating from stream needs to apply event changes.
@@ -65,5 +65,5 @@ return [
     |
     */
 
-    'recreating_uses_events' => true
+    'skip_events' => env('FRAMEKIT_SKIP_EVENTS', true)
 ];
