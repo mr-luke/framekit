@@ -50,5 +50,20 @@ return [
     'tables' => [
         'eventstore' => 'eventstore',
         'snapshots'  => 'eventstore_snapshots',
-    ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Recreating uses events
+    |--------------------------------------------------------------------------
+    |
+    | Decide if recreating from stream needs to apply event changes.
+    | If the value is true, the applying method must exist in the aggregate,
+    | otherwise an exception will be thrown.
+    | If the value is false, the method does not have to exist on the aggregate
+    | and when trying to recreate from a non-existing method it will be skipped.
+    |
+    */
+
+    'recreating_uses_events' => true
 ];

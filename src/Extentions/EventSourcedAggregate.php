@@ -108,7 +108,7 @@ trait EventSourcedAggregate
         $aggregate = new static($aggregateId);
 
         foreach ($events as $e) {
-            $usesEvents = config('framekit.uses_events', true);
+            $usesEvents = config('framekit.recreating_uses_events', true);
 
             // check is apply change method exists on aggregate
             if (!$aggregate->isApplyChangeMethodExists($e)) {
