@@ -9,6 +9,7 @@ use Framekit\AggregateRoot;
 use Framekit\Event;
 use Framekit\Events\AggregateCreated;
 use Framekit\Events\AggregateRemoved;
+use Framekit\Exceptions\MethodUnknown;
 
 /**
  * Event Sourcing extention for Aggregate.
@@ -100,12 +101,35 @@ trait EventSourcedAggregate
      * @param  string  $aggregateId
      * @param  array   $events
      * @return \Framekit\AggregateRoot
+     * @throws \Framekit\Exceptions\MethodUnknown
      */
     public static function recreateFromStream(string $aggregateId, array $events): AggregateRoot
     {
         $aggregate = new static($aggregateId);
 
         foreach ($events as $e) {
+            $usesEvents = config('framekit.uses_events', true);
+
+            // check is apply change method exists on aggregate
+            if (!$aggregate->isApplyChangeMethodExists($e)) {
+
+                // if method does not exists and
+                // configuration does not require uses events to recreate
+                // continue loop
+                if (!$usesEvents) {
+                    continue;
+                }
+
+                // or throw unknown method exception
+                throw new MethodUnknown(
+                    sprintf(
+                        'Call to undefined apply change method [%s] on aggregate [%s]',
+                        $aggregate->composeApplyChangeMethodName($e),
+                        get_class($aggregate)
+                    )
+                );
+            }
+
             $aggregate->applyChange($e);
             $aggregate->increaseVersion();
         }
