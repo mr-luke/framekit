@@ -36,7 +36,7 @@ interface Projector
     /**
      * Project changes for given aggregate.
      *
-     * @param  string          $aggregate
+     * @param  string           $aggregate
      * @param  \Framekit\Event  $event
      * @return void
      */
