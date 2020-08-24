@@ -56,27 +56,6 @@ abstract class AggregateRoot
     }
 
     /**
-     * Boot method is responsible for creating init state.
-     *
-     * @return void
-     */
-    abstract protected function boot(): void;
-
-    /**
-     * Apply new Event on aggregate state.
-     *
-     * @param  \Framekit\Event $event
-     * @return void
-     */
-    protected function applyChange(Event $event): void
-    {
-        $class  = explode('\\', get_class($event));
-        $method = 'apply'. end($class);
-
-        $this->{$method}($event);
-    }
-
-    /**
      * Capture all bad calls.
      *
      * @param  string $name
@@ -103,4 +82,52 @@ abstract class AggregateRoot
             sprintf('Trying to call unknown method [%s]', $name)
         );
     }
+
+    /**
+     * Apply new Event on aggregate state.
+     *
+     * @param  \Framekit\Event $event
+     * @return void
+     */
+    protected function applyChange(Event $event): void
+    {
+        $applyChangeMethod = $this->composeApplyChangeMethodName($event);
+
+        $this->{$applyChangeMethod}($event);
+    }
+
+    /**
+     * Compose apply change method name.
+     *
+     * @param \Framekit\Event $event
+     * @return string
+     */
+    protected function composeApplyChangeMethodName(Event $event): string
+    {
+        $classNameParts = explode('\\', get_class($event));
+        $eventName      = end($classNameParts);
+
+        return "apply{$eventName}";
+    }
+
+    /**
+     * Determine is apply change method exists.
+     *
+     * @param \Framekit\Event $event
+     * @return bool
+     */
+    protected function isApplyChangeMethodExists(Event $event): bool
+    {
+        return method_exists(
+            $this,
+            $this->composeApplyChangeMethodName($event)
+        );
+    }
+
+    /**
+     * Boot method is responsible for creating init state.
+     *
+     * @return void
+     */
+    abstract protected function boot(): void;
 }
