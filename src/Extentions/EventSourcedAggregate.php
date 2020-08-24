@@ -160,4 +160,20 @@ trait EventSourcedAggregate
      * @return void
      */
     abstract protected function applyAggregateRemoved(AggregateRemoved $event): void;
+
+    /**
+     * Is aggregate understands event.
+     *
+     * @param \Framekit\Event $event
+     * @return bool
+     */
+    abstract protected function understandsEvent(Event $event): bool;
+
+    /**
+     * Compose applier method name.
+     *
+     * @param \Framekit\Event $event
+     * @return string
+     */
+    abstract protected function composeApplierMethodName(Event $event): string;
 }
