@@ -3,6 +3,7 @@
 /vendor
 .DS_Store
 .env*
+.phpunit.result.cache
 develop
 docker-compose*
 result*.svg

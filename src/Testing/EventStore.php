@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Framekit\Testing;
 
-use Framekit\Contracts\Store;
 use PHPUnit\Framework\Assert as PHPUnit;
+
+use Framekit\Contracts\Store;
+use Framekit\Event;
 
 /**
  * EventStream testing class for Framekit.
@@ -116,9 +118,65 @@ final class EventStore implements Store
      *
      * @codeCoverageIgnore
      */
-    public function loadStream(string $stream_id = null, ?string $since = null, ?string $till = null, bool $withMeta = false): array
-    {
+    public function loadStream(
+        string $stream_id = null,
+        ?string $since = null,
+        ?string $till = null,
+        bool $withMeta = false
+    ): array {
         return $this->events[$stream_id] ?? [];
+    }
+
+    /**
+     * Make a deep test of event.
+     *
+     * @param  \Framekit\Event $toTest
+     * @param  \Framekit\Event $fromStream
+     * @return bool
+     */
+    private function eventDeepTest(Event $toTest, Event $fromStream): bool
+    {
+        return $toTest == $fromStream;
+    }
+
+    /**
+     * Make a shallow test of event.
+     *
+     * @param  string          $toTest
+     * @param  \Framekit\Event $fromStream
+     * @return bool
+     */
+    private function eventShallowTest(string $toTest, Event $fromStream): bool
+    {
+        return $fromStream instanceof $toTest;
+    }
+
+    /**
+     * Determine if given Event exists in stream & is equal.
+     *
+     * @param string                 $stream_id
+     * @param \Framekit\Event|string $event
+     *
+     * @return bool
+     */
+    private function hasEvent(string $stream_id, $event): bool
+    {
+        $deepTest = !is_string($event);
+        $method = $deepTest ? 'eventDeepTest' : 'eventShallowTest';
+
+        if ($deepTest) {
+            $event->firedAt = null;
+        }
+
+        foreach ($this->loadStream($stream_id) as $e) {
+            $e->firedAt = null;
+
+            if ($this->{$method}($event, $e)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -137,31 +195,5 @@ final class EventStore implements Store
         }
 
         return is_array($event) ? $event : [$event];
-    }
-
-    /**
-     * Determine if given Event exists in stream & is equal.
-     *
-     * @param string                 $stream_id
-     * @param \Framekit\Event|string $event
-     *
-     * @return bool
-     */
-    private function hasEvent(string $stream_id, $event): bool
-    {
-        $shallowTest = is_string($event);
-        if (!$shallowTest) {
-            $event->firedAt = null;
-        }
-
-        foreach ($this->loadStream($stream_id) as $e) {
-            $e->firedAt = null;
-
-            if ((!$shallowTest && $e == $event) || ($shallowTest && $e instanceof $event)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
