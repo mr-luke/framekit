@@ -36,13 +36,5 @@ interface Bus
      * @return void
      */
     public function register(array $stack): void;
-
-    /**
-     * Replace registered Reactors by given.
-     *
-     * @param  array  $stack
-     * @return void
-     */
-    public function replace(array $stack): void;
 }
 
