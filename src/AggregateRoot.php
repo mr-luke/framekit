@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Framekit;
 
 use Framekit\Exceptions\MethodUnknown;
-use Framekit\Event;
-use Framekit\State;
 
 /**
  * Aggregate abstract class.
@@ -56,27 +54,6 @@ abstract class AggregateRoot
     }
 
     /**
-     * Boot method is responsible for creating init state.
-     *
-     * @return void
-     */
-    abstract protected function boot(): void;
-
-    /**
-     * Apply new Event on aggregate state.
-     *
-     * @param  \Framekit\Event $event
-     * @return void
-     */
-    protected function applyChange(Event $event): void
-    {
-        $class  = explode('\\', get_class($event));
-        $method = 'apply'. end($class);
-
-        $this->{$method}($event);
-    }
-
-    /**
      * Capture all bad calls.
      *
      * @param  string $name
@@ -103,4 +80,52 @@ abstract class AggregateRoot
             sprintf('Trying to call unknown method [%s]', $name)
         );
     }
+
+    /**
+     * Apply new Event on aggregate state.
+     *
+     * @param  \Framekit\Event $event
+     * @return void
+     */
+    protected function applyChange(Event $event): void
+    {
+        $eventApplierMethod = $this->composeApplierMethodName($event);
+
+        $this->{$eventApplierMethod}($event);
+    }
+
+    /**
+     * Compose apply change method name.
+     *
+     * @param \Framekit\Event $event
+     * @return string
+     */
+    protected function composeApplierMethodName(Event $event): string
+    {
+        $classNameParts = explode('\\', get_class($event));
+        $eventName      = end($classNameParts);
+
+        return "apply{$eventName}";
+    }
+
+    /**
+     * Determine is apply change method exists.
+     *
+     * @param \Framekit\Event $event
+     * @return bool
+     */
+    protected function understandsEvent(Event $event): bool
+    {
+        return method_exists(
+            $this,
+            $this->composeApplierMethodName($event)
+        );
+    }
+
+    /**
+     * Boot method is responsible for creating init state.
+     *
+     * @return void
+     */
+    abstract protected function boot(): void;
 }

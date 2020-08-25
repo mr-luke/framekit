@@ -36,8 +36,8 @@ interface Projector
     /**
      * Project changes for given aggregate.
      *
-     * @param  string          $aggregate
-     * @param  Framekit\Event  $events
+     * @param  string           $aggregate
+     * @param  \Framekit\Event  $event
      * @return void
      */
     public function projectByEvent(string $aggregate, Event $event): void;
