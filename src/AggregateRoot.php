@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Framekit;
 
 use Framekit\Exceptions\MethodUnknown;
-use Framekit\Event;
-use Framekit\State;
 
 /**
  * Aggregate abstract class.

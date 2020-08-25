@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Framekit\Testing;
 
-use InvalidArgumentException;
 use PHPUnit\Framework\Assert as PHPUnit;
 
 use Framekit\AggregateRoot;
@@ -46,10 +45,10 @@ final class Projector implements Contract
     }
 
     /**
-     * Asssert if given projections has been called.
+     * Assert if given projections has been called.
      *
      * @param  string $aggregate
-     * @param  string $projections
+     * @param  string $projection
      * @param  string $method
      * @return self
      *
@@ -69,10 +68,10 @@ final class Projector implements Contract
     }
 
     /**
-     * Asssert if given projections has been called.
+     * Assert if given projections has been called.
      *
      * @param  string $aggregate
-     * @param  mixed  $projections
+     * @param  mixed  $projection
      * @param  string $method
      * @return self
      *
@@ -136,6 +135,7 @@ final class Projector implements Contract
      * @param  \Framekit\AggregateRoot  $aggregate
      * @param  array                    $events
      * @return void
+     * @throws \Framekit\Exceptions\MissingProjection
      */
     public function project(AggregateRoot $aggregate, array $events): void
     {
@@ -147,11 +147,12 @@ final class Projector implements Contract
     /**
      * Project changes for given aggregate.
      *
-     * @param  string          $aggregate
-     * @param  Framekit\Event  $events
+     * @param string $aggregate
+     * @param \Framekit\Event $event
      * @return void
      *
      * @codeCoverageIgnore
+     * @throws \Framekit\Exceptions\MissingProjection
      */
     public function projectByEvent(string $aggregate, Event $event): void
     {
@@ -177,6 +178,7 @@ final class Projector implements Contract
      * @param  string $aggregate
      * @param  array  $events
      * @return void
+     * @throws \Framekit\Exceptions\MissingProjection
      */
     protected function addProjectedEvents(string $aggregate, array $events): void
     {
