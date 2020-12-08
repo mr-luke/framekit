@@ -8,11 +8,14 @@ use Framekit\Contracts\Mapper;
 use Framekit\Contracts\Serializer;
 use Framekit\Contracts\Store;
 use Framekit\Drivers\EventStore;
+use Framekit\Eventing\EventSerializer;
 use Framekit\Exceptions\MethodUnknown;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Mrluke\Configuration\Contracts\ArrayHost;
 use Tests\AppCase;
+use Tests\Components\DummyReactor;
+use Tests\Components\IntegerAdded;
 use Tests\NonPublicMethodTool;
 
 /**
@@ -49,7 +52,7 @@ class EventStoreTest extends AppCase
         );
 
         $payload = json_encode([
-            'class'   => \Tests\Components\IntegerAdded::class,
+            'class'   => IntegerAdded::class,
             'payload' => [],
         ]);
 
@@ -115,7 +118,7 @@ class EventStoreTest extends AppCase
         );
 
         $eventStore->commitToStream('Stream', 'stream_1', [
-            new \Tests\Components\DummyReactor,
+            new DummyReactor,
         ]);
     }
 
@@ -125,18 +128,18 @@ class EventStoreTest extends AppCase
         $mapper     = $this->app->make(Mapper::class);
         $eventStore = new EventStore(
             $config,
-            new \Framekit\Eventing\EventSerializer,
+            new EventSerializer,
             $mapper
         );
 
         $eventStore->commitToStream('Stream', 'stream_1', [
-            new \Tests\Components\IntegerAdded(2),
+            new IntegerAdded(2),
         ]);
 
         $this->assertDatabaseHas($config->get('tables.eventstore'), [
             'stream_type' => 'Stream',
             'stream_id'   => 'stream_1',
-            'event'       => \Tests\Components\IntegerAdded::class,
+            'event'       => IntegerAdded::class,
         ]);
     }
 
@@ -146,16 +149,16 @@ class EventStoreTest extends AppCase
         $mapper     = $this->app->make(Mapper::class);
         $eventStore = new EventStore(
             $config,
-            new \Framekit\Eventing\EventSerializer,
+            new EventSerializer,
             $mapper
         );
 
         DB::table($config->get('tables.eventstore'))->insert([
             'stream_type' => 'Stream',
             'stream_id'   => 'stream_1',
-            'event'       => \Tests\Components\IntegerAdded::class,
+            'event'       => IntegerAdded::class,
             'payload'     => json_encode([
-                'class'      => \Tests\Components\IntegerAdded::class,
+                'class'      => IntegerAdded::class,
                 'attributes' => [
                     'toAdd' => 2,
                 ],
@@ -169,7 +172,7 @@ class EventStoreTest extends AppCase
 
         $this->assertTrue(is_array($events));
         $this->assertInstanceOf(
-            \Tests\Components\IntegerAdded::class,
+            IntegerAdded::class,
             $events[0]
         );
     }
@@ -180,16 +183,16 @@ class EventStoreTest extends AppCase
         $mapper     = $this->app->make(Mapper::class);
         $eventStore = new EventStore(
             $config,
-            new \Framekit\Eventing\EventSerializer,
+            new EventSerializer,
             $mapper
         );
 
         DB::table($config->get('tables.eventstore'))->insert([
             'stream_type' => 'Stream',
             'stream_id'   => 'stream_1',
-            'event'       => \Tests\Components\IntegerAdded::class,
+            'event'       => IntegerAdded::class,
             'payload'     => json_encode([
-                'class'      => \Tests\Components\IntegerAdded::class,
+                'class'      => IntegerAdded::class,
                 'attributes' => [
                     'toAdd' => 2,
                 ],
@@ -203,7 +206,7 @@ class EventStoreTest extends AppCase
 
         $this->assertTrue(is_array($events));
         $this->assertInstanceOf(
-            \Tests\Components\IntegerAdded::class,
+            IntegerAdded::class,
             $events[0]
         );
 
@@ -217,7 +220,7 @@ class EventStoreTest extends AppCase
         $mapper     = $this->app->make(Mapper::class);
         $eventStore = new EventStore(
             $config,
-            new \Framekit\Eventing\EventSerializer,
+            new EventSerializer,
             $mapper
         );
 
@@ -225,7 +228,7 @@ class EventStoreTest extends AppCase
 
         $events = $eventStore->loadStream(null, '2019-10-05 22:00:00', null, true);
         $this->assertCount(5, $events);
-        $this->assertEquals('2019-10-06 10:25:00', $events[0]->__meta__['commited_at']);
+        $this->assertEquals('2019-10-06 10:25:00.000000', $events[0]->__meta__['commited_at']);
     }
 
     public function testLoadStreamEventsTill()
@@ -234,7 +237,7 @@ class EventStoreTest extends AppCase
         $mapper     = $this->app->make(Mapper::class);
         $eventStore = new EventStore(
             $config,
-            new \Framekit\Eventing\EventSerializer,
+            new EventSerializer,
             $mapper
         );
 
@@ -242,7 +245,7 @@ class EventStoreTest extends AppCase
 
         $events = $eventStore->loadStream(null, null, '2019-10-05 00:00:00', true);
         $this->assertCount(4, $events);
-        $this->assertEquals('2019-10-04 10:25:00', $events[3]->__meta__['commited_at']);
+        $this->assertEquals('2019-10-04 10:25:00.000000', $events[3]->__meta__['commited_at']);
     }
 
     public function testLoadStreamEventsSinceAndTill()
@@ -251,7 +254,7 @@ class EventStoreTest extends AppCase
         $mapper     = $this->app->make(Mapper::class);
         $eventStore = new EventStore(
             $config,
-            new \Framekit\Eventing\EventSerializer,
+            new EventSerializer,
             $mapper
         );
 
@@ -259,7 +262,7 @@ class EventStoreTest extends AppCase
 
         $events = $eventStore->loadStream(null, '2019-10-05 00:00:00', '2019-10-06 23:59:59', true);
         $this->assertCount(2, $events);
-        $this->assertEquals('2019-10-05 10:25:00', $events[0]->__meta__['commited_at']);
+        $this->assertEquals('2019-10-05 10:25:00.000000', $events[0]->__meta__['commited_at']);
     }
 
     public function testLoadStreamEventsSinceAndTillForSpecyficStream()
@@ -268,7 +271,7 @@ class EventStoreTest extends AppCase
         $mapper     = $this->app->make(Mapper::class);
         $eventStore = new EventStore(
             $config,
-            new \Framekit\Eventing\EventSerializer,
+            new EventSerializer,
             $mapper
         );
 
@@ -277,7 +280,7 @@ class EventStoreTest extends AppCase
 
         $events = $eventStore->loadStream('stream_2', '2019-10-05 00:00:00', '2019-10-06 23:59:59', true);
         $this->assertCount(2, $events);
-        $this->assertEquals('2019-10-05 10:25:00', $events[0]->__meta__['commited_at']);
+        $this->assertEquals('2019-10-05 10:25:00.000000', $events[0]->__meta__['commited_at']);
         $this->assertEquals('stream_2', $events[0]->__meta__['stream_id']);
     }
 
@@ -287,16 +290,16 @@ class EventStoreTest extends AppCase
         $mapper     = $this->app->make(Mapper::class);
         $eventStore = new EventStore(
             $config,
-            new \Framekit\Eventing\EventSerializer,
+            new EventSerializer,
             $mapper
         );
 
         DB::table($config->get('tables.eventstore'))->insert([
             'stream_type' => 'Stream',
             'stream_id'   => 'stream_1',
-            'event'       => \Tests\Components\IntegerAdded::class,
+            'event'       => IntegerAdded::class,
             'payload'     => json_encode([
-                'class'      => \Tests\Components\IntegerAdded::class,
+                'class'      => IntegerAdded::class,
                 'attributes' => [
                     'toAdd' => 2,
                 ],
@@ -309,7 +312,7 @@ class EventStoreTest extends AppCase
         $events = $eventStore->loadStream('stream_1');
 
         $this->assertInstanceOf(
-            \Tests\Components\IntegerAdded::class,
+            IntegerAdded::class,
             $events[0]
         );
     }
@@ -320,7 +323,7 @@ class EventStoreTest extends AppCase
         $mapper     = $this->app->make(Mapper::class);
         $eventStore = new EventStore(
             $config,
-            new \Framekit\Eventing\EventSerializer,
+            new EventSerializer,
             $mapper
         );
 
@@ -328,7 +331,7 @@ class EventStoreTest extends AppCase
             [
                 'stream_type' => 'StreamA',
                 'stream_id'   => 'stream_1',
-                'event'       => \Tests\Components\IntegerAdded::class,
+                'event'       => IntegerAdded::class,
                 'payload'     => '[]',
                 'version'     => 1,
                 'meta'        => '[]',
@@ -337,7 +340,7 @@ class EventStoreTest extends AppCase
             [
                 'stream_type' => 'StreamB',
                 'stream_id'   => 'stream_2',
-                'event'       => \Tests\Components\IntegerAdded::class,
+                'event'       => IntegerAdded::class,
                 'payload'     => '[]',
                 'version'     => 1,
                 'meta'        => '[]',
@@ -346,7 +349,7 @@ class EventStoreTest extends AppCase
             [
                 'stream_type' => 'StreamA',
                 'stream_id'   => 'stream_1',
-                'event'       => \Tests\Components\IntegerAdded::class,
+                'event'       => IntegerAdded::class,
                 'payload'     => '[]',
                 'version'     => 1,
                 'meta'        => '[]',
@@ -355,7 +358,7 @@ class EventStoreTest extends AppCase
             [
                 'stream_type' => 'StreamC',
                 'stream_id'   => 'stream_3',
-                'event'       => \Tests\Components\IntegerAdded::class,
+                'event'       => IntegerAdded::class,
                 'payload'     => '[]',
                 'version'     => 1,
                 'meta'        => '[]',
@@ -381,7 +384,7 @@ class EventStoreTest extends AppCase
 
         $eventStore = new EventStore(
             $this->app->make(Config::class),
-            new \Framekit\Eventing\EventSerializer,
+            new EventSerializer,
             $this->app->make(Mapper::class)
         );
         $eventStore->assertHasEvent();
@@ -397,9 +400,9 @@ class EventStoreTest extends AppCase
             DB::table($config->get('tables.eventstore'))->insert([
                 'stream_type' => 'Stream',
                 'stream_id'   => $streamId,
-                'event'       => \Tests\Components\IntegerAdded::class,
+                'event'       => IntegerAdded::class,
                 'payload'     => json_encode([
-                    'class'      => \Tests\Components\IntegerAdded::class,
+                    'class'      => IntegerAdded::class,
                     'attributes' => [
                         'toAdd' => 2,
                     ],
