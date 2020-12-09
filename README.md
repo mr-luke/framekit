@@ -6,8 +6,6 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mr-luke/framekit/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mr-luke/framekit/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/mr-luke/framekit/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/mr-luke/framekit/?branch=master)
 
-[[_TOC_]]
-
 ## Getting Started
 
 Framekit is Laravel package built to speed up DDD modeling with EventSourcing. It implements 
