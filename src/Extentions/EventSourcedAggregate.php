@@ -12,7 +12,7 @@ use Framekit\Events\AggregateRemoved;
 use Framekit\Exceptions\MethodUnknown;
 
 /**
- * Event Sourcing extention for Aggregate.
+ * Event Sourcing extension for Aggregate.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
@@ -24,7 +24,7 @@ trait EventSourcedAggregate
     /**
      * @var array
      */
-    protected $aggreagateEvents = [];
+    protected $aggregatedEvents = [];
 
     /**
      * @var int
@@ -44,43 +44,45 @@ trait EventSourcedAggregate
     /**
      * Create new aggregate with Event.
      *
-     * @param  string  $aggregateId
+     * @param string $aggregateId
      * @return \Framekit\AggregateRoot
      */
     public static function create(string $aggregateId): AggregateRoot
     {
         $aggregate = new static($aggregateId);
-        $aggregate->fireEvent(new AggregateCreated(
-            $aggregateId,
-            Carbon::now()
-        ));
+        $aggregate->fireEvent(
+            new AggregateCreated(
+                $aggregateId,
+                Carbon::now()
+            )
+        );
 
         return $aggregate;
     }
 
     /**
-     * Fire Event on aggregate & add event to uncommited.
+     * Fire Event on aggregate & add event to uncommitted.
      *
-     * @param  \Framekit\Event  $event
+     * @param \Framekit\Event $event
      * @return void
      */
     public function fireEvent(Event $event): void
     {
         $this->applyChange($event);
 
-        $this->aggreagateEvents[] = $event;
+        $this->aggregatedEvents[] = $event;
         $this->increaseVersion();
     }
 
     /**
-     * Return uncommited events.
+     * Return uncommitted events.
      *
      * @return array
      */
-    public function getUncommitedEvents(): array
+    public function getUncommittedEvents(): array
     {
-        $events = $this->aggreagateEvents;
-        $this->aggreagateEvents = [];
+        $events = $this->aggregatedEvents;
+        $this->aggregatedEvents = [];
 
         return $events;
     }
@@ -98,15 +100,18 @@ trait EventSourcedAggregate
     /**
      * Recreate aggregate based on stream of Events.
      *
-     * @param  string  $aggregateId
-     * @param  array   $events
-     * @param  bool    $skipEvents
+     * @param string $aggregateId
+     * @param array  $events
+     * @param bool   $skipEvents
      * @return \Framekit\AggregateRoot
      * @throws \Framekit\Exceptions\MethodUnknown
      */
-    public static function recreateFromStream(string $aggregateId, array $events, bool $skipEvents = true): AggregateRoot
-    {
-        $aggregate  = new static($aggregateId);
+    public static function recreateFromStream(
+        string $aggregateId,
+        array $events,
+        bool $skipEvents = true
+    ): AggregateRoot {
+        $aggregate = new static($aggregateId);
 
         foreach ($events as $e) {
 
@@ -115,7 +120,7 @@ trait EventSourcedAggregate
 
                 // if method does not exists
                 // and recreating can skip events
-                // continure loop
+                // continue loop
                 if ($skipEvents) {
                     continue;
                 }
@@ -146,17 +151,17 @@ trait EventSourcedAggregate
     protected function boot(): void {}
 
     /**
-     * Handle aggreagate creation.
+     * Handle aggregate creation.
      *
-     * @param  \Framekit\Events\AggregateCreated
+     * @param \Framekit\Events\AggregateCreated
      * @return void
      */
     abstract protected function applyAggregateCreated(AggregateCreated $event): void;
 
     /**
-     * Handle aggreagate removal.
+     * Handle aggregate removal.
      *
-     * @param  \Framekit\Events\AggregateRemoved
+     * @param \Framekit\Events\AggregateRemoved
      * @return void
      */
     abstract protected function applyAggregateRemoved(AggregateRemoved $event): void;

@@ -38,7 +38,7 @@ abstract class AggregateRoot
      *
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->aggregateId;
     }
@@ -56,9 +56,9 @@ abstract class AggregateRoot
     /**
      * Capture all bad calls.
      *
-     * @param  string $name
-     * @param  array  $arguments
-     * @return \Framekit\Exceptions\MethodUnknown
+     * @param string $name
+     * @param array  $arguments
+     * @throws \Framekit\Exceptions\MethodUnknown
      */
     public function __call(string $name, array $arguments)
     {
@@ -70,9 +70,9 @@ abstract class AggregateRoot
     /**
      * Capture all bad calls.
      *
-     * @param  string $name
-     * @param  array  $arguments
-     * @return \Framekit\Exceptions\MethodUnknown
+     * @param string $name
+     * @param array  $arguments
+     * @throws \Framekit\Exceptions\MethodUnknown
      */
     public static function __callStatic(string $name, array $arguments)
     {
@@ -84,7 +84,7 @@ abstract class AggregateRoot
     /**
      * Apply new Event on aggregate state.
      *
-     * @param  \Framekit\Event $event
+     * @param \Framekit\Event $event
      * @return void
      */
     protected function applyChange(Event $event): void
@@ -103,7 +103,7 @@ abstract class AggregateRoot
     protected function composeApplierMethodName(Event $event): string
     {
         $classNameParts = explode('\\', get_class($event));
-        $eventName      = end($classNameParts);
+        $eventName = end($classNameParts);
 
         return "apply{$eventName}";
     }

@@ -2,6 +2,8 @@
 
 namespace Tests\Unit;
 
+use Tests\Components\DateAdded;
+use Tests\Components\TestAggregate;
 use Tests\UnitCase;
 
 use Framekit\AggregateRoot;
@@ -37,7 +39,7 @@ class EventStoreRepositoryTest extends UnitCase
     public function testPersistMethodWithOutEvents()
     {
         $aggreagateMock = $this->getMockBuilder(AggregateRoot::class)
-                               ->setMethods(['boot', 'getId', 'getUncommitedEvents'])
+                               ->setMethods(['boot', 'getId', 'getUncommittedEvents'])
                                ->disableOriginalConstructor()
                                ->getMock();
 
@@ -46,7 +48,7 @@ class EventStoreRepositoryTest extends UnitCase
                        ->willReturn('test');
 
         $aggreagateMock->expects($this->once())
-                       ->method('getUncommitedEvents')
+                       ->method('getUncommittedEvents')
                        ->willReturn([]);
 
         $busMock = $this->createMock(Bus::class);
@@ -78,7 +80,7 @@ class EventStoreRepositoryTest extends UnitCase
         $event = $this->createMock(Event::class);
 
         $aggreagateMock = $this->getMockBuilder(AggregateRoot::class)
-                               ->setMethods(['boot', 'getId', 'getUncommitedEvents'])
+                               ->setMethods(['boot', 'getId', 'getUncommittedEvents'])
                                ->disableOriginalConstructor()
                                ->getMock();
 
@@ -87,7 +89,7 @@ class EventStoreRepositoryTest extends UnitCase
                        ->willReturn('test');
 
         $aggreagateMock->expects($this->once())
-                       ->method('getUncommitedEvents')
+                       ->method('getUncommittedEvents')
                        ->willReturn([
                            $event
                        ]);
@@ -130,7 +132,7 @@ class EventStoreRepositoryTest extends UnitCase
             $this->createMock(Projector::class)
         );
 
-        $instance = $repository->retrieve(\Tests\Components\TestAggregate::class, 'test');
+        $instance = $repository->retrieve(TestAggregate::class, 'test');
 
         $this->assertInstanceOf(AggregateRoot::class, $instance);
     }
@@ -158,6 +160,6 @@ class EventStoreRepositoryTest extends UnitCase
             $this->createMock(Projector::class)
         );
 
-        $repository->retrieve(\Tests\Components\DateAdded::class, 'test');
+        $repository->retrieve(DateAdded::class, 'test');
     }
 }

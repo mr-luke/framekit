@@ -8,12 +8,13 @@ use Framekit\AggregateRoot;
 use Framekit\Event;
 
 /**
- * Entity extention for Aggregate.
+ * Entity extension for Aggregate.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
  * @license   MIT
+ * @parent    \Framekit\AggregateRoot
  *
  * @codeCoverageIgnore
  */
@@ -22,10 +23,10 @@ trait EntityAggregate
     /**
      * @var array
      */
-    protected $aggreagateEvents = [];
+    protected $aggregatedEvents = [];
 
     /**
-     * Fire Event on aggregate & add event to uncommited.
+     * Fire Event on aggregate & add event to uncommitted.
      *
      * @param  \Framekit\Event  $event
      * @return void
@@ -34,7 +35,7 @@ trait EntityAggregate
     {
         $this->applyChange($event);
 
-        $this->aggreagateEvents[] = $event;
+        $this->aggregatedEvents[] = $event;
     }
 
     /**
@@ -44,8 +45,8 @@ trait EntityAggregate
      */
     public function getUnpublishedEvents(): array
     {
-        $events = $this->aggreagateEvents;
-        $this->aggreagateEvents = [];
+        $events = $this->aggregatedEvents;
+        $this->aggregatedEvents = [];
 
         return $events;
     }

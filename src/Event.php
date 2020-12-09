@@ -40,7 +40,7 @@ abstract class Event implements Publishable, Serializable
     public $firedAt;
 
     /**
-     * Helper for accesing meta and steram info from eventstore
+     * Helper for accessing meta and stream info from eventstore
      *
      * @var array
      */

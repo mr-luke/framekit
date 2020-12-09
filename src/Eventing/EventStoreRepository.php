@@ -54,32 +54,33 @@ class EventStoreRepository implements EventRepository
     /**
      * Persist changes made on Aggregate.
      *
-     * @param  \Framekit\AggregateRoot $aggreagate
+     * @param  \Framekit\AggregateRoot $aggregate
      * @return void
      */
-    public function persist(AggregateRoot $aggreagate): void
+    public function persist(AggregateRoot $aggregate): void
     {
-        $uncommitedEvents = $aggreagate->getUncommitedEvents();
+        $uncommittedEvents = $aggregate->getUncommittedEvents();
 
         $this->eventStore->commitToStream(
-            get_class($aggreagate),
-            $aggreagate->getId(),
-            $uncommitedEvents
+            get_class($aggregate),
+            $aggregate->getId(),
+            $uncommittedEvents
         );
 
-        $this->projector->project($aggreagate, $uncommitedEvents);
+        $this->projector->project($aggregate, $uncommittedEvents);
 
-        foreach ($uncommitedEvents as $e) {
+        foreach ($uncommittedEvents as $e) {
             $this->eventBus->publish($e);
         }
     }
 
     /**
-     * Retrive aggraget by AggregateId.
+     * Retrieve aggregate by AggregateId.
      *
-     * @param  string  $className
-     * @param  string  $aggregateId
+     * @param string $className
+     * @param string $aggregateId
      * @return \Framekit\AggregateRoot
+     * @throws \Framekit\Exceptions\UnsupportedAggregate|\ReflectionException
      */
     public function retrieve(string $className, string $aggregateId): AggregateRoot
     {

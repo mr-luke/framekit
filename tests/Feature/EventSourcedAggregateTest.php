@@ -23,7 +23,7 @@ class EventSourcedAggregateTest extends FeatureCase
     {
         $aggregate = TestAggregate::create('uuid');
 
-        $events = $aggregate->getUncommitedEvents();
+        $events = $aggregate->getUncommittedEvents();
 
         $this->assertEquals(1, count($events));
 
@@ -41,7 +41,7 @@ class EventSourcedAggregateTest extends FeatureCase
 
         $this->assertEquals(
             [],
-            $aggregate->getUncommitedEvents()
+            $aggregate->getUncommittedEvents()
         );
 
         $this->assertEquals(1, $aggregate->getVersion());
@@ -55,7 +55,7 @@ class EventSourcedAggregateTest extends FeatureCase
 
         $this->assertEquals(
             [],
-            $aggregate->getUncommitedEvents()
+            $aggregate->getUncommittedEvents()
         );
 
         $this->assertEquals(0, $aggregate->getVersion());

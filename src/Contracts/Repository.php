@@ -19,10 +19,10 @@ interface Repository
     /**
      * Persist changes made on Aggregate.
      *
-     * @param  \Framekit\AggregateRoot $aggreagate
+     * @param  \Framekit\AggregateRoot $aggregate
      * @return void
      */
-    public function persist(AggregateRoot $aggreagate): void;
+    public function persist(AggregateRoot $aggregate): void;
 
     /**
      * Retrive aggraget by AggregateId.

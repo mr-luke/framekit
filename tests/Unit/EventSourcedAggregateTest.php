@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use Tests\Components\IntegerAdded;
 use Tests\UnitCase;
 
 use Framekit\Extentions\EventSourcedAggregate;
@@ -26,16 +27,16 @@ class EventSourcedAggregateTest extends UnitCase
         $this->assertEquals(1, $mock->getVersion());
     }
 
-    public function testGetUncommitedEvents()
+    public function testgetUncommittedEvents()
     {
         $mock = $this->getMockForTrait(EventSourcedAggregate::class);
 
-        $this->assertEquals([], $mock->getUncommitedEvents());
+        $this->assertEquals([], $mock->getUncommittedEvents());
     }
 
     public function testFireEvent()
     {
-        $event = new \Tests\Components\IntegerAdded(2);
+        $event = new IntegerAdded(2);
 
         $mock = $this->getMockBuilder(EventSourcedAggregate::class)
                      ->setMethods(['applyChange', 'increaseVersion'])
@@ -53,7 +54,7 @@ class EventSourcedAggregateTest extends UnitCase
 
     public function testUncommitedEventsControl()
     {
-        $event = new \Tests\Components\IntegerAdded(2);
+        $event = new IntegerAdded(2);
 
         $mock = $this->getMockBuilder(EventSourcedAggregate::class)
                      ->setMethods(['applyChange'])
@@ -63,9 +64,9 @@ class EventSourcedAggregateTest extends UnitCase
 
         $this->assertEquals(
             [$event],
-            $mock->getUncommitedEvents()
+            $mock->getUncommittedEvents()
         );
 
-        $this->assertEquals([], $mock->getUncommitedEvents());
+        $this->assertEquals([], $mock->getUncommittedEvents());
     }
 }
