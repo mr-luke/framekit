@@ -19,7 +19,7 @@ use Framekit\Testing\Projector as FakeProjector;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class FakeFacadesTest extends AppCase
 {

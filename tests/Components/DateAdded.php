@@ -11,7 +11,7 @@ use Framekit\Event;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class DateAdded extends Event
 {
@@ -21,12 +21,12 @@ class DateAdded extends Event
     public $date;
 
     /**
-     * @param int $toAdd
+     * @param \Carbon\Carbon $date
      */
     public function __construct(Carbon $date)
     {
         parent::__construct();
-        
+
         $this->date = $date;
     }
 }

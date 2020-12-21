@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use InvalidArgumentException;
 use Tests\FeatureCase;
 use Tests\NonPublicMethodTool;
 
@@ -17,7 +18,7 @@ use Illuminate\Http\Request;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class ProjectorTest extends FeatureCase
 {
@@ -40,7 +41,7 @@ class ProjectorTest extends FeatureCase
 
     public function testThrowWhenItsNotEvent()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $aggregateMock = $this->createMock(AggregateRoot::class);
 

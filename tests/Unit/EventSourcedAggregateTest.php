@@ -5,14 +5,14 @@ namespace Tests\Unit;
 use Tests\Components\IntegerAdded;
 use Tests\UnitCase;
 
-use Framekit\Extentions\EventSourcedAggregate;
+use Framekit\Extensions\EventSourcedAggregate;
 
 /**
  * EventSourcedAggregate unit tests.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class EventSourcedAggregateTest extends UnitCase
 {

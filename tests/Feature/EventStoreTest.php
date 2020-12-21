@@ -23,7 +23,7 @@ use Tests\NonPublicMethodTool;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class EventStoreTest extends AppCase
 {

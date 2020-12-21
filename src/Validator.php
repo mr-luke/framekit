@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace Framekit;
 
-use InvalidArgumentException;
-
 /**
  * Validator contract.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  *
  * @codeCoverageIgnore
  */
@@ -22,18 +20,16 @@ abstract class Validator
      * Validate domain invariant.
      *
      * @return void
-     *
-     * @throws InvariantViolation
+     * @throws \Framekit\Exceptions\InvariantViolation
      */
     abstract public function protectInvariant(): void;
 
     /**
      * Return attribute of ValueObject.
      *
-     * @param  string  $name
+     * @param mixed ...$params
      * @return void
-     *
-     * @throws InvariantViolation
+     * @throws \Framekit\Exceptions\InvariantViolation
      */
     public static function validate(...$params): void
     {

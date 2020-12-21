@@ -5,14 +5,17 @@ namespace Tests\Unit;
 use Carbon\Carbon;
 use Framekit\Contracts\Serializer;
 use Framekit\Eventing\EventSerializer;
+use Tests\Components\DateAdded;
+use Tests\Components\IntegerAdded;
 use Tests\UnitCase;
+use function json_encode;
 
 /**
  * EventSerializer unit tests.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class EventSerializerTest extends UnitCase
 {
@@ -26,7 +29,7 @@ class EventSerializerTest extends UnitCase
 
     public function testSerializeEventWithoutObject()
     {
-        $event          = new \Tests\Components\IntegerAdded(1);
+        $event          = new IntegerAdded(1);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
@@ -40,7 +43,7 @@ class EventSerializerTest extends UnitCase
 
     public function testUnserializeEventWithoutObject()
     {
-        $event          = new \Tests\Components\IntegerAdded(1);
+        $event          = new IntegerAdded(1);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
@@ -56,7 +59,7 @@ class EventSerializerTest extends UnitCase
     {
         $now = Carbon::now();
 
-        $event          = new \Tests\Components\DateAdded($now);
+        $event          = new DateAdded($now);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
@@ -72,7 +75,7 @@ class EventSerializerTest extends UnitCase
     {
         $now = Carbon::now();
 
-        $event          = new \Tests\Components\DateAdded($now);
+        $event          = new DateAdded($now);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
@@ -86,7 +89,7 @@ class EventSerializerTest extends UnitCase
 
     protected function getQualifiedDateJson(Carbon $date): string
     {
-        return \json_encode([
+        return json_encode([
             'class'      => 'Tests\Components\DateAdded',
             'attributes' => [
                 'date'        => serialize($date),
@@ -99,7 +102,7 @@ class EventSerializerTest extends UnitCase
 
     protected function getQualifiedPlainJson(): string
     {
-        return \json_encode([
+        return json_encode([
             'class'      => 'Tests\Components\IntegerAdded',
             'attributes' => [
                 'toAdd'       => 1,

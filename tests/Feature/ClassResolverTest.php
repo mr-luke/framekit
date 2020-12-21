@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use Tests\AppCase;
 use Tests\Components\ResolveTest;
 
-use Framekit\Extentions\ClassResolver;
+use Framekit\Extensions\ClassResolver;
 use Illuminate\Http\Request;
 
 /**
@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class ClassResolverTest extends AppCase
 {

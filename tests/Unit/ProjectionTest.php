@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use Tests\Components\IntegerAdded;
 use Tests\UnitCase;
 
 use Framekit\Projection;
@@ -12,7 +13,7 @@ use Framekit\Exceptions\MethodUnknown;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class ProjectionTest extends UnitCase
 {
@@ -26,7 +27,7 @@ class ProjectionTest extends UnitCase
 
     public function testHandleMethod()
     {
-        $event = new \Tests\Components\IntegerAdded(2);
+        $event = new IntegerAdded(2);
         $projection = $this->getMockBuilder(Projection::class)
                            ->setMethods(['whenIntegerAdded'])
                            ->getMockForAbstractClass();

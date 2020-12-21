@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace Framekit\Drivers;
 
-use Illuminate\Foundation\Application;
 use InvalidArgumentException;
+use Mrluke\Bus\AbstractBus;
+use Mrluke\Bus\Contracts\Process;
 
 use Framekit\AggregateRoot;
-use Framekit\Projection;
-use Framekit\Contracts\Projector as Contract;
-use Framekit\Extentions\ClassResolver;
-use Framekit\Exceptions\MethodUnknown;
-use Framekit\Exceptions\MissingProjection;
+use Framekit\Contracts\Projector as ProjectorContract;
 use Framekit\Event;
 
 /**
@@ -21,57 +18,24 @@ use Framekit\Event;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
-final class Projector implements Contract
+class Projector extends AbstractBus implements ProjectorContract
 {
-    use ClassResolver;
-
-    /**
-     * Register of Event->Reactor pairs.
-     *
-     * @var array
-     */
-    protected $register;
-
-    /**
-     * @param \Illuminate\Foundation\Application  $app
-     * @param array                               $stack
-     */
-    public function __construct(Application $app, array $stack = [])
-    {
-        $this->app      = $app;
-        $this->register = $stack;
-    }
-
-    /**
-     * Return registered Projections list.
-     *
-     * @return array
-     *
-     * @codeCoverageIgnore
-     */
-    public function projections(): array
-    {
-        return $this->register;
-    }
-
     /**
      * Project changes for given aggregate.
      *
-     * @param  \Framekit\AggregateRoot  $aggregate
-     * @param  array                    $events
-     * @return void
-     *
-     * @throws \Framekit\Exceptions\MissingProjection
-     * @throws \ReflectionException
+     * @param \Framekit\AggregateRoot $aggregate
+     * @param array                   $events
+     * @return \Mrluke\Bus\Contracts\Process
      */
-    public function project(AggregateRoot $aggregate, array $events): void
+    public function project(AggregateRoot $aggregate, array $events): Process
     {
+        // @TODO: refactor
         $projection = $this->getProjection(get_class($aggregate));
 
         foreach ($events as $e) {
-            if (! $e instanceof Event) {
+            if (!$e instanceof Event) {
                 throw new InvalidArgumentException(
                     sprintf('Projected events must be instance of %s', Event::class)
                 );
@@ -84,63 +48,24 @@ final class Projector implements Contract
     /**
      * Project changes for given aggregate.
      *
-     * @param string $aggregate
+     * @param string          $aggregate
      * @param \Framekit\Event $event
      * @return void
      *
      * @throws \Framekit\Exceptions\MissingProjection
      * @throws \ReflectionException
      */
-    public function projectByEvent(string $aggregate, Event $event): void
+    public function projectByEvent(string $aggregate, Event $event): Process
     {
         $projection = $this->getProjection($aggregate);
         $projection->handle($event);
     }
 
     /**
-     * Register Projections stack.
-     *
-     * @param  array $stack
-     * @return void
-     *
-     * @codeCoverageIgnore
+     * @inheritDoc
      */
-    public function register(array $stack): void
+    protected function getBusName(): string
     {
-        $this->register = array_merge($this->register, $stack);
-    }
-
-    /**
-     * Return aggregate's projection.
-     *
-     * @param  string  $aggregate
-     * @return \Framekit\Projection
-     *
-     * @throws \Framekit\Exceptions\MissingProjection
-     * @throws \ReflectionException
-     */
-    protected function getProjection(string $aggregate): Projection
-    {
-        if (!isset($this->register[$aggregate]) || empty($this->register[$aggregate])) {
-            throw new MissingProjection(
-                sprintf('Missing projection for aggregate %s', $aggregate)
-            );
-        }
-
-        return $this->resolveClass($this->register[$aggregate]);
-    }
-
-    /**
-     * Capture all bad calls.
-     *
-     * @param  string $name
-     * @param  array  $arguments
-     * @throws \Framekit\Exceptions\MethodUnknown
-     */
-    public function __call(string $name, array $arguments)
-    {
-        throw new MethodUnknown(
-            sprintf('Trying to call unknown method [%s]. Assert methods available only in testing mode.', $name)
-        );
+        return 'projector';
     }
 }

@@ -15,7 +15,7 @@ use Framekit\Event;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  * @version   1.0.0
  */
 final class EventStore implements Store
@@ -109,7 +109,7 @@ final class EventStore implements Store
     /**
      * Load Stream based on id.
      *
-     * @param string|null $stream_id
+     * @param string|null $streamId
      * @param string|null $since
      * @param string|null $till
      * @param bool        $withMeta
@@ -119,12 +119,12 @@ final class EventStore implements Store
      * @codeCoverageIgnore
      */
     public function loadStream(
-        string $stream_id = null,
+        string $streamId = null,
         ?string $since = null,
         ?string $till = null,
         bool $withMeta = false
     ): array {
-        return $this->events[$stream_id] ?? [];
+        return $this->events[$streamId] ?? [];
     }
 
     /**

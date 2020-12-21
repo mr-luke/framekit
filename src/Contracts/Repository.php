@@ -12,7 +12,7 @@ use Framekit\AggregateRoot;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 interface Repository
 {
@@ -25,11 +25,11 @@ interface Repository
     public function persist(AggregateRoot $aggregate): void;
 
     /**
-     * Retrive aggraget by AggregateId.
+     * Retrieve aggregate by AggregateId.
      *
      * @param  string  $className
-     * @param  string  $aggregateId
+     * @param  int|string|\Framekit\Contracts\AggregateIdentifier  $aggregateId
      * @return \Framekit\AggregateRoot
      */
-    public function retrieve(string $className, string $aggregateId): AggregateRoot;
+    public function retrieve(string $className, $aggregateId): AggregateRoot;
 }

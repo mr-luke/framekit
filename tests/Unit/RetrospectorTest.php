@@ -10,6 +10,7 @@ use Framekit\Contracts\Store;
 use Framekit\Event;
 use Framekit\Eventing\Retrospector;
 use Framekit\Retrospection;
+use InvalidArgumentException;
 use Tests\NonPublicMethodTool;
 use Tests\UnitCase;
 
@@ -18,7 +19,7 @@ use Tests\UnitCase;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class RetrospectorTest extends UnitCase
 {
@@ -38,7 +39,7 @@ class RetrospectorTest extends UnitCase
 
     public function testThrowWhenIncludeAndExcludeAtOnce()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $retrospector = new Retrospector(
             $this->createMock(Bus::class),

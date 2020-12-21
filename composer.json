@@ -3,7 +3,7 @@
     "description": "Event Sourcing package",
     "keywords": ["event-sourcing", "laravel"],
     "type": "library",
-    "license": "MIT",
+    "licence": "MIT",
     "authors": [
         {
             "name": "Łukasz Sitnicki",
@@ -15,7 +15,8 @@
         "ext-json": "*",
         "laravel/framework": "^8.0|^7.0|^6.0|^5.7",
         "mr-luke/configuration": "^1.0",
-        "nesbot/carbon": "^2.16.0"
+        "nesbot/carbon": "^2.16.0",
+        "mr-luke/bus": "^1.0@beta"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.9",

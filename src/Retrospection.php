@@ -10,42 +10,41 @@ namespace Framekit;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
- *
+ * @licence   MIT
  * @codeCoverageIgnore
  */
 abstract class Retrospection
 {
     /**
-     * Determine which reactors should be ommitted.
+     * Determine which reactors should be omitted.
      *
      * @var array
      */
     public $filterReactors = [];
 
     /**
-     * Determine which stream should be ommitted.
+     * Determine which stream should be omitted.
      *
      * @var array
      */
     public $filterStreams = [];
 
     /**
-     * Determine which projections should be ommitted.
+     * Determine which projections should be omitted.
      *
      * @var array
      */
     public $filterProjections = [];
 
     /**
-     * Deremine if retrospection should project events.
+     * Determine if retrospection should project events.
      *
      * @var boolean
      */
     public $useProjections = true;
 
     /**
-     * Deremine if retrospection should publish events.
+     * Determine if retrospection should publish events.
      *
      * @var boolean
      */
@@ -78,8 +77,7 @@ abstract class Retrospection
      * Perform pre-action on Event.
      *
      * @param \Framekit\Event $event
-     *
-     * @return void
+     * @return \Framekit\Event
      */
     abstract public function preAction(Event $event): Event;
 }

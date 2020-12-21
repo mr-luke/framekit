@@ -16,7 +16,7 @@ use Illuminate\Foundation\Application;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class CommandBusTest extends UnitCase
 {

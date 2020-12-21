@@ -10,9 +10,9 @@ namespace Framekit\Contracts;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
-interface DTO
+interface DataTransferObject
 {
     /**
      * Cast all attributes to array.

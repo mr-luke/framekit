@@ -10,6 +10,7 @@ use Framekit\Contracts\Serializer;
 use Framekit\Contracts\Store;
 use Framekit\Event;
 use Framekit\Exceptions\MethodUnknown;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -21,7 +22,7 @@ use Mrluke\Configuration\Contracts\ArrayHost;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  * @version   1.0.0
  */
 final class EventStore implements Store
@@ -42,13 +43,14 @@ final class EventStore implements Store
     protected $serializer;
 
     /**
-     * @param \Mrluke\Configuration\Contracts\ArrayHost $connection
+     * @param \Mrluke\Configuration\Contracts\ArrayHost $config
      * @param \Framekit\Contracts\Serializer
+     * @param \Framekit\Contracts\Mapper                $mapper
      */
     function __construct(ArrayHost $config, Serializer $serializer, Mapper $mapper)
     {
-        $this->config     = $config;
-        $this->mapper     = $mapper;
+        $this->config = $config;
+        $this->mapper = $mapper;
         $this->serializer = $serializer;
     }
 
@@ -66,9 +68,9 @@ final class EventStore implements Store
         DB::beginTransaction();
 
         $last = $this->setupDBConnection()->where('stream_id', $stream_id)
-                     ->orderBy('sequence_no', 'DESC')
-                     ->lockForUpdate()
-                     ->first();
+            ->orderBy('sequence_no', 'DESC')
+            ->lockForUpdate()
+            ->first();
         $last = $last->sequence_no ?? 0;
 
         $common = $this->composeCommon($stream_type, $stream_id);
@@ -82,12 +84,17 @@ final class EventStore implements Store
                 );
             }
 
-            $this->setupDBConnection()->insert(array_merge($common, [
-                'event'       => get_class($e),
-                'payload'     => $this->serializer->serialize($e),
-                'version'     => $e::$eventVersion,
-                'sequence_no' => ++$last,
-            ]));
+            $this->setupDBConnection()->insert(
+                array_merge(
+                    $common,
+                    [
+                        'event'       => get_class($e),
+                        'payload'     => $this->serializer->serialize($e),
+                        'version'     => $e::$eventVersion,
+                        'sequence_no' => ++$last,
+                    ]
+                )
+            );
         }
 
         DB::commit();
@@ -101,7 +108,7 @@ final class EventStore implements Store
     public function getAvailableStreams(): array
     {
         $collection = $this->setupDBConnection()->distinct()->select('stream_type', 'stream_id')
-                           ->get();
+            ->get();
 
         return json_decode(json_encode($collection->toArray()), true);
     }
@@ -109,17 +116,21 @@ final class EventStore implements Store
     /**
      * Load Stream based on id.
      *
-     * @param string|null $stream_id
+     * @param string|null $streamId
      * @param string|null $since
      * @param string|null $till
      * @param bool        $withMeta
      *
      * @return array
      */
-    public function loadStream(string $stream_id = null, ?string $since = null, ?string $till = null, bool $withMeta = false): array
-    {
-        $events    = [];
-        $raw       = $this->getEvents($stream_id, $since, $till);
+    public function loadStream(
+        string $streamId = null,
+        ?string $since = null,
+        ?string $till = null,
+        bool $withMeta = false
+    ): array {
+        $events = [];
+        $raw = $this->getEvents($streamId, $since, $till);
         $rowsCount = count($raw);
         for ($i = 0; $i < $rowsCount; $i++) {
             if ($this->isVersionConflict($raw[$i]->payload, $raw[$i]->version)) {
@@ -150,7 +161,10 @@ final class EventStore implements Store
     public function __call(string $name, array $arguments)
     {
         throw new MethodUnknown(
-            sprintf('Trying to call unknown method [%s]. Assert methods available only in testing mode.', $name)
+            sprintf(
+                'Trying to call unknown method [%s]. Assert methods available only in testing mode.',
+                $name
+            )
         );
     }
 
@@ -167,13 +181,15 @@ final class EventStore implements Store
         $now = now();
 
         return [
-            'stream_type' => $stream_type,
-            'stream_id'   => $stream_id,
-            'meta'        => json_encode([
-                'auth' => auth()->check() ? auth()->user()->id : null,
-                'ip'   => request()->ip(),
-            ]),
-            'commited_at' => $now->toDateTimeString() . '.' . $now->micro,
+            'stream_type'  => $stream_type,
+            'stream_id'    => $stream_id,
+            'meta'         => json_encode(
+                [
+                    'auth' => auth()->check() ? auth()->user()->id : null,
+                    'ip'   => request()->ip(),
+                ]
+            ),
+            'committed_at' => $now->toDateTimeString() . '.' . $now->micro,
         ];
     }
 
@@ -182,14 +198,14 @@ final class EventStore implements Store
      *
      * @param string $payload
      * @param int    $version
-     *
      * @return bool
      */
     protected function isVersionConflict(string $payload, int $version): bool
     {
         $event = json_decode($payload, true);
+        $class = $event['class'];
 
-        return $event['class']::$eventVersion != $version;
+        return $class::$eventVersion != $version;
     }
 
     /**
@@ -217,10 +233,10 @@ final class EventStore implements Store
      *
      * @return \Illuminate\Database\Query\Builder
      */
-    private function setupDBConnection()
+    private function setupDBConnection(): Builder
     {
         return DB::connection($this->config->get('database'))
-                 ->table($this->config->get('tables.eventstore'));
+            ->table($this->config->get('tables.eventstore'));
     }
 
     /**
@@ -231,12 +247,12 @@ final class EventStore implements Store
     private function loadMeta(Serializable $event, bool $withMeta, $raw): void
     {
         if ($withMeta && $event instanceof Event) {
-            $meta                = json_decode($raw->meta, true);
-            $meta['id']          = $raw->id;
-            $meta['stream_id']   = $raw->stream_id;
+            $meta = json_decode($raw->meta, true);
+            $meta['id'] = $raw->id;
+            $meta['stream_id'] = $raw->stream_id;
             $meta['stream_type'] = $raw->stream_type;
-            $meta['commited_at'] = $raw->commited_at;
-            $event->__meta__     = $meta;
+            $meta['committed_at'] = $raw->committed_at;
+            $event->__meta__ = $meta;
         }
     }
 
@@ -247,23 +263,26 @@ final class EventStore implements Store
      *
      * @return \Illuminate\Support\Collection
      */
-    private function getEvents(?string $stream_id = null, ?string $since = null, ?string $till = null): Collection
-    {
+    private function getEvents(
+        ?string $stream_id = null,
+        ?string $since = null,
+        ?string $till = null
+    ): Collection {
         $query = $this->setupDBConnection();
 
         if (!empty($stream_id)) {
             $query->where('stream_id', $stream_id)
-                  ->orderBy('sequence_no');
+                ->orderBy('sequence_no');
         } else {
             $query->orderBy('id');
         }
 
         if (!empty($since)) {
-            $query->where('commited_at', '>=', $since);
+            $query->where('committed_at', '>=', $since);
         }
 
         if (!empty($till)) {
-            $query->where('commited_at', '<=', $till);
+            $query->where('committed_at', '<=', $till);
         }
 
         return $query->get();

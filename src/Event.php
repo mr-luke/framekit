@@ -14,7 +14,7 @@ use Framekit\Contracts\Serializable;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 abstract class Event implements Publishable, Serializable
 {
@@ -51,8 +51,6 @@ abstract class Event implements Publishable, Serializable
      */
     public function __construct()
     {
-        $now = Carbon::now();
-
-        $this->firedAt = ($now->timestamp * 1000000) + $now->micro;
+        $this->firedAt = (int) Carbon::now()->getPreciseTimestamp();
     }
 }

@@ -2,24 +2,25 @@
 
 namespace Tests\Unit;
 
+use Tests\Components\SumEntity;
 use Tests\UnitCase;
 
 use Carbon\Carbon;
 use Framekit\Contracts\Serializable;
-use Framekit\State;
+use Framekit\Entity;
 
 /**
  * State unit tests.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class StateTest extends UnitCase
 {
     public function testClassResolveContract()
     {
-        $state = $this->getMockForAbstractClass(State::class, ['uuid', Carbon::now()]);
+        $state = $this->getMockForAbstractClass(Entity::class, ['uuid', Carbon::now()]);
 
         $this->assertInstanceOf(
             Serializable::class,
@@ -30,7 +31,7 @@ class StateTest extends UnitCase
     public function testGetCreatedAt()
     {
         $date = Carbon::now();
-        $state = $this->getMockForAbstractClass(State::class, ['uuid', $date]);
+        $state = $this->getMockForAbstractClass(Entity::class, ['uuid', $date]);
 
         $this->assertEquals(
             $date,
@@ -46,7 +47,7 @@ class StateTest extends UnitCase
     public function testMarkAsRemoved()
     {
         $date = Carbon::now();
-        $state = $this->getMockForAbstractClass(State::class, ['uuid', $date]);
+        $state = $this->getMockForAbstractClass(Entity::class, ['uuid', $date]);
         $state->markAsRemoved($date->addDay());
 
         $this->assertEquals(
@@ -58,7 +59,7 @@ class StateTest extends UnitCase
     public function testInitState()
     {
         $date = Carbon::now();
-        $state = \Tests\Components\SumState::init('uuid');
+        $state = SumEntity::init('uuid');
 
         $this->assertEquals(
             $date->format('Y-m-d H:i'),

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Framekit;
 
+use Framekit\Contracts\AggregateIdentifier;
+use Framekit\Exceptions\InvalidAggregateIdentifier;
 use Framekit\Exceptions\MethodUnknown;
+use Framekit\Extensions\ValidatesUuid;
 
 /**
  * Aggregate abstract class.
@@ -12,45 +15,84 @@ use Framekit\Exceptions\MethodUnknown;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 abstract class AggregateRoot
 {
+    use ValidatesUuid;
+
     /**
-     * @var string (uuid)
+     * @var int|string|\Framekit\Contracts\AggregateIdentifier
      */
     protected $aggregateId;
 
     /**
-     * @var \Framekit\State
+     * @var \Framekit\Event[]
      */
-    protected $state;
+    protected $aggregatedEvents = [];
 
-    public function __construct(string $aggregateId)
+    /**
+     * @var \Framekit\Entity
+     */
+    protected $rootEntity;
+
+    /**
+     * @param $aggregateId
+     * @throws \Framekit\Exceptions\InvalidAggregateIdentifier
+     */
+    public function __construct($aggregateId)
     {
         $this->aggregateId = $aggregateId;
+        $this->validateAggregateIdentifier();
 
-        $this->boot();
+        $this->bootRootEntity();
     }
 
     /**
      * Return aggregate identifier.
      *
-     * @return string
+     * @return int|string|\Framekit\Contracts\AggregateIdentifier
      */
-    public function getId(): string
+    public function identifier()
     {
         return $this->aggregateId;
     }
 
     /**
-     * Return state of aggregate.
+     * Determine is apply change method exists.
      *
-     * @return \Framekit\State
+     * @param \Framekit\Event $event
+     * @return bool
      */
-    public function getState(): ?State
+    public function understandsEvent(Event $event): bool
     {
-        return $this->state;
+        return method_exists(
+            $this,
+            $this->composeApplierMethodName($event)
+        );
+    }
+
+    /**
+     * Return unpublished events.
+     *
+     * @return \Framekit\Event[]
+     */
+    public function unpublishedEvents(): array
+    {
+        $events = $this->aggregatedEvents;
+        $this->aggregatedEvents = [];
+
+        return $events;
+    }
+
+    /**
+     * Return root Entity of an aggregate.
+     *
+     * @return \Framekit\Entity
+     */
+    public function rootEntity(): ?Entity
+    {
+        return $this->rootEntity;
     }
 
     /**
@@ -95,6 +137,13 @@ abstract class AggregateRoot
     }
 
     /**
+     * Boot method is responsible for initiate root Entity.
+     *
+     * @return void
+     */
+    abstract protected function bootRootEntity(): void;
+
+    /**
      * Compose apply change method name.
      *
      * @param \Framekit\Event $event
@@ -109,23 +158,55 @@ abstract class AggregateRoot
     }
 
     /**
-     * Determine is apply change method exists.
+     * Fire Event on aggregate & add event to uncommitted.
      *
      * @param \Framekit\Event $event
-     * @return bool
+     * @return void
      */
-    protected function understandsEvent(Event $event): bool
+    protected function fireEvent(Event $event): void
     {
-        return method_exists(
-            $this,
-            $this->composeApplierMethodName($event)
-        );
+        $this->applyChange($event);
+
+        $this->aggregatedEvents[] = $event;
     }
 
     /**
-     * Boot method is responsible for creating init state.
+     * Validate if Aggregate has correct identifier applied.
      *
      * @return void
+     * @throws \Framekit\Exceptions\InvalidAggregateIdentifier
      */
-    abstract protected function boot(): void;
+    protected function validateAggregateIdentifier(): void
+    {
+        if (is_int($this->aggregateId)) {
+            if ($this->aggregateId < 1) {
+                throw new InvalidAggregateIdentifier(
+                    'Numeric identifier must be unsigned integer'
+                );
+            } else {
+                return;
+            }
+        }
+
+        if (is_string($this->aggregateId)) {
+            if (!$this->isValidUuid($this->aggregateId)) {
+                throw new InvalidAggregateIdentifier(
+                    'String identifier must be an UUID'
+                );
+            } else {
+                return;
+            }
+        }
+
+        if ($this->aggregateId instanceof AggregateIdentifier) {
+            return;
+        }
+
+        throw new InvalidAggregateIdentifier(
+            sprintf(
+                'Aggregate identifier must be either integer, string or %s instance',
+                AggregateIdentifier::class
+            )
+        );
+    }
 }

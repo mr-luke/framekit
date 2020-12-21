@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Framekit\Eventing;
 
+use Framekit\Contracts\AggregateIdentifier;
+use Framekit\Extensions\ValidatesUuid;
 use ReflectionClass;
 
 use Framekit\AggregateRoot;
-use Framekit\Contracts\Bus;
+use Framekit\Contracts\EventBus;
 use Framekit\Contracts\EventRepository;
 use Framekit\Contracts\Projector;
 use Framekit\Contracts\Store;
-use Framekit\Exceptions\UnsupportedAggregate;
+use Framekit\Exceptions\InvalidAggregateIdentifier;
 
 /**
  * EventStoreRepository class for Framekit.
@@ -19,13 +21,15 @@ use Framekit\Exceptions\UnsupportedAggregate;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  * @version   1.0.0
  */
 class EventStoreRepository implements EventRepository
 {
+    use ValidatesUuid;
+
     /**
-     * @var \Framekit\Contracts\Bus
+     * @var \Framekit\Contracts\EventBus
      */
     protected $eventBus;
 
@@ -40,30 +44,30 @@ class EventStoreRepository implements EventRepository
     protected $projector;
 
     /**
-     * @param \Framekit\Contracts\Bus       $bus
+     * @param \Framekit\Contracts\EventBus  $bus
      * @param \Framekit\Contracts\Store     $store
      * @param \Framekit\Contracts\Projector $projector
      */
-    function __construct(Bus $bus, Store $store, Projector $projector)
+    function __construct(EventBus $bus, Store $store, Projector $projector)
     {
-        $this->eventBus    = $bus;
-        $this->eventStore  = $store;
-        $this->projector   = $projector;
+        $this->eventBus = $bus;
+        $this->eventStore = $store;
+        $this->projector = $projector;
     }
 
     /**
      * Persist changes made on Aggregate.
      *
-     * @param  \Framekit\AggregateRoot $aggregate
+     * @param \Framekit\AggregateRoot $aggregate
      * @return void
      */
     public function persist(AggregateRoot $aggregate): void
     {
-        $uncommittedEvents = $aggregate->getUncommittedEvents();
+        $uncommittedEvents = $aggregate->unpublishedEvents();
 
         $this->eventStore->commitToStream(
             get_class($aggregate),
-            $aggregate->getId(),
+            $aggregate->identifier(),
             $uncommittedEvents
         );
 
@@ -77,29 +81,39 @@ class EventStoreRepository implements EventRepository
     /**
      * Retrieve aggregate by AggregateId.
      *
-     * @param string $className
-     * @param string $aggregateId
+     * @param string                                             $className
+     * @param int|string|\Framekit\Contracts\AggregateIdentifier $aggregateId
      * @return \Framekit\AggregateRoot
-     * @throws \Framekit\Exceptions\UnsupportedAggregate|\ReflectionException
+     * @throws \Framekit\Exceptions\InvalidAggregateIdentifier|\ReflectionException
      */
-    public function retrieve(string $className, string $aggregateId): AggregateRoot
+    public function retrieve(string $className, $aggregateId): AggregateRoot
     {
-        if (! class_exists($className)) {
-            throw new UnsupportedAggregate(
+        if (!class_exists($className)) {
+            throw new InvalidAggregateIdentifier(
                 sprintf('Class not found %s', $className)
+            );
+        }
+
+        $identifier = $aggregateId instanceof AggregateIdentifier
+            ? $aggregateId->toString() : $aggregateId;
+
+        if (!is_string($identifier) || !$this->isValidUuid($identifier)) {
+            throw new InvalidAggregateIdentifier(
+                'EventStore requires uuid as an aggregate identifier'
             );
         }
 
         $reflection = new ReflectionClass($className);
 
-        if (! $reflection->isInstantiable() || ! $reflection->isSubclassOf(AggregateRoot::class)) {
-            throw new UnsupportedAggregate(
+        if (!$reflection->isInstantiable() || !$reflection->isSubclassOf(AggregateRoot::class)) {
+            throw new InvalidAggregateIdentifier(
                 sprintf('Aggregate has to extend %s', AggregateRoot::class)
             );
         }
 
-        $stream = $this->eventStore->loadStream($aggregateId);
-
-        return $className::recreateFromStream($aggregateId, $stream);
+        return $className::recreateFromStream(
+            $aggregateId,
+            $this->eventStore->loadStream($identifier)
+        );
     }
 }

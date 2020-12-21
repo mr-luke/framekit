@@ -6,47 +6,35 @@ namespace Framekit\Contracts;
 
 use Framekit\AggregateRoot;
 use Framekit\Event;
+use Mrluke\Bus\Contracts\Bus;
+use Mrluke\Bus\Contracts\Process;
 
 /**
  * Projector contract.
  *
- * @author    Łukasz Sitnicki (mr-luke)
- * @package   mr-luke/framekit
- * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @author  Łukasz Sitnicki (mr-luke)
+ * @package mr-luke/framekit
+ * @link    http://github.com/mr-luke/framekit
+ * @licence MIT
+ * @version 2.0.0
  */
-interface Projector
+interface Projector extends Bus
 {
     /**
-     * Return registered Projections list.
+     * Project changes for given aggregate.
      *
-     * @return array
+     * @param \Framekit\AggregateRoot $aggregate
+     * @param array                   $events
+     * @return \Mrluke\Bus\Contracts\Process
      */
-    public function projections(): array;
+    public function project(AggregateRoot $aggregate, array $events): Process;
 
     /**
      * Project changes for given aggregate.
      *
-     * @param  \Framekit\AggregateRoot  $aggregate
-     * @param  array                    $events
-     * @return void
+     * @param string          $aggregate
+     * @param \Framekit\Event $event
+     * @return \Mrluke\Bus\Contracts\Process
      */
-    public function project(AggregateRoot $aggregate, array $events): void;
-
-    /**
-     * Project changes for given aggregate.
-     *
-     * @param  string           $aggregate
-     * @param  \Framekit\Event  $event
-     * @return void
-     */
-    public function projectByEvent(string $aggregate, Event $event): void;
-
-    /**
-     * Register Projections stack.
-     *
-     * @param  array $stack
-     * @return void
-     */
-    public function register(array $stack): void;
+    public function projectByEvent(string $aggregate, Event $event): Process;
 }

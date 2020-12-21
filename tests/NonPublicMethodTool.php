@@ -10,7 +10,7 @@ use ReflectionMethod;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 trait NonPublicMethodTool
 {

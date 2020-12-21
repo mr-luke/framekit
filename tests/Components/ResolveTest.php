@@ -2,11 +2,12 @@
 
 namespace Tests\Components;
 
-use Framekit\Contracts\Command;
-use Framekit\Handler;
+use Mrluke\Bus\Contracts\Instruction;
+use Mrluke\Bus\Contracts\Handler;
+
 use Illuminate\Http\Request;
 
-class ResolveTest extends Handler
+class ResolveTest implements Handler
 {
     public $class;
 
@@ -18,11 +19,8 @@ class ResolveTest extends Handler
     /**
      * Apply event to state.
      *
-     * @param  \Framekit\Contracts\Command  $command
+     * @param \Mrluke\Bus\Contracts\Instruction $instruction
      * @return void
      */
-    public function handle(Command $command): void
-    {
-
-    }
+    public function handle(Instruction $instruction) {}
 }

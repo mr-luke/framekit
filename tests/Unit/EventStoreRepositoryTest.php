@@ -13,14 +13,14 @@ use Framekit\Contracts\Repository;
 use Framekit\Contracts\Store;
 use Framekit\Eventing\EventStoreRepository;
 use Framekit\Event;
-use Framekit\Exceptions\UnsupportedAggregate;
+use Framekit\Exceptions\InvalidAggregateIdentifier;
 
 /**
  * EventStoreRepository unit tests.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class EventStoreRepositoryTest extends UnitCase
 {
@@ -139,7 +139,7 @@ class EventStoreRepositoryTest extends UnitCase
 
     public function testTrownWhenRetriveHasNoClass()
     {
-        $this->expectException(UnsupportedAggregate::class);
+        $this->expectException(InvalidAggregateIdentifier::class);
 
         $repository = new EventStoreRepository(
             $this->createMock(Bus::class),
@@ -152,7 +152,7 @@ class EventStoreRepositoryTest extends UnitCase
 
     public function testTrownWhenRetriveHasNoAggregate()
     {
-        $this->expectException(UnsupportedAggregate::class);
+        $this->expectException(InvalidAggregateIdentifier::class);
 
         $repository = new EventStoreRepository(
             $this->createMock(Bus::class),

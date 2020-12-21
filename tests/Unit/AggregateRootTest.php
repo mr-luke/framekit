@@ -2,6 +2,8 @@
 
 namespace Tests\Unit;
 
+use Tests\Components\IntegerAdded;
+use Tests\Components\TestAggregate;
 use Tests\NonPublicMethodTool;
 use Tests\UnitCase;
 
@@ -13,7 +15,7 @@ use Framekit\Exceptions\MethodUnknown;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class AggregateRootTest extends UnitCase
 {
@@ -51,12 +53,12 @@ class AggregateRootTest extends UnitCase
     {
         $this->expectException(MethodUnknown::class);
 
-        \Tests\Components\TestAggregate::dummyMethod();
+        TestAggregate::dummyMethod();
     }
 
     public function testApplyChangeMethod()
     {
-        $event = new \Tests\Components\IntegerAdded(2);
+        $event = new IntegerAdded(2);
         $aggreagate = $this->getMockBuilder(AggregateRoot::class)
                            ->disableOriginalConstructor()
                            ->setMethods(['applyIntegerAdded'])

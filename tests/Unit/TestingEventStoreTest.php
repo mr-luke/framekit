@@ -13,7 +13,7 @@ use Framekit\Testing\EventStore;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class TestingEventStoreTest extends UnitCase
 {

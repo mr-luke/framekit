@@ -15,6 +15,9 @@ class CreateSnapshotsTable extends Migration
      */
     protected $config;
 
+    /**
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
     public function __construct()
     {
         $this->config = app()->make(FramekitConfig::class);
@@ -32,7 +35,7 @@ class CreateSnapshotsTable extends Migration
             $table->uuid('stream_id');
             $table->unsignedInteger('event_id');
             $table->text('state');
-            $table->unsignedInteger('commited')->default(0);
+            $table->unsignedInteger('committed')->default(0);
             $table->timestamp('created_at');
 
             $table->foreign('event_id')

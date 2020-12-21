@@ -18,7 +18,7 @@ use Framekit\Projection;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 final class Projector implements Contract
 {

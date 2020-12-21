@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Framekit\Providers\FramekitServiceProvider;
 use Orchestra\Testbench\TestCase;
 
 /**
@@ -9,7 +10,7 @@ use Orchestra\Testbench\TestCase;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class AppCase extends TestCase
 {
@@ -83,7 +84,7 @@ class AppCase extends TestCase
     protected function getPackageProviders($app): array
     {
         return [
-            \Framekit\Providers\FramekitServiceProvider::class,
+            FramekitServiceProvider::class,
         ];
     }
 }

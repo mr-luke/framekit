@@ -2,7 +2,7 @@
 
 namespace Tests\Components;
 
-use Framekit\State;
+use Framekit\Entity;
 
 /**
  * SumState.
@@ -10,9 +10,9 @@ use Framekit\State;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
-class SumState extends State
+class SumEntity extends Entity
 {
     /**
      * Integer sum.

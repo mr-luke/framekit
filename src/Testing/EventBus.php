@@ -16,7 +16,7 @@ use Framekit\Contracts\Publishable;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 final class EventBus implements Bus
 {
@@ -135,12 +135,12 @@ final class EventBus implements Bus
     /**
      * Handle Publishable with coresponding Handler.
      *
-     * @param  \Framekit\Contracts\Publishable  $source
+     * @param  \Framekit\Contracts\Publishable $event
      * @return void
      */
-    public function publish(Publishable $source): void
+    public function publish(Publishable $event): void
     {
-        $eventType = get_class($source);
+        $eventType = get_class($event);
         $reactors  = $this->globals;
 
         if (isset($this->register[$eventType])) {

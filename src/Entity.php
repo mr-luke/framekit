@@ -13,9 +13,9 @@ use Framekit\Contracts\Serializable;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
-abstract class State implements Serializable
+abstract class Entity implements Serializable
 {
     /**
      * Aggregate state identifier.
@@ -25,14 +25,14 @@ abstract class State implements Serializable
     public $id;
 
     /**
-     * Date of aggragate creation.
+     * Date of aggregate creation.
      *
      * @var \Carbon\Carbon;
      */
     protected $createdAt;
 
     /**
-     * Date of aggragate creation.
+     * Date of aggregate creation.
      *
      * @var \Carbon\Carbon;
      */
@@ -49,28 +49,22 @@ abstract class State implements Serializable
     }
 
     /**
+     * Return time when Entity was created.
+     *
      * @return \Carbon\Carbon|null
      */
-    public function getCreatedAt(): ?Carbon
+    public function createdAt(): ?Carbon
     {
         return $this->createdAt;
     }
 
     /**
-     * @return \Carbon\Carbon|null
-     */
-    public function getDeletedAt(): ?Carbon
-    {
-        return $this->deletedAt;
-    }
-
-    /**
-     * Create new instance with date.
+     * Create new instance with current date.
      *
      * @param  mixed $id
      * @return self
      */
-    public static function init($id): self
+    public static function createWithCurrentTime($id): self
     {
         return new static(
             $id,
@@ -79,12 +73,44 @@ abstract class State implements Serializable
     }
 
     /**
-     * Mark state as deleted.
+     * Return time when Entity was deleted.
+     *
+     * @return \Carbon\Carbon|null
+     */
+    public function deletedAt(): ?Carbon
+    {
+        return $this->deletedAt;
+    }
+
+    /**
+     * Determine if Entity has already been deleted.
+     *
+     * @return bool
+     */
+    public function isAlreadyDeleted(): bool
+    {
+        return empty($this->deletedAt);
+    }
+
+    /**
+     * Mark Entity as deleted now.
+     *
+     * @return void
+     */
+    public function markAsRemoved(): void
+    {
+        $this->markAsRemovedAtDate(
+            Carbon::now()
+        );
+    }
+
+    /**
+     * Mark Entity as deleted at specific date.
      *
      * @param  \Carbon\Carbon  $deletedAt
      * @return void
      */
-    public function markAsRemoved(Carbon $deletedAt): void
+    public function markAsRemovedAtDate(Carbon $deletedAt): void
     {
         $this->deletedAt = $deletedAt;
     }

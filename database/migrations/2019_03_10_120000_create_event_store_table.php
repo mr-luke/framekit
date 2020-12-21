@@ -15,6 +15,9 @@ class CreateEventStoreTable extends Migration
      */
     protected $config;
 
+    /**
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
     public function __construct()
     {
         $this->config = app()->make(FramekitConfig::class);
@@ -36,7 +39,7 @@ class CreateEventStoreTable extends Migration
             $table->unsignedSmallInteger('version');
             $table->unsignedInteger('sequence_no')->default(0);
             $table->jsonb('meta');
-            $table->timestamp('commited_at', 6);
+            $table->timestamp('committed_at', 6);
         });
     }
 

@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Framekit\Eventing;
 
-use Framekit\Contracts\Bus;
+use Framekit\Contracts\EventBus;
 use Framekit\Contracts\Projector;
 use Framekit\Contracts\Retrospector as Contract;
 use Framekit\Contracts\Store;
 use Framekit\Event;
 use Framekit\Retrospection;
+use InvalidArgumentException;
 
 /**
  * Retrospector class for Framekit.
@@ -17,13 +18,13 @@ use Framekit\Retrospection;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  * @version   1.0.0
  */
 class Retrospector implements Contract
 {
     /**
-     * @var \Framekit\Contracts\Bus
+     * @var \Framekit\Contracts\EventBus
      */
     protected $eventBus;
 
@@ -38,15 +39,15 @@ class Retrospector implements Contract
     protected $projector;
 
     /**
-     * @param \Framekit\Contracts\Bus       $bus
-     * @param \Framekit\Contracts\Store     $store
+     * @param \Framekit\Contracts\EventBus $bus
+     * @param \Framekit\Contracts\Store $store
      * @param \Framekit\Contracts\Projector $projector
      */
-    function __construct(Bus $bus, Store $store, Projector $projector)
+    function __construct(EventBus $bus, Store $store, Projector $projector)
     {
-        $this->eventBus   = $bus;
+        $this->eventBus = $bus;
         $this->eventStore = $store;
-        $this->projector  = $projector;
+        $this->projector = $projector;
     }
 
     /**
@@ -71,7 +72,7 @@ class Retrospector implements Contract
                     }
                 }
             }
-        } elseif (isset($map['exclude']) && count($map['exclude'])) {
+        } else if (isset($map['exclude']) && count($map['exclude'])) {
             foreach ($handlers as $event => $handler) {
                 if (is_array($handler)) {
                     $allowedHandlers = array_values(array_diff($handler, $map['exclude']));
@@ -99,7 +100,7 @@ class Retrospector implements Contract
     {
         if (isset($map['include']) && count($map['include'])) {
             return in_array($streamId, $map['include']);
-        } elseif (isset($map['exclude']) && count($map['exclude'])) {
+        } else if (isset($map['exclude']) && count($map['exclude'])) {
             return !in_array($streamId, $map['exclude']);
         } else {
             return true;
@@ -116,7 +117,7 @@ class Retrospector implements Contract
     {
         if (isset($map['include']) && count($map['include'])) {
             return in_array(get_class($event), $map['include']);
-        } elseif (isset($map['exclude']) && count($map['exclude'])) {
+        } else if (isset($map['exclude']) && count($map['exclude'])) {
             return !in_array(get_class($event), $map['exclude']);
         } else {
             return true;
@@ -149,7 +150,7 @@ class Retrospector implements Contract
         }
 
         // @todo: move filterStreams before loadStream so we dont lead all events
-        // @todo: allow loadStream to get array of uuids of sterams
+        // @todo: allow loadStream to get array of uuids of streams
         $events = $this->eventStore
             ->loadStream(
                 null,
@@ -168,7 +169,10 @@ class Retrospector implements Contract
 
             $e = $retrospection->preAction($e);
 
-            if ($retrospection->useProjections && $this->filterProjections($e, $retrospection->filterProjections)) {
+            if ($retrospection->useProjections && $this->filterProjections(
+                    $e,
+                    $retrospection->filterProjections
+                )) {
                 $this->projector->projectByEvent($meta['stream_type'], $e);
             }
 
@@ -186,8 +190,8 @@ class Retrospector implements Contract
     private function validateMap(array $map): void
     {
         if (isset($map['include']) && isset($map['exclude'])) {
-            throw new \InvalidArgumentException(
-                'Invalid Retrospection configuration. [include] & [exclude] not allowed simultanously'
+            throw new InvalidArgumentException(
+                'Invalid Retrospection configuration. [include] & [exclude] not allowed simultaneously'
             );
         }
     }

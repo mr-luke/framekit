@@ -13,7 +13,7 @@ use Framekit\Events\AggregateCreated;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class AggregateCreatedTest extends UnitCase
 {

@@ -7,6 +7,8 @@ use Framekit\Event;
 use Framekit\Exceptions\UnsupportedEvent;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
+use Tests\Components\DummyReactor;
+use Tests\Components\IntegerAdded;
 use Tests\FeatureCase;
 use Tests\NonPublicMethodTool;
 
@@ -15,7 +17,7 @@ use Tests\NonPublicMethodTool;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class EventBusTest extends FeatureCase
 {
@@ -39,7 +41,7 @@ class EventBusTest extends FeatureCase
         $bus = new EventBus($appMock);
 
         $compose = self::getMethodOfClass(EventBus::class, 'fireEventReactors');
-        $compose->invokeArgs($bus, [new \Tests\Components\IntegerAdded(2), 'Tests\Components\ResolveTest']);
+        $compose->invokeArgs($bus, [new IntegerAdded(2), 'Tests\Components\ResolveTest']);
     }
 
     public function testFireEventReactorsMethod()
@@ -106,7 +108,7 @@ class EventBusTest extends FeatureCase
                   ->method('dummy');
 
         $bus = new EventBus($this->createMock(Application::class), [
-            get_class($eventMock) => \Tests\Components\DummyReactor::class,
+            get_class($eventMock) => DummyReactor::class,
         ]);
         $bus->publish($eventMock);
     }
@@ -121,9 +123,9 @@ class EventBusTest extends FeatureCase
                   ->method('dummy');
 
         $bus = new EventBus($this->createMock(Application::class), [
-            get_class($eventMock) => \Tests\Components\DummyReactor::class,
+            get_class($eventMock) => DummyReactor::class,
         ], [
-            get_class($eventMock) => \Tests\Components\DummyReactor::class,
+            get_class($eventMock) => DummyReactor::class,
         ]);
 
         $bus->publish($eventMock);
