@@ -2,6 +2,11 @@
 
 namespace Framekit\Providers;
 
+use Illuminate\Support\ServiceProvider;
+use Mrluke\Configuration\Host;
+use Mrluke\Configuration\Schema;
+
+use Framekit\Contracts\CommandBus;
 use Framekit\Contracts\Config;
 use Framekit\Contracts\EventRepository;
 use Framekit\Contracts\Mapper;
@@ -13,9 +18,6 @@ use Framekit\Drivers\Projector;
 use Framekit\Eventing\EventSerializer;
 use Framekit\Eventing\EventStoreRepository;
 use Framekit\Eventing\Retrospector;
-use Illuminate\Support\ServiceProvider;
-use Mrluke\Configuration\Host;
-use Mrluke\Configuration\Schema;
 
 /**
  * ServiceProvider for package.
@@ -58,6 +60,13 @@ class FramekitServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../../config/framekit.php', 'framekit');
+
+        $this->app->bind(
+            CommandBus::class,
+            function($app) {
+                return $app->make(\Mrluke\Bus\Contracts\CommandBus::class);
+            }
+        );
 
         $this->app->singleton(
             Config::class,

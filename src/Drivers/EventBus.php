@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Framekit\Drivers;
 
-use Framekit\Contracts\EventBus as EventBusAliasContract;
 use Mrluke\Bus\AbstractBus;
 use Mrluke\Bus\Contracts\Handler;
 use Mrluke\Bus\Contracts\Instruction;
@@ -14,7 +13,9 @@ use Mrluke\Bus\Exceptions\InvalidHandler;
 use Mrluke\Bus\Extensions\FiresMultipleHandlers;
 use ReflectionClass;
 
+use Framekit\Contracts\EventBus as EventBusContract;
 use Framekit\Event;
+use Framekit\Exceptions\MissingReactor;
 
 /**
  * EventBus is responsible for detecting reaction.
@@ -25,7 +26,7 @@ use Framekit\Event;
  * @licence MIT
  * @version 2.0.0
  */
-final class EventBus extends AbstractBus implements EventBusAliasContract
+final class EventBus extends AbstractBus implements EventBusContract
 {
     use FiresMultipleHandlers;
 
@@ -114,5 +115,18 @@ final class EventBus extends AbstractBus implements EventBusAliasContract
     protected function getBusName(): string
     {
         return 'event-bus';
+    }
+
+    /**
+     * Throw exception when handler is missing.
+     *
+     * @param \Mrluke\Bus\Contracts\Instruction $instruction
+     * @throws \Mrluke\Bus\Exceptions\MissingHandler
+     */
+    protected function throwOnMissingHandler(Instruction $instruction): void
+    {
+        throw new MissingReactor(
+            sprintf('Missing handler for the event [%s]', get_class($instruction))
+        );
     }
 }

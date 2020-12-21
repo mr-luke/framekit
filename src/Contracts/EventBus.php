@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Framekit\Contracts;
 
-use Mrluke\Bus\Contracts\Bus;
 use Mrluke\Bus\Contracts\Process;
 
 use Framekit\Event;
@@ -18,7 +17,7 @@ use Framekit\Event;
  * @licence MIT
  * @version 2.0.0
  */
-interface EventBus extends Bus
+interface EventBus
 {
     /**
      * Return registered global Reactors list.

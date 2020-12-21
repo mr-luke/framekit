@@ -8,7 +8,7 @@ use Tests\NonPublicMethodTool;
 use Framekit\Contracts\Bus;
 use Framekit\Contracts\Publishable;
 use Framekit\Drivers\CommandBus;
-use Framekit\Exceptions\MissingHandler;
+use Framekit\Exceptions\MissingReactor;
 use Illuminate\Foundation\Application;
 
 /**
@@ -58,7 +58,7 @@ class CommandBusTest extends UnitCase
 
     public function testThrowsWhenCommandNotRegistered()
     {
-        $this->expectException(MissingHandler::class);
+        $this->expectException(MissingReactor::class);
 
         $bus = new CommandBus($this->createMock(Application::class));
 
@@ -68,7 +68,7 @@ class CommandBusTest extends UnitCase
 
     public function testThrowsWhenCommandHasNoHandlerRegistered()
     {
-        $this->expectException(MissingHandler::class);
+        $this->expectException(MissingReactor::class);
 
         $bus = new CommandBus($this->createMock(Application::class), ['BadClass' => null]);
 

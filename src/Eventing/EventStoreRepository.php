@@ -60,6 +60,12 @@ class EventStoreRepository implements EventRepository
      *
      * @param \Framekit\AggregateRoot $aggregate
      * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Mrluke\Bus\Exceptions\InvalidAction
+     * @throws \Mrluke\Bus\Exceptions\InvalidHandler
+     * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
+     * @throws \Mrluke\Bus\Exceptions\MissingHandler
+     * @throws \ReflectionException
      */
     public function persist(AggregateRoot $aggregate): void
     {

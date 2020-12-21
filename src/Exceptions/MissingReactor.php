@@ -4,4 +4,4 @@ namespace Framekit\Exceptions;
 
 use Mrluke\Bus\Exceptions\MissingHandler;
 
-class MissingProjection extends MissingHandler {}
+class MissingReactor extends MissingHandler {}

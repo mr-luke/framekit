@@ -20,9 +20,9 @@ interface Repository
      * Persist changes made on Aggregate.
      *
      * @param  \Framekit\AggregateRoot $aggregate
-     * @return void
+     * @return mixed
      */
-    public function persist(AggregateRoot $aggregate): void;
+    public function persist(AggregateRoot $aggregate);
 
     /**
      * Retrieve aggregate by AggregateId.
