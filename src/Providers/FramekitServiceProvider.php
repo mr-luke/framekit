@@ -2,7 +2,12 @@
 
 namespace Framekit\Providers;
 
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Queue\Factory;
+use Illuminate\Log\Logger;
+use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\ServiceProvider;
+use Mrluke\Bus\Contracts\ProcessRepository;
 use Mrluke\Configuration\Host;
 use Mrluke\Configuration\Schema;
 
@@ -136,7 +141,18 @@ class FramekitServiceProvider extends ServiceProvider
         $this->app->singleton(
             'framekit.event.bus',
             function($app) {
-                return new EventBus($app);
+                /* @var \Illuminate\Foundation\Application $app */
+                $container = $app->make(Container::class);
+
+                return new EventBus(
+                    $app->make(ProcessRepository::class),
+                    $container,
+                    new Pipeline($container),
+                    $app->make(Logger::class),
+                    function($connection = null) use ($app) {
+                        return $app->make(Factory::class)->connection($connection);
+                    }
+                );
             }
         );
 
