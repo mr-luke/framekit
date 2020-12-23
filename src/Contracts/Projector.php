@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Framekit\Contracts;
 
+use Mrluke\Bus\Contracts\Process;
+
 use Framekit\AggregateRoot;
 use Framekit\Event;
-use Mrluke\Bus\Contracts\Bus;
-use Mrluke\Bus\Contracts\Process;
 
 /**
  * Projector contract.
@@ -18,7 +18,7 @@ use Mrluke\Bus\Contracts\Process;
  * @licence MIT
  * @version 2.0.0
  */
-interface Projector extends Bus
+interface Projector
 {
     /**
      * Project changes for given aggregate.

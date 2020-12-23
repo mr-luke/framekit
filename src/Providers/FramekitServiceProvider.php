@@ -145,6 +145,7 @@ class FramekitServiceProvider extends ServiceProvider
                 $container = $app->make(Container::class);
 
                 return new EventBus(
+                    $app->make(Config::class),
                     $app->make(ProcessRepository::class),
                     $container,
                     new Pipeline($container),

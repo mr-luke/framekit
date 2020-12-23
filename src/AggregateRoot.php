@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Framekit;
 
 use Framekit\Contracts\AggregateIdentifier;
+use Framekit\Contracts\Projectable;
 use Framekit\Exceptions\InvalidAggregateIdentifier;
 use Framekit\Exceptions\MethodUnknown;
 use Framekit\Extensions\ValidatesUuid;
@@ -17,7 +18,7 @@ use Framekit\Extensions\ValidatesUuid;
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT
  */
-abstract class AggregateRoot
+abstract class AggregateRoot implements Projectable
 {
     use ValidatesUuid;
 

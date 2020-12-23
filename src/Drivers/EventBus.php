@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace Framekit\Drivers;
 
-use Mrluke\Bus\AbstractBus;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Log\Logger;
+use Illuminate\Routing\Pipeline;
 use Mrluke\Bus\Contracts\Handler;
+use Mrluke\Bus\Contracts\HasAsyncProcesses;
 use Mrluke\Bus\Contracts\Instruction;
 use Mrluke\Bus\Contracts\Process;
+use Mrluke\Bus\Contracts\ProcessRepository;
 use Mrluke\Bus\Contracts\ShouldBeAsync;
 use Mrluke\Bus\Exceptions\InvalidHandler;
-use Mrluke\Bus\Extensions\FiresMultipleHandlers;
+use Mrluke\Bus\Extensions\UsesDefaultQueue;
+use Mrluke\Bus\MultipleHandlerBus;
+use Mrluke\Configuration\Contracts\ArrayHost;
 use ReflectionClass;
 
 use Framekit\Contracts\EventBus as EventBusContract;
@@ -26,9 +32,15 @@ use Framekit\Exceptions\MissingReactor;
  * @licence MIT
  * @version 2.0.0
  */
-final class EventBus extends AbstractBus implements EventBusContract
+class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncProcesses
 {
-    use FiresMultipleHandlers;
+    use UsesDefaultQueue;
+
+    /** Determine if process should be delete on success.
+     *
+     * @var bool
+     */
+    protected $cleanOnSuccess = false;
 
     /**
      * Register of global Reactors.
@@ -36,6 +48,26 @@ final class EventBus extends AbstractBus implements EventBusContract
      * @var array
      */
     protected $globals = [];
+
+    /**
+     * Determine if Bus should stop executing on exception.
+     *
+     * @var bool
+     */
+    protected $stopOnException = false;
+
+    public function __construct(
+        ArrayHost $config,
+        ProcessRepository $repository,
+        Container $container,
+        Pipeline $pipeline,
+        Logger $logger,
+        $queueResolver = null
+    ) {
+        parent::__construct($repository, $container, $pipeline, $logger, $queueResolver);
+
+        $this->queueConnection = $config->get('queues.event_bus');
+    }
 
     /**
      * Return registered global Reactors list.

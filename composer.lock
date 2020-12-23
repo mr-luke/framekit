@@ -434,16 +434,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v8.19.0",
+            "version": "v8.20.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "f5f331cee60f1bbe672503b7eb9ba5b22b2ceacb"
+                "reference": "b5d8573ab16027867eaa1ac148893833434f9b02"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/f5f331cee60f1bbe672503b7eb9ba5b22b2ceacb",
-                "reference": "f5f331cee60f1bbe672503b7eb9ba5b22b2ceacb",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/b5d8573ab16027867eaa1ac148893833434f9b02",
+                "reference": "b5d8573ab16027867eaa1ac148893833434f9b02",
                 "shasum": ""
             },
             "require": {
@@ -597,7 +597,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2020-12-15T16:16:31+00:00"
+            "time": "2020-12-22T21:21:19+00:00"
         },
         {
             "name": "league/commonmark",
@@ -948,16 +948,16 @@
         },
         {
             "name": "mr-luke/bus",
-            "version": "1.0.0-rc.3",
+            "version": "1.0.0-rc.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mr-luke/bus.git",
-                "reference": "23fc821038d4195e13ce1b98140cc3539b3243e4"
+                "reference": "1683ac9547b5041a10710be911a6bebb2248ad84"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mr-luke/bus/zipball/23fc821038d4195e13ce1b98140cc3539b3243e4",
-                "reference": "23fc821038d4195e13ce1b98140cc3539b3243e4",
+                "url": "https://api.github.com/repos/mr-luke/bus/zipball/1683ac9547b5041a10710be911a6bebb2248ad84",
+                "reference": "1683ac9547b5041a10710be911a6bebb2248ad84",
                 "shasum": ""
             },
             "require": {
@@ -1004,9 +1004,9 @@
             ],
             "support": {
                 "issues": "https://github.com/mr-luke/bus/issues",
-                "source": "https://github.com/mr-luke/bus/tree/1.0.0-rc.3"
+                "source": "https://github.com/mr-luke/bus/tree/1.0.0-rc.5"
             },
-            "time": "2020-12-21T20:53:32+00:00"
+            "time": "2020-12-23T12:58:02+00:00"
         },
         {
             "name": "mr-luke/configuration",
