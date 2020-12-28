@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Framekit\Drivers;
 
-use InvalidArgumentException;
-use Mrluke\Bus\AbstractBus;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Log\Logger;
+use Mrluke\Bus\Contracts\AsyncBus;
 use Mrluke\Bus\Contracts\Process;
+use Mrluke\Bus\Contracts\ProcessRepository;
+use Mrluke\Bus\Extensions\UsesDefaultQueue;
+use Mrluke\Bus\MultipleHandlerBus;
+use Mrluke\Configuration\Contracts\ArrayHost;
 
 use Framekit\AggregateRoot;
 use Framekit\Contracts\Projector as ProjectorContract;
@@ -20,45 +25,88 @@ use Framekit\Event;
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT
  */
-class Projector extends AbstractBus implements ProjectorContract
+class Projector extends MultipleHandlerBus implements ProjectorContract, AsyncBus
 {
-    /**
-     * Project changes for given aggregate.
+    use UsesDefaultQueue;
+
+    /** Determine if process should be delete on success.
      *
-     * @param \Framekit\AggregateRoot $aggregate
-     * @param array                   $events
-     * @return \Mrluke\Bus\Contracts\Process
+     * @var bool
      */
-    public function project(AggregateRoot $aggregate, array $events): Process
-    {
-        // @TODO: refactor
-        $projection = $this->getProjection(get_class($aggregate));
+    public bool $cleanOnSuccess = false;
 
-        foreach ($events as $e) {
-            if (!$e instanceof Event) {
-                throw new InvalidArgumentException(
-                    sprintf('Projected events must be instance of %s', Event::class)
-                );
-            }
+    /**
+     * Determine if Bus should stop executing on exception.
+     *
+     * @var bool
+     */
+    public bool $stopOnException = false;
 
-            $projection->handle($e);
-        }
+    /**
+     * Determine if Bus should throw if there's no handler to process.
+     *
+     * @var bool
+     */
+    public bool $throwWhenNoHandler = false;
+
+    /**
+     * @param \Mrluke\Configuration\Contracts\ArrayHost $config
+     * @param \Mrluke\Bus\Contracts\ProcessRepository   $repository
+     * @param \Illuminate\Contracts\Container\Container $container
+     * @param \Illuminate\Log\Logger                    $logger
+     * @param null                                      $queueResolver
+     */
+    public function __construct(
+        ArrayHost $config,
+        ProcessRepository $repository,
+        Container $container,
+        Logger $logger,
+        $queueResolver = null
+    ) {
+        parent::__construct($repository, $container, $logger, $queueResolver);
+
+        $this->queueName = $config->get('queues.projector');
     }
 
     /**
-     * Project changes for given aggregate.
+     * Return registered Projections list.
      *
-     * @param string          $aggregate
-     * @param \Framekit\Event $event
-     * @return void
-     *
-     * @throws \Framekit\Exceptions\MissingProjection
-     * @throws \ReflectionException
+     * @return array
+     * @codeCoverageIgnore
      */
-    public function projectByEvent(string $aggregate, Event $event): Process
+    public function aggregateProjections(): array
     {
-        $projection = $this->getProjection($aggregate);
-        $projection->handle($event);
+        return $this->handlers;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function project(AggregateRoot $aggregate): array
+    {
+        return $this->dispatchMultiple(
+            $aggregate,
+            $aggregate->unpublishedEvents()
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function projectByEvents(AggregateRoot $aggregate, array $events): array
+    {
+        return $this->dispatchMultiple(
+            $aggregate,
+            $events
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function projectSingle(AggregateRoot $aggregate, Event $event): Process
+    {
+        return $this->dispatch($event, $aggregate);
     }
 
     /**

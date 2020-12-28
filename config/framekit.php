@@ -1,6 +1,5 @@
 <?php
 
-use Framekit\Drivers\CommandBus;
 use Framekit\Drivers\EventBus;
 use Framekit\Drivers\EventStore;
 use Framekit\Drivers\Projector;
@@ -18,7 +17,6 @@ return [
     */
 
     'drivers' => [
-        'command_bus' => CommandBus::class,
         'event_bus'   => EventBus::class,
         'event_store' => EventStore::class,
         'projector'   => Projector::class,

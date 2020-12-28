@@ -30,7 +30,7 @@ use Framekit\Exceptions\MissingReactor;
  * @package mr-luke/framekit
  * @link    http://github.com/mr-luke/framekit
  * @licence MIT
- * @version 2.0.0
+ * @version 2.0.0`
  */
 class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncProcesses
 {
@@ -40,22 +40,36 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
      *
      * @var bool
      */
-    public $cleanOnSuccess = false;
+    public bool $cleanOnSuccess = false;
 
     /**
      * Register of global Reactors.
      *
      * @var array
      */
-    protected $globals = [];
+    protected array $globals = [];
 
     /**
      * Determine if Bus should stop executing on exception.
      *
      * @var bool
      */
-    public $stopOnException = false;
+    public bool $stopOnException = false;
 
+    /**
+     * Determine if Bus should throw if there's no handler to process.
+     *
+     * @var bool
+     */
+    public bool $throwWhenNoHandler = false;
+
+    /**
+     * @param \Mrluke\Configuration\Contracts\ArrayHost $config
+     * @param \Mrluke\Bus\Contracts\ProcessRepository   $repository
+     * @param \Illuminate\Contracts\Container\Container $container
+     * @param \Illuminate\Log\Logger                    $logger
+     * @param null                                      $queueResolver
+     */
     public function __construct(
         ArrayHost $config,
         ProcessRepository $repository,

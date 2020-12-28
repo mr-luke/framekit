@@ -11,7 +11,7 @@ use Framekit\Testing\Projector as Fake;
  * @method self assertMethodCalled(string $aggregate, string $projection, string $method)
  * @method self assertMethodHasntCalled(string $aggregate, string $projection, string $method)
  *
- * @method array projections()
+ * @method static array aggregateProjections()
  * @method void register(array $stack)
  *
  * @codeCoverageIgnore
@@ -26,7 +26,7 @@ class Projector extends Facade
     public static function fake(): Contract
     {
         static::swap(new Fake(
-            static::projections()
+            static::aggregateProjections()
         ));
 
         return static::getFacadeRoot();

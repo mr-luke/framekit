@@ -30,12 +30,12 @@ abstract class AggregateRoot implements Projectable
     /**
      * @var \Framekit\Event[]
      */
-    protected $aggregatedEvents = [];
+    protected array $aggregatedEvents = [];
 
     /**
      * @var \Framekit\Entity
      */
-    protected $rootEntity;
+    protected Entity $rootEntity;
 
     /**
      * @param $aggregateId

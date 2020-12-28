@@ -133,7 +133,18 @@ class FramekitServiceProvider extends ServiceProvider
         $this->app->singleton(
             'framekit.projector',
             function($app) {
-                return new Projector($app);
+                /* @var \Illuminate\Foundation\Application $app */
+                $container = $app->make(Container::class);
+
+                return new Projector(
+                    $app->make(Config::class),
+                    $app->make(ProcessRepository::class),
+                    $container,
+                    $app->make(Logger::class),
+                    function($connection = null) use ($app) {
+                        return $app->make(Factory::class)->connection($connection);
+                    }
+                );
             }
         );
 

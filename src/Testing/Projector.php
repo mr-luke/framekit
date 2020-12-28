@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Framekit\Testing;
 
+use Mrluke\Bus\Contracts\Process;
 use PHPUnit\Framework\Assert as PHPUnit;
 
 use Framekit\AggregateRoot;
@@ -27,14 +28,14 @@ final class Projector implements Contract
      *
      * @var array
      */
-    private $projected = [];
+    private array $projected = [];
 
     /**
      * Register of Event->Projector pairs.
      *
      * @var array
      */
-    private $register;
+    private array $register;
 
     /**
      * @param array $stack
@@ -121,42 +122,42 @@ final class Projector implements Contract
      * Return registered Projections list.
      *
      * @return array
-     *
      * @codeCoverageIgnore
      */
-    public function projections(): array
+    public function aggregateProjections(): array
     {
         return $this->register;
     }
 
     /**
-     * Project changes for given aggregate.
-     *
-     * @param  \Framekit\AggregateRoot  $aggregate
-     * @param  array                    $events
-     * @return void
-     * @throws \Framekit\Exceptions\MissingProjection
+     * @inheritDoc
      */
-    public function project(AggregateRoot $aggregate, array $events): void
+    public function project(AggregateRoot $aggregate): array
     {
-        $aggregate = get_class($aggregate);
+        $aggregateClass = get_class($aggregate);
 
-        $this->addProjectedEvents($aggregate, $events);
+        $this->addProjectedEvents($aggregateClass, $aggregate->unpublishedEvents());
+
+        return [];
     }
 
     /**
-     * Project changes for given aggregate.
-     *
-     * @param string $aggregate
-     * @param \Framekit\Event $event
-     * @return void
-     *
-     * @codeCoverageIgnore
-     * @throws \Framekit\Exceptions\MissingProjection
+     * @inheritDoc
      */
-    public function projectByEvent(string $aggregate, Event $event): void
+    public function projectByEvents(AggregateRoot $aggregate, array $events): array
     {
-        $this->addProjectedEvents($aggregate, [$event]);
+        $this->addProjectedEvents(get_class($aggregate), $events);
+
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function projectSingle(AggregateRoot $aggregate, Event $event): Process
+    {
+        $this->addProjectedEvents(get_class($aggregate), [$event]);
+
     }
 
     /**
@@ -167,7 +168,7 @@ final class Projector implements Contract
      *
      * @codeCoverageIgnore
      */
-    public function register(array $stack): void
+    public function map(array $stack): void
     {
         $this->register = array_merge($this->register, $stack);
     }
