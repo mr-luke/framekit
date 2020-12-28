@@ -5,7 +5,6 @@ namespace Framekit\Providers;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Queue\Factory;
 use Illuminate\Log\Logger;
-use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\ServiceProvider;
 use Mrluke\Bus\Contracts\ProcessRepository;
 use Mrluke\Configuration\Host;
@@ -148,7 +147,6 @@ class FramekitServiceProvider extends ServiceProvider
                     $app->make(Config::class),
                     $app->make(ProcessRepository::class),
                     $container,
-                    new Pipeline($container),
                     $app->make(Logger::class),
                     function($connection = null) use ($app) {
                         return $app->make(Factory::class)->connection($connection);

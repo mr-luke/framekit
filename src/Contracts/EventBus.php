@@ -20,13 +20,20 @@ use Framekit\Event;
 interface EventBus
 {
     /**
+     * Return all registered event reactors.
+     *
+     * @return array
+     */
+    public function eventReactors(): array;
+
+    /**
      * Return registered global Reactors list.
      *
      * @return array
      * @throws \Mrluke\Bus\Exceptions\InvalidHandler
      * @throws \ReflectionException
      */
-    public function globalHandler(): array;
+    public function globalReactors(): array;
 
     /**
      * Register Reactors stack.
@@ -39,8 +46,7 @@ interface EventBus
     /**
      * Publish Event to it's reactors.
      *
-     * @param \Framekit\Event $event
-     * @param bool            $cleanOnSuccess
+     * @param \Framekit\Event|null $event
      * @return \Mrluke\Bus\Contracts\Process
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws \Mrluke\Bus\Exceptions\InvalidAction
@@ -49,5 +55,5 @@ interface EventBus
      * @throws \Mrluke\Bus\Exceptions\MissingHandler
      * @throws \ReflectionException
      */
-    public function publish(Event $event, bool $cleanOnSuccess = false): Process;
+    public function publish(Event $event): ?Process;
 }

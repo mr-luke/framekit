@@ -28,7 +28,7 @@ final class EventStore implements Store
     private $events = [];
 
     /**
-     * Determine if strema has event(s).
+     * Determine if stream has event(s).
      *
      * @param string $stream_id
      * @param mixed  $event
@@ -52,7 +52,7 @@ final class EventStore implements Store
     }
 
     /**
-     * Determine if strema has event(s).
+     * Determine if stream has event(s).
      *
      * @param string $stream_id
      * @param mixed  $event

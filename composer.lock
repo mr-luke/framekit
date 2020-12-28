@@ -948,16 +948,16 @@
         },
         {
             "name": "mr-luke/bus",
-            "version": "1.0.0-rc.5",
+            "version": "1.0.0-rc.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mr-luke/bus.git",
-                "reference": "1683ac9547b5041a10710be911a6bebb2248ad84"
+                "reference": "db8f7ef2f3ec1063b3de9be9fe6d0b158c07cb64"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mr-luke/bus/zipball/1683ac9547b5041a10710be911a6bebb2248ad84",
-                "reference": "1683ac9547b5041a10710be911a6bebb2248ad84",
+                "url": "https://api.github.com/repos/mr-luke/bus/zipball/db8f7ef2f3ec1063b3de9be9fe6d0b158c07cb64",
+                "reference": "db8f7ef2f3ec1063b3de9be9fe6d0b158c07cb64",
                 "shasum": ""
             },
             "require": {
@@ -1004,9 +1004,9 @@
             ],
             "support": {
                 "issues": "https://github.com/mr-luke/bus/issues",
-                "source": "https://github.com/mr-luke/bus/tree/1.0.0-rc.5"
+                "source": "https://github.com/mr-luke/bus/tree/1.0.0-rc.6"
             },
-            "time": "2020-12-23T12:58:02+00:00"
+            "time": "2020-12-23T17:58:22+00:00"
         },
         {
             "name": "mr-luke/configuration",

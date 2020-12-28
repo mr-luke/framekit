@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Framekit\Testing;
 
-use InvalidArgumentException;
+use Mrluke\Bus\Contracts\Process;
 use PHPUnit\Framework\Assert as PHPUnit;
 
 use Framekit\Contracts\EventBus as Bus;
-use Framekit\Contracts\Publishable;
+use Framekit\Event;
 
 /**
  * EventBus is testing class.
@@ -25,24 +25,25 @@ final class EventBus implements Bus
      *
      * @var array
      */
-    private $globals;
+    private array $globals;
 
     /**
      * List of published events of aggregate.
      *
      * @var array
      */
-    private $published = [];
+    private array $published = [];
 
     /**
      * Register of Event->Reactor pairs.
      *
      * @var array
      */
-    private $register;
+    private array $register;
 
     /**
      * @param array $stack
+     * @param array $globals
      */
     public function __construct(array $stack = [], array $globals = [])
     {
@@ -51,10 +52,10 @@ final class EventBus implements Bus
     }
 
     /**
-     * Asssert if given reactors have been called.
+     * Assert if given reactors have been called.
      *
-     * @param  string $events
-     * @param  string $reactors
+     * @param string $event
+     * @param string $reactor
      * @return self
      *
      * @codeCoverageIgnore
@@ -70,10 +71,10 @@ final class EventBus implements Bus
     }
 
     /**
-     * Asssert if given reactors have been called.
+     * Assert if given reactors have been called.
      *
-     * @param  string $events
-     * @param  string $reactors
+     * @param string $event
+     * @param string $reactor
      * @return self
      *
      * @codeCoverageIgnore
@@ -86,6 +87,22 @@ final class EventBus implements Bus
         );
 
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function eventReactors(): array
+    {
+        return $this->register;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function globalReactors(): array
+    {
+        return $this->globals;
     }
 
     /**
@@ -133,12 +150,21 @@ final class EventBus implements Bus
     }
 
     /**
-     * Handle Publishable with coresponding Handler.
-     *
-     * @param  \Framekit\Contracts\Publishable $event
-     * @return void
+     * @inheritDoc
      */
-    public function publish(Publishable $event): void
+    public function mapGlobals(array $stack): void
+    {
+        $this->globals = array_merge($this->globals, $stack);
+    }
+
+    /**
+     * Handle Publishable with corresponding Handler.
+     *
+     * @param \Framekit\Event $event
+     * @return \Mrluke\Bus\Process|null
+     * @throws \Mrluke\Bus\Exceptions\InvalidAction
+     */
+    public function publish(Event $event): ?Process
     {
         $eventType = get_class($event);
         $reactors  = $this->globals;
@@ -154,6 +180,9 @@ final class EventBus implements Bus
         foreach ($reactors as $r) {
             $this->published[$eventType][] = $r;
         }
+
+        return count($reactors)
+            ? \Mrluke\Bus\Process::create('event-bus', get_class($event), $reactors, null) : null;
     }
 
     /**
@@ -180,31 +209,5 @@ final class EventBus implements Bus
     public function register(array $stack): void
     {
         $this->register = array_merge($this->register, $stack);
-    }
-
-    /**
-     * Register Reactors stack.
-     *
-     * @param  array $stack
-     * @return void
-     *
-     * @codeCoverageIgnore
-     */
-    public function registerGlobals(array $stack): void
-    {
-        $this->globals = array_merge($this->globals, $stack);
-    }
-
-    /**
-     * Replace registered Reactors by given.
-     *
-     * @param  array  $stack
-     * @return void
-     *
-     * @codeCoverageIgnore
-     */
-    public function replace(array $stack): void
-    {
-        $this->register = $stack;
     }
 }

@@ -6,13 +6,13 @@ namespace Framekit\Drivers;
 
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Log\Logger;
-use Illuminate\Routing\Pipeline;
 use Mrluke\Bus\Contracts\Handler;
 use Mrluke\Bus\Contracts\HasAsyncProcesses;
 use Mrluke\Bus\Contracts\Instruction;
 use Mrluke\Bus\Contracts\Process;
 use Mrluke\Bus\Contracts\ProcessRepository;
 use Mrluke\Bus\Contracts\ShouldBeAsync;
+use Mrluke\Bus\Contracts\Trigger;
 use Mrluke\Bus\Exceptions\InvalidHandler;
 use Mrluke\Bus\Extensions\UsesDefaultQueue;
 use Mrluke\Bus\MultipleHandlerBus;
@@ -40,7 +40,7 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
      *
      * @var bool
      */
-    protected $cleanOnSuccess = false;
+    public $cleanOnSuccess = false;
 
     /**
      * Register of global Reactors.
@@ -54,19 +54,29 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
      *
      * @var bool
      */
-    protected $stopOnException = false;
+    public $stopOnException = false;
 
     public function __construct(
         ArrayHost $config,
         ProcessRepository $repository,
         Container $container,
-        Pipeline $pipeline,
         Logger $logger,
         $queueResolver = null
     ) {
-        parent::__construct($repository, $container, $pipeline, $logger, $queueResolver);
+        parent::__construct($repository, $container, $logger, $queueResolver);
 
         $this->queueConnection = $config->get('queues.event_bus');
+    }
+
+    /**
+     * Return all registered event reactors.
+     *
+     * @return array
+     * @codeCoverageIgnore
+     */
+    public function eventReactors(): array
+    {
+        return $this->handlers;
     }
 
     /**
@@ -76,7 +86,7 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
      * @throws \Mrluke\Bus\Exceptions\InvalidHandler
      * @throws \ReflectionException
      */
-    public function globalHandler(): array
+    public function globalReactors(): array
     {
         foreach ($this->globals as $h) {
             $reflection = new ReflectionClass($h);
@@ -109,8 +119,7 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
      * Publish Event to it's reactors.
      *
      * @param \Framekit\Event $event
-     * @param bool            $cleanOnSuccess
-     * @return \Mrluke\Bus\Contracts\Process
+     * @return \Mrluke\Bus\Contracts\Process|null
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws \Mrluke\Bus\Exceptions\InvalidAction
      * @throws \Mrluke\Bus\Exceptions\InvalidHandler
@@ -118,27 +127,30 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
      * @throws \Mrluke\Bus\Exceptions\MissingHandler
      * @throws \ReflectionException
      */
-    public function publish(Event $event, bool $cleanOnSuccess = false): Process
+    public function publish(Event $event): ?Process
     {
         if (!$this->hasHandler($event)) {
+            if (!$this->throwWhenNoHandler) {
+                return null;
+            }
+
             $this->throwOnMissingHandler($event);
         }
 
-        $handler = array_merge(
-            $this->globalHandler(),
+        $handlers = array_merge(
+            $this->globalReactors(),
             $this->handler($event)
         );
+        $process = $this->createProcess($event, $handlers);
 
         if ($event instanceof ShouldBeAsync) {
             /** @var Instruction $event */
-            return $this->runAsync(
-                $event,
-                $handler,
-                $this->considerCleaning($cleanOnSuccess)
-            );
+            $this->runAsync($process, $event, $handlers);
+        } else {
+            $this->run($process, $event, $handlers);
         }
 
-        return $this->run($event, $handler, $this->considerCleaning($cleanOnSuccess));
+        return $process;
     }
 
     /**
@@ -152,13 +164,13 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
     /**
      * Throw exception when handler is missing.
      *
-     * @param \Mrluke\Bus\Contracts\Instruction $instruction
-     * @throws \Mrluke\Bus\Exceptions\MissingHandler
+     * @param \Mrluke\Bus\Contracts\Trigger $trigger
+     * @throws \Framekit\Exceptions\MissingReactor
      */
-    protected function throwOnMissingHandler(Instruction $instruction): void
+    protected function throwOnMissingHandler(Trigger $trigger): void
     {
         throw new MissingReactor(
-            sprintf('Missing handler for the event [%s]', get_class($instruction))
+            sprintf('Missing handler for the event [%s]', get_class($trigger))
         );
     }
 }

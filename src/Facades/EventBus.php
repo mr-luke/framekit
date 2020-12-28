@@ -11,7 +11,8 @@ use Framekit\Testing\EventBus as Fake;
  * @method self assertReactorCalled(string $event, string $reactor)
  * @method self assertReactorHasntCalled(string $event, string $reactor)
  *
- * @method array globalHandlers()
+ * @method static array eventReactors()
+ * @method static array globalReactors()
  * @method array handlers()
  * @method void register(array $stack)
  * @method void replace(array $stack)
@@ -27,8 +28,9 @@ class EventBus extends Facade
      */
     public static function fake(): Contract
     {
+
         static::swap(new Fake(
-            static::handlers(), static::globalHandlers()
+            static::eventReactors(), static::globalReactors()
         ));
 
         return static::getFacadeRoot();
