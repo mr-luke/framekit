@@ -55,6 +55,7 @@ class Projector extends MultipleHandlerBus implements ProjectorContract, AsyncBu
      * @param \Illuminate\Contracts\Container\Container $container
      * @param \Illuminate\Log\Logger                    $logger
      * @param null                                      $queueResolver
+     * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
      */
     public function __construct(
         ArrayHost $config,
