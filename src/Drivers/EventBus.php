@@ -31,6 +31,8 @@ use Framekit\Exceptions\MissingReactor;
  * @link    http://github.com/mr-luke/framekit
  * @licence MIT
  * @version 2.0.0`
+ *
+ * @property mixed queueConnection
  */
 class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncProcesses
 {
@@ -69,6 +71,7 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
      * @param \Illuminate\Contracts\Container\Container $container
      * @param \Illuminate\Log\Logger                    $logger
      * @param null                                      $queueResolver
+     * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
      */
     public function __construct(
         ArrayHost $config,
@@ -139,6 +142,7 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
      * @throws \Mrluke\Bus\Exceptions\InvalidHandler
      * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
      * @throws \Mrluke\Bus\Exceptions\MissingHandler
+     * @throws \Mrluke\Bus\Exceptions\MissingProcess
      * @throws \ReflectionException
      */
     public function publish(Event $event): ?Process
@@ -157,12 +161,12 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
         );
         $process = $this->createProcess($event, $handlers);
 
-        if ($event instanceof ShouldBeAsync) {
-            /** @var Instruction $event */
-            $this->runAsync($process, $event, $handlers);
-        } else {
-            $this->run($process, $event, $handlers);
-        }
+        $this->processHandlersStack(
+            $event,
+            $process,
+            $handlers,
+            $event instanceof ShouldBeAsync
+        );
 
         return $process;
     }
