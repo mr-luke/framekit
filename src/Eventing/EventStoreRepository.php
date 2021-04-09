@@ -31,17 +31,17 @@ class EventStoreRepository implements EventRepository
     /**
      * @var \Framekit\Contracts\EventBus
      */
-    protected $eventBus;
+    protected EventBus $eventBus;
 
     /**
      * @var \Framekit\Contracts\Store
      */
-    protected $eventStore;
+    protected Store $eventStore;
 
     /**
      * @var \Framekit\Contracts\Projector
      */
-    protected $projector;
+    protected Projector $projector;
 
     /**
      * @param \Framekit\Contracts\EventBus  $bus
@@ -65,7 +65,7 @@ class EventStoreRepository implements EventRepository
      * @throws \Mrluke\Bus\Exceptions\InvalidHandler
      * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
      * @throws \Mrluke\Bus\Exceptions\MissingHandler
-     * @throws \ReflectionException
+     * @throws \ReflectionException|\Mrluke\Bus\Exceptions\MissingProcess
      */
     public function persist(AggregateRoot $aggregate): void
     {
@@ -77,7 +77,7 @@ class EventStoreRepository implements EventRepository
             $uncommittedEvents
         );
 
-        $this->projector->project($aggregate, $uncommittedEvents);
+        $this->projector->projectByEvents($aggregate, $uncommittedEvents);
 
         foreach ($uncommittedEvents as $e) {
             $this->eventBus->publish($e);
@@ -90,7 +90,7 @@ class EventStoreRepository implements EventRepository
      * @param string                                             $className
      * @param int|string|\Framekit\Contracts\AggregateIdentifier $aggregateId
      * @return \Framekit\AggregateRoot
-     * @throws \Framekit\Exceptions\InvalidAggregateIdentifier|\ReflectionException
+     * @throws \Framekit\Exceptions\InvalidAggregateIdentifier|\ReflectionException|\Framekit\Exceptions\StreamNotFound
      */
     public function retrieve(string $className, $aggregateId): AggregateRoot
     {

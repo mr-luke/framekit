@@ -39,6 +39,7 @@ interface Store
      * @param string|null $till
      * @param bool        $withMeta
      * @return array
+     * @throws \Framekit\Exceptions\StreamNotFound
      */
     public function loadStream(
         string $streamId = null,

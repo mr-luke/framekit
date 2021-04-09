@@ -10,6 +10,7 @@ use Framekit\Contracts\Serializer;
 use Framekit\Contracts\Store;
 use Framekit\Event;
 use Framekit\Exceptions\MethodUnknown;
+use Framekit\Exceptions\StreamNotFound;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -30,17 +31,17 @@ final class EventStore implements Store
     /**
      * @var \Mrluke\Configuration\Contracts\ArrayHost
      */
-    protected $config;
+    protected ArrayHost $config;
 
     /**
      * @var \Framekit\Contracts\Mapper
      */
-    protected $mapper;
+    protected Mapper $mapper;
 
     /**
      * @var \Framekit\Contracts\Serializer
      */
-    protected $serializer;
+    protected Serializer $serializer;
 
     /**
      * @param \Mrluke\Configuration\Contracts\ArrayHost $config
@@ -122,6 +123,7 @@ final class EventStore implements Store
      * @param bool        $withMeta
      *
      * @return array
+     * @throws \Framekit\Exceptions\StreamNotFound
      */
     public function loadStream(
         string $streamId = null,
@@ -129,6 +131,12 @@ final class EventStore implements Store
         ?string $till = null,
         bool $withMeta = false
     ): array {
+        if (!$this->checkIfStreamExists($streamId)) {
+            throw new StreamNotFound(
+                sprintf('Stream [%s] not found', $streamId)
+            );
+        }
+
         $events = [];
         $raw = $this->getEvents($streamId, $since, $till);
         $rowsCount = count($raw);
@@ -169,20 +177,31 @@ final class EventStore implements Store
     }
 
     /**
+     * Check if stream exists.
+     *
+     * @param string $streamId
+     * @return bool
+     */
+    protected function checkIfStreamExists(string $streamId): bool
+    {
+        return $this->setupDBConnection()->where('stream_id', $streamId)->exists();
+    }
+
+    /**
      * Compose common data for event entry.
      *
-     * @param string $stream_type
-     * @param string $stream_id
+     * @param string $streamType
+     * @param string $streamId
      *
      * @return array
      */
-    protected function composeCommon(string $stream_type, string $stream_id): array
+    protected function composeCommon(string $streamType, string $streamId): array
     {
         $now = now();
 
         return [
-            'stream_type'  => $stream_type,
-            'stream_id'    => $stream_id,
+            'stream_type'  => $streamType,
+            'stream_id'    => $streamId,
             'meta'         => json_encode(
                 [
                     'auth' => auth()->check() ? auth()->user()->id : null,
@@ -229,14 +248,35 @@ final class EventStore implements Store
     }
 
     /**
-     * Create DB connection instance.
+     * @param string|null $streamId
+     * @param string|null $since
+     * @param string|null $till
      *
-     * @return \Illuminate\Database\Query\Builder
+     * @return \Illuminate\Support\Collection
      */
-    private function setupDBConnection(): Builder
-    {
-        return DB::connection($this->config->get('database'))
-            ->table($this->config->get('tables.eventstore'));
+    private function getEvents(
+        ?string $streamId = null,
+        ?string $since = null,
+        ?string $till = null
+    ): Collection {
+        $query = $this->setupDBConnection();
+
+        if (!empty($streamId)) {
+            $query->where('stream_id', $streamId)
+                ->orderBy('sequence_no');
+        } else {
+            $query->orderBy('id');
+        }
+
+        if (!empty($since)) {
+            $query->where('committed_at', '>=', $since);
+        }
+
+        if (!empty($till)) {
+            $query->where('committed_at', '<=', $till);
+        }
+
+        return $query->get();
     }
 
     /**
@@ -257,34 +297,13 @@ final class EventStore implements Store
     }
 
     /**
-     * @param string|null $stream_id
-     * @param string|null $since
-     * @param string|null $till
+     * Create DB connection instance.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Database\Query\Builder
      */
-    private function getEvents(
-        ?string $stream_id = null,
-        ?string $since = null,
-        ?string $till = null
-    ): Collection {
-        $query = $this->setupDBConnection();
-
-        if (!empty($stream_id)) {
-            $query->where('stream_id', $stream_id)
-                ->orderBy('sequence_no');
-        } else {
-            $query->orderBy('id');
-        }
-
-        if (!empty($since)) {
-            $query->where('committed_at', '>=', $since);
-        }
-
-        if (!empty($till)) {
-            $query->where('committed_at', '<=', $till);
-        }
-
-        return $query->get();
+    private function setupDBConnection(): Builder
+    {
+        return DB::connection($this->config->get('database'))
+            ->table($this->config->get('tables.eventstore'));
     }
 }
