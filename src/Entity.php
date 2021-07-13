@@ -89,7 +89,7 @@ abstract class Entity implements Serializable
      */
     public function isAlreadyDeleted(): bool
     {
-        return empty($this->deletedAt);
+        return !empty($this->deletedAt);
     }
 
     /**
