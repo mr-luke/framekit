@@ -25,7 +25,7 @@ abstract class VersionMap implements Contract
         }
 
         foreach ($this->buildTranslationsStack($from, $to) as $step) {
-            $payload = $this->{$step}($payload);
+            $payload = $this->{$step}($payload, $upstream);
         }
 
         return $payload;
