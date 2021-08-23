@@ -17,12 +17,13 @@ interface Mapper
     /**
      * Map event to newest version.
      *
-     * @param array $payload
-     * @param int   $from
-     * @param array $upstream
+     * @param string $event
+     * @param array  $payload
+     * @param int    $from
+     * @param array  $upstream
      * @return array
      */
-    public function map(array $payload, int $from, array $upstream): array;
+    public function map(string $event,array $payload, int $from, array $upstream): array;
 
     /**
      * Return registered Mappers list.

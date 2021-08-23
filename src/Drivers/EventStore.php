@@ -126,10 +126,10 @@ final class EventStore implements Store
      * @throws \Framekit\Exceptions\StreamNotFound
      */
     public function loadStream(
-        string $streamId = null,
+        string  $streamId = null,
         ?string $since = null,
         ?string $till = null,
-        bool $withMeta = false
+        bool    $withMeta = false
     ): array {
         if (!$this->checkIfStreamExists($streamId)) {
             throw new StreamNotFound(
@@ -143,6 +143,7 @@ final class EventStore implements Store
         for ($i = 0; $i < $rowsCount; $i++) {
             if ($this->isVersionConflict($raw[$i]->payload, $raw[$i]->version)) {
                 $raw[$i]->payload = $this->mapVersion(
+                    $raw[$i]->event,
                     $raw[$i]->payload,
                     $raw[$i]->version,
                     array_slice($raw->toArray(), 0, $i + 1)
@@ -230,15 +231,22 @@ final class EventStore implements Store
     /**
      * Map old event to new version to prevent missing data.
      *
+     * @param string $event
      * @param string $payload
      * @param int    $from
      * @param array  $upstream
      *
      * @return string
      */
-    protected function mapVersion(string $payload, int $from, array $upstream): string
-    {
+    protected function mapVersion(
+        string $event,
+        string $payload,
+        int    $from,
+        array  $upstream
+    ):
+    string {
         $payload = $this->mapper->map(
+            $event,
             json_decode($payload, true),
             $from,
             $upstream
