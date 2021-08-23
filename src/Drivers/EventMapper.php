@@ -54,6 +54,7 @@ final class EventMapper implements Mapper
      * @param array  $upstream
      * @return array
      * @throws \ReflectionException
+     * @throws \Framekit\Exceptions\MethodUnknown
      */
     public function map(string $event, array $payload, int $from, array $upstream): array
     {
