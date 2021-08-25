@@ -104,7 +104,7 @@ final class EventMapper implements Mapper
             return false;
         }
 
-        $reflection = new ReflectionClass($event);
+        $reflection = new ReflectionClass($this->register[$event]);
 
         return $reflection->isInstantiable() && $reflection->implementsInterface(VersionMap::class);
     }
