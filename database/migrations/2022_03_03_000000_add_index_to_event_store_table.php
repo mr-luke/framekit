@@ -46,10 +46,10 @@ class AddIndexToEventStoreTable extends Migration
     public function down()
     {
         Schema::table($this->config->get('tables.eventstore'), function (Blueprint $table) {
-            $table->dropIndex('stream_id');
+            $table->dropIndex(['stream_id']);
         });
         Schema::table($this->config->get('tables.snapshots'), function (Blueprint $table) {
-            $table->dropIndex('stream_id');
+            $table->dropIndex(['stream_id']);
         });
     }
 }
