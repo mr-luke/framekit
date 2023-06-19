@@ -66,9 +66,9 @@ return [
     'database' => env('EVENTSTORE_CONNECTION', env('DB_CONNECTION')),
 
     'tables' => [
-    'eventstore' => 'eventstore',
-    'snapshots'  => 'eventstore_snapshots',
-],
+        'eventstore' => 'eventstore',
+        'snapshots'  => 'eventstore_snapshots',
+    ],
 
     /*
     |--------------------------------------------------------------------------
