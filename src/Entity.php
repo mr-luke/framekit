@@ -42,8 +42,22 @@ abstract class Entity implements Serializable
      */
     public function __construct(mixed $id, Carbon $createdAt)
     {
-        $this->id        = $id;
+        $this->id = $id;
         $this->createdAt = $createdAt;
+    }
+
+    /**
+     * Create new instance with current date.
+     *
+     * @param mixed $id
+     * @return self
+     */
+    public static function createWithCurrentTime(mixed $id): self
+    {
+        return new static(
+            $id,
+            Carbon::now()
+        );
     }
 
     /**
@@ -54,20 +68,6 @@ abstract class Entity implements Serializable
     public function createdAt(): ?Carbon
     {
         return $this->createdAt;
-    }
-
-    /**
-     * Create new instance with current date.
-     *
-     * @param  mixed $id
-     * @return self
-     */
-    public static function createWithCurrentTime(mixed $id): self
-    {
-        return new static(
-            $id,
-            Carbon::now()
-        );
     }
 
     /**
@@ -105,7 +105,7 @@ abstract class Entity implements Serializable
     /**
      * Mark Entity as deleted at specific date.
      *
-     * @param  \Carbon\Carbon  $deletedAt
+     * @param \Carbon\Carbon $deletedAt
      * @return void
      */
     public function markAsRemovedAtDate(Carbon $deletedAt): void

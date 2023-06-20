@@ -2,8 +2,8 @@
 
 namespace Framekit\Facades;
 
-use Illuminate\Support\Facades\Facade;
 use Framekit\Eventing\EventStoreRepository as Faked;
+use Illuminate\Support\Facades\Facade;
 
 /**
  * @codeCoverageIgnore
@@ -22,11 +22,13 @@ class EventStoreRepository extends Facade
         EventStore::fake();
         Projector::fake();
 
-        static::swap(new Faked(
-            app()->make('framekit.event.bus'),
-            app()->make('framekit.event.store'),
-            app()->make('framekit.projector')
-        ));
+        static::swap(
+            new Faked(
+                app()->make('framekit.event.bus'),
+                app()->make('framekit.event.store'),
+                app()->make('framekit.projector')
+            )
+        );
     }
 
     /**

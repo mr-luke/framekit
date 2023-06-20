@@ -48,6 +48,36 @@ abstract class AggregateRoot implements Projectable
     }
 
     /**
+     * Capture all bad calls.
+     *
+     * @param string $name
+     * @param array  $arguments
+     * @throws \Framekit\Exceptions\MethodUnknown
+     * @codeCoverageIgnore
+     */
+    public function __call(string $name, array $arguments)
+    {
+        throw new MethodUnknown(
+            sprintf('Trying to call unknown method [%s]', $name)
+        );
+    }
+
+    /**
+     * Capture all bad calls.
+     *
+     * @param string $name
+     * @param array  $arguments
+     * @throws \Framekit\Exceptions\MethodUnknown
+     * @codeCoverageIgnore
+     */
+    public static function __callStatic(string $name, array $arguments)
+    {
+        throw new MethodUnknown(
+            sprintf('Trying to call unknown method [%s]', $name)
+        );
+    }
+
+    /**
      * Return aggregate identifier.
      *
      * @return int|string|\Framekit\Contracts\AggregateIdentifier
@@ -56,6 +86,17 @@ abstract class AggregateRoot implements Projectable
     public function identifier(): int|string|AggregateIdentifier
     {
         return $this->aggregateId;
+    }
+
+    /**
+     * Return root Entity of an aggregate.
+     *
+     * @return \Framekit\Entity|null
+     * @codeCoverageIgnore
+     */
+    public function rootEntity(): ?Entity
+    {
+        return $this->rootEntity;
     }
 
     /**
@@ -84,47 +125,6 @@ abstract class AggregateRoot implements Projectable
         $this->aggregatedEvents = [];
 
         return $events;
-    }
-
-    /**
-     * Return root Entity of an aggregate.
-     *
-     * @return \Framekit\Entity|null
-     * @codeCoverageIgnore
-     */
-    public function rootEntity(): ?Entity
-    {
-        return $this->rootEntity;
-    }
-
-    /**
-     * Capture all bad calls.
-     *
-     * @param string $name
-     * @param array  $arguments
-     * @throws \Framekit\Exceptions\MethodUnknown
-     * @codeCoverageIgnore
-     */
-    public function __call(string $name, array $arguments)
-    {
-        throw new MethodUnknown(
-            sprintf('Trying to call unknown method [%s]', $name)
-        );
-    }
-
-    /**
-     * Capture all bad calls.
-     *
-     * @param string $name
-     * @param array  $arguments
-     * @throws \Framekit\Exceptions\MethodUnknown
-     * @codeCoverageIgnore
-     */
-    public static function __callStatic(string $name, array $arguments)
-    {
-        throw new MethodUnknown(
-            sprintf('Trying to call unknown method [%s]', $name)
-        );
     }
 
     /**

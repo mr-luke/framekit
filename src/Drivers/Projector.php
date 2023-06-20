@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Framekit\Drivers;
 
+use Framekit\AggregateRoot;
+use Framekit\Contracts\Projector as ProjectorContract;
+use Framekit\Event;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Log\Logger;
 use Mrluke\Bus\Contracts\AsyncBus;
@@ -12,10 +15,6 @@ use Mrluke\Bus\Contracts\ProcessRepository;
 use Mrluke\Bus\Extensions\UsesDefaultQueue;
 use Mrluke\Bus\MultipleHandlerBus;
 use Mrluke\Configuration\Contracts\ArrayHost;
-
-use Framekit\AggregateRoot;
-use Framekit\Contracts\Projector as ProjectorContract;
-use Framekit\Event;
 
 /**
  * Projector is responsible for projecting changes to DB.
@@ -42,11 +41,11 @@ class Projector extends MultipleHandlerBus implements ProjectorContract, AsyncBu
      * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
      */
     public function __construct(
-        ArrayHost $config,
+        ArrayHost         $config,
         ProcessRepository $repository,
-        Container $container,
-        Logger $logger,
-        $queueResolver = null
+        Container         $container,
+        Logger            $logger,
+                          $queueResolver = null
     ) {
         parent::__construct($repository, $container, $logger, $queueResolver);
 

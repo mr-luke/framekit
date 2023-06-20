@@ -13,4 +13,4 @@ use Mrluke\Bus\Contracts\Trigger;
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT
  */
-interface Publishable extends Instruction, Trigger {}
+interface Publishable extends Instruction, Trigger { }

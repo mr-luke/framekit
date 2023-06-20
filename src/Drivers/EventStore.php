@@ -55,6 +55,25 @@ final class EventStore implements Store
     }
 
     /**
+     * Capture all bad calls.
+     *
+     * @param string $name
+     * @param array  $arguments
+     *
+     * @return void
+     * @throws \Framekit\Exceptions\MethodUnknown
+     */
+    public function __call(string $name, array $arguments)
+    {
+        throw new MethodUnknown(
+            sprintf(
+                'Trying to call unknown method [%s]. Assert methods available only in testing mode.',
+                $name
+            )
+        );
+    }
+
+    /**
      * @inheritDoc
      */
     public function commitToStream(string $streamType, string $streamId, array $events): void
@@ -160,25 +179,6 @@ final class EventStore implements Store
     }
 
     /**
-     * Capture all bad calls.
-     *
-     * @param string $name
-     * @param array  $arguments
-     *
-     * @return void
-     * @throws \Framekit\Exceptions\MethodUnknown
-     */
-    public function __call(string $name, array $arguments)
-    {
-        throw new MethodUnknown(
-            sprintf(
-                'Trying to call unknown method [%s]. Assert methods available only in testing mode.',
-                $name
-            )
-        );
-    }
-
-    /**
      * Check if stream exists.
      *
      * @param string $streamId
@@ -215,48 +215,6 @@ final class EventStore implements Store
     }
 
     /**
-     * Check if version of event is actual correct.
-     *
-     * @param string $payload
-     * @param int    $version
-     * @return bool
-     */
-    protected function isVersionConflict(string $payload, int $version): bool
-    {
-        $event = json_decode($payload, true);
-        $class = $event['class'];
-
-        return $class::$__eventVersion__ != $version;
-    }
-
-    /**
-     * Map old event to new version to prevent missing data.
-     *
-     * @param string $event
-     * @param string $payload
-     * @param int    $from
-     * @param array  $upstream
-     *
-     * @return string
-     */
-    protected function mapVersion(
-        string $event,
-        string $payload,
-        int    $from,
-        array  $upstream
-    ):
-    string {
-        $payload = $this->mapper->map(
-            $event,
-            json_decode($payload, true),
-            $from,
-            $upstream
-        );
-
-        return json_encode($payload);
-    }
-
-    /**
      * @param string|null $streamId
      * @param string|null $since
      * @param string|null $till
@@ -289,6 +247,21 @@ final class EventStore implements Store
     }
 
     /**
+     * Check if version of event is actual correct.
+     *
+     * @param string $payload
+     * @param int    $version
+     * @return bool
+     */
+    protected function isVersionConflict(string $payload, int $version): bool
+    {
+        $event = json_decode($payload, true);
+        $class = $event['class'];
+
+        return $class::$__eventVersion__ != $version;
+    }
+
+    /**
      * @param \Framekit\Contracts\Serializable $event
      * @param bool                             $withMeta
      * @param                                  $raw
@@ -303,6 +276,33 @@ final class EventStore implements Store
             $meta['committed_at'] = $raw->committed_at;
             $event->__meta__ = $meta;
         }
+    }
+
+    /**
+     * Map old event to new version to prevent missing data.
+     *
+     * @param string $event
+     * @param string $payload
+     * @param int    $from
+     * @param array  $upstream
+     *
+     * @return string
+     */
+    protected function mapVersion(
+        string $event,
+        string $payload,
+        int    $from,
+        array  $upstream
+    ):
+    string {
+        $payload = $this->mapper->map(
+            $event,
+            json_decode($payload, true),
+            $from,
+            $upstream
+        );
+
+        return json_encode($payload);
     }
 
     /**

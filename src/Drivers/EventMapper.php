@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Framekit\Drivers;
 
+use Framekit\Contracts\Mapper;
+use Framekit\Contracts\VersionMap;
 use Illuminate\Contracts\Container\Container;
 use Mrluke\Bus\Extensions\ResolveDependencies;
 use ReflectionClass;
-
-use Framekit\Contracts\Mapper;
-use Framekit\Contracts\VersionMap;
 
 /**
  * Event Mapper maps event between versions.

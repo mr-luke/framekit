@@ -10,4 +10,4 @@ use Mrluke\Bus\Contracts\CommandBus as CommandBusContract;
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT
  */
-interface CommandBus extends CommandBusContract {}
+interface CommandBus extends CommandBusContract { }

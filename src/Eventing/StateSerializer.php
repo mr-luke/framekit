@@ -21,7 +21,7 @@ final class StateSerializer implements Serializer
     /**
      * Serialize object to string.
      *
-     * @param  \Framekit\Contracts\Serializable  $toSerialize
+     * @param \Framekit\Contracts\Serializable $toSerialize
      * @return string
      */
     public function serialize(Serializable $toSerialize): string
@@ -32,7 +32,7 @@ final class StateSerializer implements Serializer
     /**
      * Unserialize to object.
      *
-     * @param  string  $serialized
+     * @param string $serialized
      * @return \Framekit\Contracts\Serializable
      */
     public function unserialize(string $serialized): Serializable

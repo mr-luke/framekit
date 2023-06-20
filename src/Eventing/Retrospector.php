@@ -38,8 +38,8 @@ class Retrospector implements Contract
     protected $projector;
 
     /**
-     * @param \Framekit\Contracts\EventBus $bus
-     * @param \Framekit\Contracts\Store $store
+     * @param \Framekit\Contracts\EventBus  $bus
+     * @param \Framekit\Contracts\Store     $store
      * @param \Framekit\Contracts\Projector $projector
      */
     function __construct(EventBus $bus, Store $store, Projector $projector)
@@ -47,6 +47,23 @@ class Retrospector implements Contract
         $this->eventBus = $bus;
         $this->eventStore = $store;
         $this->projector = $projector;
+    }
+
+    /**
+     * @param \Framekit\Event $event
+     * @param array           $map
+     *
+     * @return bool
+     */
+    public static function filterProjections(Event $event, array $map): bool
+    {
+        if (isset($map['include']) && count($map['include'])) {
+            return in_array(get_class($event), $map['include']);
+        } else if (isset($map['exclude']) && count($map['exclude'])) {
+            return !in_array(get_class($event), $map['exclude']);
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -101,23 +118,6 @@ class Retrospector implements Contract
             return in_array($streamId, $map['include']);
         } else if (isset($map['exclude']) && count($map['exclude'])) {
             return !in_array($streamId, $map['exclude']);
-        } else {
-            return true;
-        }
-    }
-
-    /**
-     * @param \Framekit\Event $event
-     * @param array           $map
-     *
-     * @return bool
-     */
-    public static function filterProjections(Event $event, array $map): bool
-    {
-        if (isset($map['include']) && count($map['include'])) {
-            return in_array(get_class($event), $map['include']);
-        } else if (isset($map['exclude']) && count($map['exclude'])) {
-            return !in_array(get_class($event), $map['exclude']);
         } else {
             return true;
         }

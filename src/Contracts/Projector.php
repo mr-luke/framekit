@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Framekit\Contracts;
 
-use Mrluke\Bus\Contracts\Process;
-
 use Framekit\AggregateRoot;
 use Framekit\Event;
+use Mrluke\Bus\Contracts\Process;
 
 /**
  * @author  Łukasz Sitnicki (mr-luke)

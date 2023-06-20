@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Framekit\Testing;
 
-use Mrluke\Bus\Contracts\Process;
-use PHPUnit\Framework\Assert as PHPUnit;
-
 use Framekit\Contracts\EventBus as Bus;
 use Framekit\Event;
+use Mrluke\Bus\Contracts\Process;
+use PHPUnit\Framework\Assert as PHPUnit;
 
 /**
  * @author    Łukasz Sitnicki (mr-luke)
@@ -45,7 +44,7 @@ final class EventBus implements Bus
      */
     public function __construct(array $stack = [], array $globals = [])
     {
-        $this->globals  = $globals;
+        $this->globals = $globals;
         $this->register = $stack;
     }
 
@@ -96,32 +95,6 @@ final class EventBus implements Bus
     }
 
     /**
-     * @inheritDoc
-     */
-    public function globalReactors(): array
-    {
-        return $this->globals;
-    }
-
-    /**
-     * Determine if called.
-     *
-     * @param string $event
-     * @param string $reactor
-     *
-     * @return bool
-     */
-    private function isCalled(string $event, string $reactor): bool
-    {
-        if(!is_array($this->register[$event])) {
-            $this->register[$event] = [$this->register[$event]];
-        }
-
-        return (in_array($reactor, $this->globals) || in_array($reactor, $this->register[$event]))
-            && in_array($reactor, $this->published[$event] ?? []);
-    }
-
-    /**
      * Return registered global Reactors list.
      *
      * @return array
@@ -129,6 +102,14 @@ final class EventBus implements Bus
      * @codeCoverageIgnore
      */
     public function globalHandlers(): array
+    {
+        return $this->globals;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function globalReactors(): array
     {
         return $this->globals;
     }
@@ -165,10 +146,10 @@ final class EventBus implements Bus
     public function publish(Event $event): ?Process
     {
         $eventType = get_class($event);
-        $reactors  = $this->globals;
+        $reactors = $this->globals;
 
         if (isset($this->register[$eventType])) {
-            if(!is_array($this->register[$eventType])) {
+            if (!is_array($this->register[$eventType])) {
                 $this->register[$eventType] = [$this->register[$eventType]];
             }
 
@@ -186,7 +167,7 @@ final class EventBus implements Bus
     /**
      * Return published Event's reactors.
      *
-     * @param  string|null $event
+     * @param string|null $event
      * @return array
      *
      * @codeCoverageIgnore
@@ -199,7 +180,7 @@ final class EventBus implements Bus
     /**
      * Register Reactors stack.
      *
-     * @param  array $stack
+     * @param array $stack
      * @return void
      *
      * @codeCoverageIgnore
@@ -207,5 +188,23 @@ final class EventBus implements Bus
     public function register(array $stack): void
     {
         $this->register = array_merge($this->register, $stack);
+    }
+
+    /**
+     * Determine if called.
+     *
+     * @param string $event
+     * @param string $reactor
+     *
+     * @return bool
+     */
+    private function isCalled(string $event, string $reactor): bool
+    {
+        if (!is_array($this->register[$event])) {
+            $this->register[$event] = [$this->register[$event]];
+        }
+
+        return (in_array($reactor, $this->globals) || in_array($reactor, $this->register[$event]))
+            && in_array($reactor, $this->published[$event] ?? []);
     }
 }

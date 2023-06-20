@@ -45,7 +45,7 @@ final class EventSerializer implements Serializer
 
         return json_encode(
             [
-                'class'      => get_class($toSerialize),
+                'class' => get_class($toSerialize),
                 'attributes' => $attributes
             ]
         );

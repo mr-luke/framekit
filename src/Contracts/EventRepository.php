@@ -10,4 +10,4 @@ namespace Framekit\Contracts;
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT
  */
-interface EventRepository extends Repository {}
+interface EventRepository extends Repository { }

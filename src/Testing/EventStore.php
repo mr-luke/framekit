@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Framekit\Testing;
 
-use PHPUnit\Framework\Assert as PHPUnit;
-
 use Framekit\Contracts\Store;
 use Framekit\Event;
+use PHPUnit\Framework\Assert as PHPUnit;
 
 /**
  * @author    Łukasz Sitnicki (mr-luke)
@@ -97,10 +96,10 @@ final class EventStore implements Store
      * @inheritDoc
      */
     public function loadStream(
-        string $streamId = null,
+        string  $streamId = null,
         ?string $since = null,
         ?string $till = null,
-        bool $withMeta = false
+        bool    $withMeta = false
     ): array {
         return $this->events[$streamId] ?? [];
     }
@@ -120,8 +119,8 @@ final class EventStore implements Store
     /**
      * Make a deep test of event.
      *
-     * @param  \Framekit\Event $toTest
-     * @param  \Framekit\Event $fromStream
+     * @param \Framekit\Event $toTest
+     * @param \Framekit\Event $fromStream
      * @return bool
      */
     private function eventDeepTest(Event $toTest, Event $fromStream): bool
@@ -132,8 +131,8 @@ final class EventStore implements Store
     /**
      * Make a shallow test of event.
      *
-     * @param  string          $toTest
-     * @param  \Framekit\Event $fromStream
+     * @param string          $toTest
+     * @param \Framekit\Event $fromStream
      * @return bool
      */
     private function eventShallowTest(string $toTest, Event $fromStream): bool

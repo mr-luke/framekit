@@ -30,6 +30,18 @@ abstract class VersionMap implements Contract
     }
 
     /**
+     * Build translation method.
+     *
+     * @param int $from
+     * @param int $to
+     * @return string
+     */
+    protected function buildTranslationStepMethod(int $from, int $to): string
+    {
+        return sprintf('stepFrom%dto%d', $from, $to);
+    }
+
+    /**
      * Build the shortest way from version A to version B.
      *
      * @param int $from
@@ -55,18 +67,6 @@ abstract class VersionMap implements Contract
         }
 
         return $stack;
-    }
-
-    /**
-     * Build translation method.
-     *
-     * @param int $from
-     * @param int $to
-     * @return string
-     */
-    protected function buildTranslationStepMethod(int $from, int $to): string
-    {
-        return sprintf('stepFrom%dto%d', $from, $to);
     }
 
     /**

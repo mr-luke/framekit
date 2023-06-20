@@ -4,4 +4,4 @@ namespace Framekit\Exceptions;
 
 use Exception;
 
-class MethodUnknown extends Exception {}
+class MethodUnknown extends Exception { }

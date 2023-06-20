@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Framekit\Testing;
 
-use Mrluke\Bus\Contracts\Process;
-use PHPUnit\Framework\Assert as PHPUnit;
-
 use Framekit\AggregateRoot;
 use Framekit\Contracts\Projector as Contract;
-use Framekit\Exceptions\MissingProjection;
 use Framekit\Event;
+use Framekit\Exceptions\MissingProjection;
 use Framekit\Projection;
+use Mrluke\Bus\Contracts\Process;
+use PHPUnit\Framework\Assert as PHPUnit;
 
 /**
  * @author    Łukasz Sitnicki (mr-luke)
@@ -44,11 +43,22 @@ final class Projector implements Contract
     }
 
     /**
+     * Return registered Projections list.
+     *
+     * @return array
+     * @codeCoverageIgnore
+     */
+    public function aggregateProjections(): array
+    {
+        return $this->register;
+    }
+
+    /**
      * Assert if given projections has been called.
      *
-     * @param  string $aggregate
-     * @param  string $projection
-     * @param  string $method
+     * @param string $aggregate
+     * @param string $projection
+     * @param string $method
      * @return self
      *
      * @codeCoverageIgnore
@@ -69,9 +79,9 @@ final class Projector implements Contract
     /**
      * Assert if given projections has been called.
      *
-     * @param  string $aggregate
-     * @param  mixed  $projection
-     * @param  string $method
+     * @param string $aggregate
+     * @param mixed  $projection
+     * @param string $method
      * @return self
      *
      * @codeCoverageIgnore
@@ -90,41 +100,16 @@ final class Projector implements Contract
     }
 
     /**
-     * Determine if called.
+     * Register Projections stack.
      *
-     * @param  string $aggregate
-     * @param  string $projection
-     * @param  string $method
-     * @return bool
-     */
-    private function isCalled(string $aggregate, string $projection, string $method): bool
-    {
-        return ($projection == $this->register[$aggregate])
-            && in_array($method, $this->projected[$aggregate] ?? []);
-    }
-
-    /**
-     * Return projected Event's method list.
-     *
-     * @param  string|null $aggregate
-     * @return array
+     * @param array $stack
+     * @return void
      *
      * @codeCoverageIgnore
      */
-    public function projected(string $aggregate = null): array
+    public function map(array $stack): void
     {
-        return is_null($aggregate) ? $this->projected : ($this->projected[$aggregate] ?? []);
-    }
-
-    /**
-     * Return registered Projections list.
-     *
-     * @return array
-     * @codeCoverageIgnore
-     */
-    public function aggregateProjections(): array
-    {
-        return $this->register;
+        $this->register = array_merge_recursive($this->register, $stack);
     }
 
     /**
@@ -159,23 +144,23 @@ final class Projector implements Contract
     }
 
     /**
-     * Register Projections stack.
+     * Return projected Event's method list.
      *
-     * @param  array $stack
-     * @return void
+     * @param string|null $aggregate
+     * @return array
      *
      * @codeCoverageIgnore
      */
-    public function map(array $stack): void
+    public function projected(string $aggregate = null): array
     {
-        $this->register = array_merge_recursive($this->register, $stack);
+        return is_null($aggregate) ? $this->projected : ($this->projected[$aggregate] ?? []);
     }
 
     /**
      * Add projected events to stack.
      *
-     * @param  string $aggregate
-     * @param  array  $events
+     * @param string $aggregate
+     * @param array  $events
      * @return void
      * @throws \Framekit\Exceptions\MissingProjection
      */
@@ -196,5 +181,19 @@ final class Projector implements Contract
             $this->projected[$aggregate] = [];
         }
         array_push($this->projected[$aggregate], ...$methods);
+    }
+
+    /**
+     * Determine if called.
+     *
+     * @param string $aggregate
+     * @param string $projection
+     * @param string $method
+     * @return bool
+     */
+    private function isCalled(string $aggregate, string $projection, string $method): bool
+    {
+        return ($projection == $this->register[$aggregate])
+            && in_array($method, $this->projected[$aggregate] ?? []);
     }
 }

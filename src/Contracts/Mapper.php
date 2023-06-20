@@ -23,7 +23,7 @@ interface Mapper
      * @param array  $upstream
      * @return array
      */
-    public function map(string $event,array $payload, int $from, array $upstream): array;
+    public function map(string $event, array $payload, int $from, array $upstream): array;
 
     /**
      * Return registered Mappers list.

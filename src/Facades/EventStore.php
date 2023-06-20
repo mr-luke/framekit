@@ -2,10 +2,9 @@
 
 namespace Framekit\Facades;
 
-use Illuminate\Support\Facades\Facade;
-
 use Framekit\Contracts\Store;
 use Framekit\Testing\EventStore as Fake;
+use Illuminate\Support\Facades\Facade;
 
 /**
  * @method self assertHasEvent(string $stream_id, $event)

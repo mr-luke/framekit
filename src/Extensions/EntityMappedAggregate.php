@@ -33,7 +33,7 @@ trait EntityMappedAggregate
         $aggregate = new static($aggregateId);
         $aggregate->setRoot($dto);
 
-        /* @var AggregateRoot $aggregate*/
+        /* @var AggregateRoot $aggregate */
         return $aggregate;
     }
 

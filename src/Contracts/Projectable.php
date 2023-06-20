@@ -10,4 +10,4 @@ use Mrluke\Bus\Contracts\Trigger;
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT
  */
-interface Projectable extends Trigger {}
+interface Projectable extends Trigger { }

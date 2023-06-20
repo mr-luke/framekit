@@ -35,11 +35,11 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
 {
     use UsesDefaultQueue;
 
-    protected array $globals = [];
-
     public bool $persistSyncInstructions = false;
 
     public bool $throwWhenNoHandler = false;
+
+    protected array $globals = [];
 
     /**
      * @param \Mrluke\Configuration\Contracts\ArrayHost $config

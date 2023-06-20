@@ -2,14 +2,6 @@
 
 namespace Framekit\Providers;
 
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Queue\Factory;
-use Illuminate\Log\Logger;
-use Illuminate\Support\ServiceProvider;
-use Mrluke\Bus\Contracts\ProcessRepository;
-use Mrluke\Configuration\Host;
-use Mrluke\Configuration\Schema;
-
 use Framekit\Contracts\CommandBus;
 use Framekit\Contracts\Config;
 use Framekit\Contracts\EventRepository;
@@ -22,6 +14,13 @@ use Framekit\Drivers\Projector;
 use Framekit\Eventing\EventSerializer;
 use Framekit\Eventing\EventStoreRepository;
 use Framekit\Eventing\Retrospector;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Queue\Factory;
+use Illuminate\Log\Logger;
+use Illuminate\Support\ServiceProvider;
+use Mrluke\Bus\Contracts\ProcessRepository;
+use Mrluke\Configuration\Host;
+use Mrluke\Configuration\Schema;
 
 /**
  * @author    Łukasz Sitnicki (mr-luke)

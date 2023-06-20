@@ -17,7 +17,7 @@ interface Retrospector
     /**
      * Perform given retrospection.
      *
-     * @param  \Framekit\Retrospection  $retrospection
+     * @param \Framekit\Retrospection $retrospection
      * @return void
      */
     public function perform(Retrospection $retrospection): void;

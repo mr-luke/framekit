@@ -16,6 +16,27 @@ namespace Framekit;
 abstract class Retrospection
 {
     /**
+     * Info for retrospection to get only Events since this date
+     *
+     * @var string|null
+     */
+    public ?string $eventsSince = null;
+
+    /**
+     * Info for retrospection to get only Events till this date
+     *
+     * @var string|null
+     */
+    public ?string $eventsTill = null;
+
+    /**
+     * Determine which projections should be omitted.
+     *
+     * @var array
+     */
+    public array $filterProjections = [];
+
+    /**
      * Determine which reactors should be omitted.
      *
      * @var array
@@ -30,13 +51,6 @@ abstract class Retrospection
     public array $filterStreams = [];
 
     /**
-     * Determine which projections should be omitted.
-     *
-     * @var array
-     */
-    public array $filterProjections = [];
-
-    /**
      * Determine if retrospection should project events.
      *
      * @var boolean
@@ -49,20 +63,6 @@ abstract class Retrospection
      * @var boolean
      */
     public bool $useReactors = true;
-
-    /**
-     * Info for retrospection to get only Events since this date
-     *
-     * @var string|null
-     */
-    public ?string $eventsSince = null;
-
-    /**
-     * Info for retrospection to get only Events till this date
-     *
-     * @var string|null
-     */
-    public ?string $eventsTill = null;
 
     /**
      * Perform post-action on Event.

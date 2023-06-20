@@ -59,6 +59,7 @@ trait EventSourcedAggregate
             $this->increaseVersion();
         }
     }
+
     /**
      * Recreate aggregate based on stream of Events.
      *
@@ -76,7 +77,7 @@ trait EventSourcedAggregate
         $aggregate = new static($aggregateId);
         $aggregate->processEventsStream($events, $skipEvents);
 
-        /* @var AggregateRoot $aggregate*/
+        /* @var AggregateRoot $aggregate */
         return $aggregate;
     }
 

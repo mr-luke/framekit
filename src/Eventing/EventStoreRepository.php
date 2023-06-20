@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Framekit\Eventing;
 
-use Framekit\Contracts\AggregateIdentifier;
-use Framekit\Extensions\ValidatesUuid;
-use ReflectionClass;
-
 use Framekit\AggregateRoot;
+use Framekit\Contracts\AggregateIdentifier;
 use Framekit\Contracts\EventBus;
 use Framekit\Contracts\EventRepository;
 use Framekit\Contracts\Projector;
 use Framekit\Contracts\Store;
 use Framekit\Exceptions\InvalidAggregateIdentifier;
+use Framekit\Extensions\ValidatesUuid;
+use ReflectionClass;
 
 /**
  * @author    Łukasz Sitnicki (mr-luke)
@@ -89,8 +88,9 @@ class EventStoreRepository implements EventRepository
      * @return \Framekit\AggregateRoot
      * @throws \Framekit\Exceptions\InvalidAggregateIdentifier|\ReflectionException|\Framekit\Exceptions\StreamNotFound
      */
-    public function retrieve(string $className, int|string|AggregateIdentifier $aggregateId): AggregateRoot
-    {
+    public function retrieve(string                         $className,
+                             int|string|AggregateIdentifier $aggregateId
+    ): AggregateRoot {
         if (!class_exists($className)) {
             throw new InvalidAggregateIdentifier(
                 sprintf('Class not found %s', $className)

@@ -2,4 +2,4 @@
 
 namespace Framekit\Contracts;
 
-interface Config {}
+interface Config { }

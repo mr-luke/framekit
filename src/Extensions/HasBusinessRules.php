@@ -16,20 +16,6 @@ use InvalidArgumentException;
 trait HasBusinessRules
 {
     /**
-     * Check if the rule is broken.
-     *
-     * @param BusinessRule $rule
-     * @return void
-     * @throws InvariantViolation
-     */
-    public static function checkRule(BusinessRule $rule): void
-    {
-        if ($rule->isBroken()) {
-            throw new InvariantViolation($rule->message());
-        }
-    }
-
-    /**
      * @param array<string, BusinessRule|BusinessRule[]> $rulesDefinition
      * @return void
      * @throws MultipleInvariantViolation
@@ -60,6 +46,20 @@ trait HasBusinessRules
 
         if (!empty($errors)) {
             throw new MultipleInvariantViolation($errors);
+        }
+    }
+
+    /**
+     * Check if the rule is broken.
+     *
+     * @param BusinessRule $rule
+     * @return void
+     * @throws InvariantViolation
+     */
+    public static function checkRule(BusinessRule $rule): void
+    {
+        if ($rule->isBroken()) {
+            throw new InvariantViolation($rule->message());
         }
     }
 }
