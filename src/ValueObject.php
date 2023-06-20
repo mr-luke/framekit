@@ -7,8 +7,6 @@ namespace Framekit;
 use InvalidArgumentException;
 
 /**
- * Value Object contract.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
@@ -23,7 +21,7 @@ abstract class ValueObject
      * @param string $name
      * @return mixed
      */
-    public function __get(string $name)
+    public function __get(string $name): mixed
     {
         if (!property_exists($this, $name)) {
             throw new InvalidArgumentException(

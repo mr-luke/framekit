@@ -20,49 +20,49 @@ abstract class Retrospection
      *
      * @var array
      */
-    public $filterReactors = [];
+    public array $filterReactors = [];
 
     /**
      * Determine which stream should be omitted.
      *
      * @var array
      */
-    public $filterStreams = [];
+    public array $filterStreams = [];
 
     /**
      * Determine which projections should be omitted.
      *
      * @var array
      */
-    public $filterProjections = [];
+    public array $filterProjections = [];
 
     /**
      * Determine if retrospection should project events.
      *
      * @var boolean
      */
-    public $useProjections = true;
+    public bool $useProjections = true;
 
     /**
      * Determine if retrospection should publish events.
      *
      * @var boolean
      */
-    public $useReactors = true;
+    public bool $useReactors = true;
 
     /**
      * Info for retrospection to get only Events since this date
      *
      * @var string|null
      */
-    public $eventsSince = null;
+    public ?string $eventsSince = null;
 
     /**
      * Info for retrospection to get only Events till this date
      *
      * @var string|null
      */
-    public $eventsTill = null;
+    public ?string $eventsTill = null;
 
     /**
      * Perform post-action on Event.

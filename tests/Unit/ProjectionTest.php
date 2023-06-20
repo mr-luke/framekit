@@ -2,15 +2,13 @@
 
 namespace Tests\Unit;
 
+use Framekit\Exceptions\MethodUnknown;
+use Framekit\Projection;
+use ReflectionClass;
 use Tests\Components\IntegerAdded;
 use Tests\UnitCase;
 
-use Framekit\Projection;
-use Framekit\Exceptions\MethodUnknown;
-
 /**
- * Projection unit tests.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT
@@ -22,12 +20,16 @@ class ProjectionTest extends UnitCase
         $this->expectException(MethodUnknown::class);
 
         $projection = $this->getMockForAbstractClass(Projection::class);
+
+        $property = (new ReflectionClass($projection))->getProperty('ignoreUnknownEvents');
+        $property->setValue($projection, false);
+
         $projection->testNotExisting();
     }
 
     public function testHandleMethod()
     {
-        $event = new IntegerAdded(2);
+        $event = new IntegerAdded('test', 2);
         $projection = $this->getMockBuilder(Projection::class)
                            ->setMethods(['whenIntegerAdded'])
                            ->getMockForAbstractClass();

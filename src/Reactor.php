@@ -8,8 +8,6 @@ use Mrluke\Bus\Contracts\Handler;
 use Mrluke\Bus\Contracts\Instruction;
 
 /**
- * Reactor abstract class.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
@@ -23,5 +21,5 @@ abstract class Reactor implements Handler
      * @param \Mrluke\Bus\Contracts\Instruction $instruction
      * @return mixed
      */
-    abstract public function handle(Instruction $instruction);
+    abstract public function handle(Instruction $instruction): mixed;
 }

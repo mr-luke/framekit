@@ -2,17 +2,14 @@
 
 namespace Tests\Unit;
 
+use Framekit\AggregateRoot;
+use Framekit\Exceptions\InvalidAggregateIdentifier;
+use ReflectionClass;
 use Tests\Components\IntegerAdded;
-use Tests\Components\TestAggregate;
 use Tests\NonPublicMethodTool;
 use Tests\UnitCase;
 
-use Framekit\AggregateRoot;
-use Framekit\Exceptions\MethodUnknown;
-
 /**
- * AggregateRoot unit tests.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT
@@ -21,54 +18,63 @@ class AggregateRootTest extends UnitCase
 {
     use NonPublicMethodTool;
 
-    public function testGetIdMethod()
+    public function testUnderstandsEventMethod()
     {
-        $aggreagate = $this->getMockForAbstractClass(AggregateRoot::class, ['uuid']);
+        $event = new IntegerAdded('test', 2);
 
-        $this->assertEquals(
-            'uuid',
-            $aggreagate->getId()
-        );
-    }
-
-    public function testGetState()
-    {
-        $aggreagate = $this->getMockForAbstractClass(AggregateRoot::class, ['uuid']);
-
-        $this->assertEquals(
-            null,
-            $aggreagate->getState()
-        );
-    }
-
-    public function testThrowWhenMagicCall()
-    {
-        $this->expectException(MethodUnknown::class);
-
-        $aggreagate = $this->getMockForAbstractClass(AggregateRoot::class, ['uuid']);
-        $aggreagate->testNotExisting();
-    }
-
-    public function testThrowWhenStaticMagicCall()
-    {
-        $this->expectException(MethodUnknown::class);
-
-        TestAggregate::dummyMethod();
-    }
-
-    public function testApplyChangeMethod()
-    {
-        $event = new IntegerAdded(2);
         $aggreagate = $this->getMockBuilder(AggregateRoot::class)
-                           ->disableOriginalConstructor()
-                           ->setMethods(['applyIntegerAdded'])
-                           ->getMockForAbstractClass();
+            ->disableOriginalConstructor()
+            ->onlyMethods(['bootRootEntity'])
+            ->addMethods(['applyIntegerAdded'])
+            ->getMockForAbstractClass();
+
+        $aggreagate->expects($this->never())
+            ->method('applyIntegerAdded')
+            ->with($this->equalTo($event));
+
+        $aggreagate->understandsEvent($event);
+    }
+
+    public function testFireEventMethod()
+    {
+        $event = new IntegerAdded('test', 2);
+
+        $aggreagate = $this->getMockBuilder(AggregateRoot::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['bootRootEntity'])
+            ->addMethods(['applyIntegerAdded'])
+            ->getMockForAbstractClass();
 
         $aggreagate->expects($this->once())
-                   ->method('applyIntegerAdded')
-                   ->with($this->equalTo($event));
+            ->method('applyIntegerAdded')
+            ->with($this->equalTo($event));
 
-        $compose = self::getMethodOfClass(AggregateRoot::class, 'applyChange');
-        $compose->invokeArgs($aggreagate, [$event]);
+        $ref = (new ReflectionClass(AggregateRoot::class));
+        $method = $ref->getMethod('fireEvent');
+
+        $method->setAccessible(true);
+        $method->invokeArgs($aggreagate, [$event]);
+
+        $this->assertEquals([$event], $ref->getProperty('aggregatedEvents')->getValue($aggreagate));
+    }
+
+    public function testThrowsWhenIntegerIdIsBelowZero()
+    {
+        $this->expectException(InvalidAggregateIdentifier::class);
+
+        $this->getMockBuilder(AggregateRoot::class)
+            ->setConstructorArgs([-1])
+            ->onlyMethods(['bootRootEntity'])
+            ->getMockForAbstractClass();
+    }
+
+    public function testThrowsWhenStringIdIsNotAnUUID()
+    {
+        $this->expectException(InvalidAggregateIdentifier::class);
+
+        $this->getMockBuilder(AggregateRoot::class)
+            ->setConstructorArgs(['not-uuid'])
+            ->onlyMethods(['bootRootEntity'])
+            ->getMockForAbstractClass();
     }
 }

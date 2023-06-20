@@ -10,13 +10,10 @@ use Framekit\AggregateRoot;
 use Framekit\Event;
 
 /**
- * Projector contract.
- *
  * @author  Łukasz Sitnicki (mr-luke)
  * @package mr-luke/framekit
  * @link    http://github.com/mr-luke/framekit
  * @licence MIT
- * @version 2.0.0
  */
 interface Projector
 {

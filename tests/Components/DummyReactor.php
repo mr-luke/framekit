@@ -8,8 +8,6 @@ use Framekit\Reactor;
 use Mrluke\Bus\Contracts\Instruction;
 
 /**
- * DummyReactor class.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
@@ -21,9 +19,9 @@ class DummyReactor extends Reactor
      * Handle projection.
      *
      * @param \Mrluke\Bus\Contracts\Instruction $instruction
-     * @return void
+     * @return mixed
      */
-    public function handle(Instruction $instruction): void
+    public function handle(Instruction $instruction): mixed
     {
         $instruction->dummy();
     }

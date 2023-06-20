@@ -4,12 +4,20 @@ declare(strict_types=1);
 
 namespace Framekit\Eventing;
 
+use Framekit\Contracts\Serializable;
+use Framekit\Contracts\Serializer;
 use ReflectionClass;
 use ReflectionProperty;
 
-use Framekit\Contracts\Serializable;
-use Framekit\Contracts\Serializer;
-
+/**
+ * EventSerializer class serialize events of Aggregate
+ * for stream persistence.
+ *
+ * @author    Łukasz Sitnicki (mr-luke)
+ * @package   mr-luke/framekit
+ * @link      http://github.com/mr-luke/framekit
+ * @licence   MIT
+ */
 final class EventSerializer implements Serializer
 {
     /**

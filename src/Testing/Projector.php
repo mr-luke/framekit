@@ -14,8 +14,6 @@ use Framekit\Event;
 use Framekit\Projection;
 
 /**
- * Projector is testing class.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
@@ -170,7 +168,7 @@ final class Projector implements Contract
      */
     public function map(array $stack): void
     {
-        $this->register = array_merge($this->register, $stack);
+        $this->register = array_merge_recursive($this->register, $stack);
     }
 
     /**

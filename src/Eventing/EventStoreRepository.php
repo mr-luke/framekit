@@ -16,13 +16,10 @@ use Framekit\Contracts\Store;
 use Framekit\Exceptions\InvalidAggregateIdentifier;
 
 /**
- * EventStoreRepository class for Framekit.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT
- * @version   1.0.0
  */
 class EventStoreRepository implements EventRepository
 {
@@ -92,7 +89,7 @@ class EventStoreRepository implements EventRepository
      * @return \Framekit\AggregateRoot
      * @throws \Framekit\Exceptions\InvalidAggregateIdentifier|\ReflectionException|\Framekit\Exceptions\StreamNotFound
      */
-    public function retrieve(string $className, $aggregateId): AggregateRoot
+    public function retrieve(string $className, int|string|AggregateIdentifier $aggregateId): AggregateRoot
     {
         if (!class_exists($className)) {
             throw new InvalidAggregateIdentifier(

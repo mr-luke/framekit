@@ -10,18 +10,17 @@ use Mrluke\Bus\Contracts\Instruction;
 use Framekit\Exceptions\MethodUnknown;
 
 /**
- * Projection abstract class.
- *
  * @author  Łukasz Sitnicki (mr-luke)
  * @package mr-luke/framekit
  * @link    http://github.com/mr-luke/framekit
  * @licence MIT
- * @version 2.0.0
  */
 abstract class Projection implements Handler
 {
+    protected bool $ignoreUnknownEvents = true;
+
     /**
-     * Return name of method that should be invoke.
+     * Return name of method that should be invoked.
      *
      * @param \Mrluke\Bus\Contracts\Instruction $instruction
      * @return string
@@ -40,7 +39,7 @@ abstract class Projection implements Handler
      * @param \Mrluke\Bus\Contracts\Instruction $instruction
      * @return mixed
      */
-    public function handle(Instruction $instruction)
+    public function handle(Instruction $instruction): mixed
     {
         return $this->{static::detectMethod($instruction)}($instruction);
     }
@@ -53,10 +52,12 @@ abstract class Projection implements Handler
      * @return void
      * @throws \Framekit\Exceptions\MethodUnknown
      */
-    public function __call(string $name, array $arguments)
+    public function __call(string $name, array $arguments): void
     {
-        throw new MethodUnknown(
-            sprintf('Trying to call unknown method [%s]', $name)
-        );
+        if (!$this->ignoreUnknownEvents) {
+            throw new MethodUnknown(
+                sprintf('Trying to call unknown method [%s]', $name)
+            );
+        }
     }
 }

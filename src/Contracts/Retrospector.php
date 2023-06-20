@@ -7,8 +7,6 @@ namespace Framekit\Contracts;
 use Framekit\Retrospection;
 
 /**
- * Retrospector contract.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit

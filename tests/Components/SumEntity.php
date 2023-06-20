@@ -5,8 +5,6 @@ namespace Tests\Components;
 use Framekit\Entity;
 
 /**
- * SumState.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
@@ -19,5 +17,5 @@ class SumEntity extends Entity
      *
      * @var int
      */
-    public $sum = 0;
+    public int $sum = 0;
 }

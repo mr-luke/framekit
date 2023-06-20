@@ -14,6 +14,7 @@ class EventStoreRepository extends Facade
      * Create faked EventStoreRepository
      *
      * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public static function fake(): void
     {
@@ -33,7 +34,7 @@ class EventStoreRepository extends Facade
      *
      * @return string
      */
-    protected static function getFacadeAccessor()
+    protected static function getFacadeAccessor(): string
     {
         return 'framekit.event.repository';
     }

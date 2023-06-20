@@ -9,8 +9,6 @@ use Mrluke\Bus\Contracts\Instruction;
 use Framekit\Projection;
 
 /**
- * DummyProjection class.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
@@ -22,9 +20,9 @@ class DummyProjection extends Projection
      * Handle projection.
      *
      * @param \Mrluke\Bus\Contracts\Instruction $instruction
-     * @return void
+     * @return mixed
      */
-    public function handle(Instruction $instruction): void
+    public function handle(Instruction $instruction): mixed
     {
         $instruction->dummy();
     }

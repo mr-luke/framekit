@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Framekit\Contracts;
 
 /**
- * Store contract.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
@@ -17,12 +15,12 @@ interface Store
     /**
      * Store new payload in stream.
      *
-     * @param string $stream_type
-     * @param string $stream_id
+     * @param string $streamType
+     * @param string $streamId
      * @param array  $events
      * @return void
      */
-    public function commitToStream(string $stream_type, string $stream_id, array $events): void;
+    public function commitToStream(string $streamType, string $streamId, array $events): void;
 
     /**
      * Load available streams.
@@ -42,9 +40,25 @@ interface Store
      * @throws \Framekit\Exceptions\StreamNotFound
      */
     public function loadStream(
-        string $streamId = null,
+        string  $streamId = null,
         ?string $since = null,
         ?string $till = null,
-        bool $withMeta = false
+        bool    $withMeta = false
     ): array;
+
+    /**
+     * Override a single Event.
+     *
+     * @param int         $eventId
+     * @param string|null $event
+     * @param array|null  $payload
+     * @param int|null    $seqNo
+     * @return void
+     */
+    public function overrideEvent(
+        int    $eventId,
+        string $event = null,
+        array  $payload = null,
+        int    $seqNo = null
+    ): void;
 }

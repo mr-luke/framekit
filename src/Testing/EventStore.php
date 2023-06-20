@@ -10,13 +10,10 @@ use Framekit\Contracts\Store;
 use Framekit\Event;
 
 /**
- * EventStream testing class for Framekit.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT
- * @version   1.0.0
  */
 final class EventStore implements Store
 {
@@ -25,7 +22,7 @@ final class EventStore implements Store
      *
      * @var array
      */
-    private $events = [];
+    private array $events = [];
 
     /**
      * Determine if stream has event(s).
@@ -77,29 +74,19 @@ final class EventStore implements Store
     }
 
     /**
-     * Store new payload in stream.
-     *
-     * @param string $stream_type
-     * @param string $stream_id
-     * @param array  $events
-     *
-     * @return void
+     * @inheritDoc
      */
-    public function commitToStream(string $stream_type, string $stream_id, array $events): void
+    public function commitToStream(string $streamType, string $streamId, array $events): void
     {
-        if (!isset($this->events[$stream_id])) {
-            $this->events[$stream_id] = [];
+        if (!isset($this->events[$streamId])) {
+            $this->events[$streamId] = [];
         }
 
-        array_push($this->events[$stream_id], ...$events);
+        array_push($this->events[$streamId], ...$events);
     }
 
     /**
-     * Load available streams.
-     *
-     * @return array
-     *
-     * @codeCoverageIgnore
+     * @inheritDoc
      */
     public function getAvailableStreams(): array
     {
@@ -107,16 +94,7 @@ final class EventStore implements Store
     }
 
     /**
-     * Load Stream based on id.
-     *
-     * @param string|null $streamId
-     * @param string|null $since
-     * @param string|null $till
-     * @param bool        $withMeta
-     *
-     * @return array
-     *
-     * @codeCoverageIgnore
+     * @inheritDoc
      */
     public function loadStream(
         string $streamId = null,
@@ -125,6 +103,18 @@ final class EventStore implements Store
         bool $withMeta = false
     ): array {
         return $this->events[$streamId] ?? [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function overrideEvent(
+        int    $eventId,
+        string $event = null,
+        array  $payload = null,
+        int    $seqNo = null
+    ): void {
+        // DO nothing
     }
 
     /**
@@ -158,18 +148,19 @@ final class EventStore implements Store
      * @param \Framekit\Event|string $event
      *
      * @return bool
+     * @throws \Framekit\Exceptions\StreamNotFound
      */
-    private function hasEvent(string $stream_id, $event): bool
+    private function hasEvent(string $stream_id, Event|string $event): bool
     {
         $deepTest = !is_string($event);
         $method = $deepTest ? 'eventDeepTest' : 'eventShallowTest';
 
         if ($deepTest) {
-            $event->firedAt = null;
+            $event->firedAt = 1;
         }
 
         foreach ($this->loadStream($stream_id) as $e) {
-            $e->firedAt = null;
+            $e->firedAt = 1;
 
             if ($this->{$method}($event, $e)) {
                 return true;

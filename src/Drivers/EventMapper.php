@@ -26,14 +26,14 @@ final class EventMapper implements Mapper
     /**
      * @var \Illuminate\Contracts\Container\Container
      */
-    protected $container;
+    protected Container $container;
 
     /**
      * Register of Event->Mapper pairs.
      *
      * @var array
      */
-    protected $register;
+    protected array $register;
 
     /**
      * @param \Illuminate\Contracts\Container\Container $container
@@ -53,8 +53,10 @@ final class EventMapper implements Mapper
      * @param int    $from
      * @param array  $upstream
      * @return array
-     * @throws \ReflectionException
      * @throws \Framekit\Exceptions\MethodUnknown
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Mrluke\Bus\Exceptions\RuntimeException
+     * @throws \ReflectionException
      */
     public function map(string $event, array $payload, int $from, array $upstream): array
     {
@@ -65,7 +67,7 @@ final class EventMapper implements Mapper
         return $this->resolveMap($event)->translate(
             $payload,
             $from,
-            $event::$eventVersion,
+            $event::$__eventVersion__,
             $upstream
         );
     }
@@ -88,7 +90,7 @@ final class EventMapper implements Mapper
      */
     public function register(array $stack): void
     {
-        $this->register = array_merge($this->register, $stack);
+        $this->register = array_merge_recursive($this->register, $stack);
     }
 
     /**
@@ -114,6 +116,8 @@ final class EventMapper implements Mapper
      *
      * @param string $event
      * @return \Framekit\Contracts\VersionMap
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Mrluke\Bus\Exceptions\RuntimeException
      * @throws \ReflectionException
      */
     protected function resolveMap(string $event): VersionMap

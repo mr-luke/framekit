@@ -3,11 +3,10 @@
 namespace Tests\Components;
 
 use Framekit\AggregateRoot;
+use Framekit\Event;
 use Framekit\Extensions\EventSourcedAggregate;
 
 /**
- * Test Event.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
@@ -23,5 +22,10 @@ class TestAggregate extends AggregateRoot
     protected function bootRootEntity(): void
     {
         // TODO: Implement bootRootEntity() method.
+    }
+
+    public function do(Event $event): void
+    {
+        $this->fireEvent($event);
     }
 }

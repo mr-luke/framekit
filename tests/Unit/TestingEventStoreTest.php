@@ -2,11 +2,11 @@
 
 namespace Tests\Unit;
 
+use Carbon\Carbon;
+use Framekit\Testing\EventStore;
 use Tests\Components\IntegerAdded;
 use Tests\NonPublicMethodTool;
 use Tests\UnitCase;
-
-use Framekit\Testing\EventStore;
 
 /**
  * EventBus unit tests.
@@ -21,7 +21,7 @@ class TestingEventStoreTest extends UnitCase
 
     public function testCommitingToStream()
     {
-        $event = new IntegerAdded(2);
+        $event = new IntegerAdded('uuid1', 2);
 
         $store = new EventStore();
         $store->commitToStream('Stream','uuid1', [$event]);
@@ -34,7 +34,7 @@ class TestingEventStoreTest extends UnitCase
 
     public function testWhenStreamHasNotTheSameEvent()
     {
-        $event = new IntegerAdded(2);
+        $event = new IntegerAdded('uuid', 2);
 
         $store = new EventStore();
         $store->commitToStream('Stream','uuid1', [$event]);
@@ -44,14 +44,14 @@ class TestingEventStoreTest extends UnitCase
         $this->assertFalse(
             $compose->invokeArgs($store, [
                 'uuid1',
-                new IntegerAdded(3)
+                new IntegerAdded('uuid', 3)
             ])
         );
     }
 
     public function testWhenStreamHasEventOfGivenType()
     {
-        $event = new IntegerAdded(2);
+        $event = new IntegerAdded('uuid', 2);
 
         $store = new EventStore();
         $store->commitToStream('Stream','uuid1', [$event]);
@@ -68,7 +68,7 @@ class TestingEventStoreTest extends UnitCase
 
     public function testWhenStreamHasTheSameEvent()
     {
-        $event = new IntegerAdded(2);
+        $event = new IntegerAdded('uuid', 2);
 
         $store = new EventStore();
         $store->commitToStream('Stream','uuid1', [$event]);

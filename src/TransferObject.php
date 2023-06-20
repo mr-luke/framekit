@@ -8,8 +8,6 @@ use Framekit\Contracts\DataTransferObject;
 use InvalidArgumentException;
 
 /**
- * Data Transfer Object.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
@@ -22,7 +20,7 @@ class TransferObject implements DataTransferObject
      *
      * @var array
      */
-    protected $attributes;
+    protected array $attributes;
 
     /**
      * @param array $attributes

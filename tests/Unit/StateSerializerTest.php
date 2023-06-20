@@ -2,15 +2,12 @@
 
 namespace Tests\Unit;
 
+use Framekit\Contracts\Serializer;
+use Framekit\Entity;
+use Framekit\Eventing\StateSerializer;
 use Tests\UnitCase;
 
-use Framekit\Contracts\Serializer;
-use Framekit\Eventing\StateSerializer;
-use Framekit\Entity;
-
 /**
- * StateSerializer unit tests.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT

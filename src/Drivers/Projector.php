@@ -29,24 +29,8 @@ class Projector extends MultipleHandlerBus implements ProjectorContract, AsyncBu
 {
     use UsesDefaultQueue;
 
-    /** Determine if process should be delete on success.
-     *
-     * @var bool
-     */
-    public bool $cleanOnSuccess = false;
+    public bool $persistSyncInstructions = false;
 
-    /**
-     * Determine if Bus should stop executing on exception.
-     *
-     * @var bool
-     */
-    public bool $stopOnException = false;
-
-    /**
-     * Determine if Bus should throw if there's no handler to process.
-     *
-     * @var bool
-     */
     public bool $throwWhenNoHandler = false;
 
     /**
@@ -82,6 +66,7 @@ class Projector extends MultipleHandlerBus implements ProjectorContract, AsyncBu
 
     /**
      * @inheritDoc
+     * @throws \Mrluke\Bus\Exceptions\RuntimeException
      */
     public function project(AggregateRoot $aggregate): array
     {
@@ -93,6 +78,7 @@ class Projector extends MultipleHandlerBus implements ProjectorContract, AsyncBu
 
     /**
      * @inheritDoc
+     * @throws \Mrluke\Bus\Exceptions\RuntimeException
      */
     public function projectByEvents(AggregateRoot $aggregate, array $events): array
     {
@@ -104,6 +90,7 @@ class Projector extends MultipleHandlerBus implements ProjectorContract, AsyncBu
 
     /**
      * @inheritDoc
+     * @throws \Mrluke\Bus\Exceptions\RuntimeException
      */
     public function projectSingle(AggregateRoot $aggregate, Event $event): Process
     {

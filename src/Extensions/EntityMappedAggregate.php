@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Framekit\Extensions;
 
 use Framekit\AggregateRoot;
+use Framekit\Contracts\AggregateIdentifier;
 use Framekit\Contracts\DataTransferObject;
 
 /**
- * Entity extension for Aggregate.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
@@ -20,12 +19,6 @@ use Framekit\Contracts\DataTransferObject;
 trait EntityMappedAggregate
 {
     /**
-     * @param $aggregateId
-     * @throws \Framekit\Exceptions\InvalidAggregateIdentifier
-     */
-    abstract public function __construct($aggregateId);
-
-    /**
      * Recreate aggregate based on DTO.
      *
      * @param int|string|\Framekit\Contracts\AggregateIdentifier $aggregateId
@@ -34,8 +27,8 @@ trait EntityMappedAggregate
      * @throws \Framekit\Exceptions\InvalidAggregateIdentifier
      */
     public static function recreateFromTransferObject(
-        $aggregateId,
-        DataTransferObject $dto
+        int|string|AggregateIdentifier $aggregateId,
+        DataTransferObject             $dto
     ): AggregateRoot {
         $aggregate = new static($aggregateId);
         $aggregate->setRoot($dto);

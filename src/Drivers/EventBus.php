@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Framekit\Drivers;
 
+use Framekit\Contracts\EventBus as EventBusContract;
+use Framekit\Event;
+use Framekit\Exceptions\MissingReactor;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Log\Logger;
 use Mrluke\Bus\Contracts\Handler;
 use Mrluke\Bus\Contracts\HasAsyncProcesses;
-use Mrluke\Bus\Contracts\Instruction;
 use Mrluke\Bus\Contracts\Process;
 use Mrluke\Bus\Contracts\ProcessRepository;
 use Mrluke\Bus\Contracts\ShouldBeAsync;
@@ -19,10 +21,6 @@ use Mrluke\Bus\MultipleHandlerBus;
 use Mrluke\Configuration\Contracts\ArrayHost;
 use ReflectionClass;
 
-use Framekit\Contracts\EventBus as EventBusContract;
-use Framekit\Event;
-use Framekit\Exceptions\MissingReactor;
-
 /**
  * EventBus is responsible for detecting reaction.
  *
@@ -30,7 +28,6 @@ use Framekit\Exceptions\MissingReactor;
  * @package mr-luke/framekit
  * @link    http://github.com/mr-luke/framekit
  * @licence MIT
- * @version 2.0.0`
  *
  * @property mixed queueConnection
  */
@@ -38,31 +35,10 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
 {
     use UsesDefaultQueue;
 
-    /** Determine if process should be delete on success.
-     *
-     * @var bool
-     */
-    public bool $cleanOnSuccess = false;
-
-    /**
-     * Register of global Reactors.
-     *
-     * @var array
-     */
     protected array $globals = [];
 
-    /**
-     * Determine if Bus should stop executing on exception.
-     *
-     * @var bool
-     */
-    public bool $stopOnException = false;
+    public bool $persistSyncInstructions = false;
 
-    /**
-     * Determine if Bus should throw if there's no handler to process.
-     *
-     * @var bool
-     */
     public bool $throwWhenNoHandler = false;
 
     /**
@@ -74,11 +50,11 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
      * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
      */
     public function __construct(
-        ArrayHost $config,
+        ArrayHost         $config,
         ProcessRepository $repository,
-        Container $container,
-        Logger $logger,
-        $queueResolver = null
+        Container         $container,
+        Logger            $logger,
+                          $queueResolver = null
     ) {
         parent::__construct($repository, $container, $logger, $queueResolver);
 
@@ -86,9 +62,7 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
     }
 
     /**
-     * Return all registered event reactors.
-     *
-     * @return array
+     * @inheritDoc
      * @codeCoverageIgnore
      */
     public function eventReactors(): array
@@ -97,16 +71,21 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
     }
 
     /**
-     * Return registered global Reactors list.
-     *
-     * @return array
-     * @throws \Mrluke\Bus\Exceptions\InvalidHandler
-     * @throws \ReflectionException
+     * @inheritDoc
+     * @codeCoverageIgnore
      */
     public function globalReactors(): array
     {
-        foreach ($this->globals as $h) {
-            $reflection = new ReflectionClass($h);
+        return $this->globals;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function mapGlobals(array $stack): void
+    {
+        foreach ($stack as $c) {
+            $reflection = new ReflectionClass($c);
 
             if (
                 !$reflection->isInstantiable() ||
@@ -118,32 +97,11 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
             }
         }
 
-        return $this->globals;
-    }
-
-    /**
-     * Register Reactors stack.
-     *
-     * @param array $stack
-     * @return void
-     */
-    public function mapGlobals(array $stack): void
-    {
         $this->globals = array_merge($this->globals, $stack);
     }
 
     /**
-     * Publish Event to it's reactors.
-     *
-     * @param \Framekit\Event $event
-     * @return \Mrluke\Bus\Contracts\Process|null
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     * @throws \Mrluke\Bus\Exceptions\InvalidAction
-     * @throws \Mrluke\Bus\Exceptions\InvalidHandler
-     * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
-     * @throws \Mrluke\Bus\Exceptions\MissingHandler
-     * @throws \Mrluke\Bus\Exceptions\MissingProcess
-     * @throws \ReflectionException
+     * @inheritDoc
      */
     public function publish(Event $event): ?Process
     {
@@ -173,6 +131,7 @@ class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncP
 
     /**
      * @inheritDoc
+     * @codeCoverageIgnore
      */
     protected function getBusName(): string
     {

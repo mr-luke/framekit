@@ -2,4 +2,6 @@
 
 namespace Framekit\Exceptions;
 
-class UnsupportedAggregate extends \Exception {}
+use Exception;
+
+class UnsupportedAggregate extends Exception {}

@@ -2,10 +2,9 @@
 
 namespace Tests\Unit;
 
+use Framekit\TransferObject;
 use InvalidArgumentException;
 use Tests\UnitCase;
-
-use Framekit\TransferObject;
 
 /**
  * TransferObject unit tests.

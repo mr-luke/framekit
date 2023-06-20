@@ -8,8 +8,6 @@ use Carbon\Carbon;
 use Framekit\Contracts\Serializable;
 
 /**
- * State contract.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
@@ -22,27 +20,27 @@ abstract class Entity implements Serializable
      *
      * @var string
      */
-    public $id;
+    public mixed $id;
 
     /**
      * Date of aggregate creation.
      *
      * @var \Carbon\Carbon;
      */
-    protected $createdAt;
+    protected Carbon $createdAt;
 
     /**
      * Date of aggregate creation.
      *
-     * @var \Carbon\Carbon;
+     * @var \Carbon\Carbon|null;
      */
-    protected $deletedAt;
+    protected ?Carbon $deletedAt = null;
 
     /**
      * @param mixed          $id
      * @param \Carbon\Carbon $createdAt
      */
-    public function __construct($id, Carbon $createdAt)
+    public function __construct(mixed $id, Carbon $createdAt)
     {
         $this->id        = $id;
         $this->createdAt = $createdAt;
@@ -64,7 +62,7 @@ abstract class Entity implements Serializable
      * @param  mixed $id
      * @return self
      */
-    public static function createWithCurrentTime($id): self
+    public static function createWithCurrentTime(mixed $id): self
     {
         return new static(
             $id,

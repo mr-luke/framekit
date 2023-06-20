@@ -6,8 +6,6 @@ use Framekit\Contracts\VersionMap as Contract;
 use Framekit\Exceptions\MethodUnknown;
 
 /**
- * Version map abstract class.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit

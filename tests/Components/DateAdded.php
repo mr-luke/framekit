@@ -6,8 +6,6 @@ use Carbon\Carbon;
 use Framekit\Event;
 
 /**
- * Test Event.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
@@ -18,14 +16,16 @@ class DateAdded extends Event
     /**
      * @var \Carbon\Carbon
      */
-    public $date;
+    public Carbon $date;
 
     /**
+     * @param string         $id
      * @param \Carbon\Carbon $date
      */
-    public function __construct(Carbon $date)
+    public function __construct(string $id, Carbon $date)
     {
         parent::__construct();
+        $this->aggregateId = $id;
 
         $this->date = $date;
     }

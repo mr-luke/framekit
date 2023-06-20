@@ -8,8 +8,6 @@ use Mrluke\Bus\Contracts\Instruction;
 use Mrluke\Bus\Contracts\Trigger;
 
 /**
- * Publishable contract.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit

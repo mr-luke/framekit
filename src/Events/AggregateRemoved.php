@@ -18,20 +18,20 @@ use Framekit\Event;
 class AggregateRemoved extends Event
 {
     /**
-     * @var int|string|\Framekit\Contracts\AggregateIdentifier
+     * @var int|string
      */
-    public $aggregateId;
+    public string|int $aggregateId;
 
     /**
      * @var \Carbon\Carbon
      */
-    public $deletedAt;
+    public Carbon $deletedAt;
 
     /**
-     * @param int|string|\Framekit\Contracts\AggregateIdentifier $aggregateId
-     * @param \Carbon\Carbon                                     $deletedAt
+     * @param int|string     $aggregateId
+     * @param \Carbon\Carbon $deletedAt
      */
-    public function __construct($aggregateId, Carbon $deletedAt)
+    public function __construct(int|string $aggregateId, Carbon $deletedAt)
     {
         parent::__construct();
 

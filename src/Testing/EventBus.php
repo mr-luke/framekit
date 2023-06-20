@@ -11,8 +11,6 @@ use Framekit\Contracts\EventBus as Bus;
 use Framekit\Event;
 
 /**
- * EventBus is testing class.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit

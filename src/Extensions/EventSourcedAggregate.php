@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Framekit\Extensions;
 
 use Framekit\AggregateRoot;
+use Framekit\Contracts\AggregateIdentifier;
 use Framekit\Event;
 use Framekit\Exceptions\MethodUnknown;
 
@@ -21,13 +22,7 @@ trait EventSourcedAggregate
     /**
      * @var int
      */
-    protected $aggregateVersion = 0;
-
-    /**
-     * @param $aggregateId
-     * @throws \Framekit\Exceptions\InvalidAggregateIdentifier
-     */
-    abstract public function __construct($aggregateId);
+    protected int $aggregateVersion = 0;
 
     /**
      * Process stream of events.
@@ -43,7 +38,7 @@ trait EventSourcedAggregate
             // check is apply change method exists on aggregate
             if (!$this->understandsEvent($e)) {
 
-                // if method does not exists
+                // if method does not exist
                 // and recreating can skip events
                 // continue loop
                 if ($skipUnknown) {
@@ -71,13 +66,12 @@ trait EventSourcedAggregate
      * @param \Framekit\Event[]                                  $events
      * @param bool                                               $skipEvents
      * @return \Framekit\AggregateRoot
-     * @throws \Framekit\Exceptions\InvalidAggregateIdentifier
      * @throws \Framekit\Exceptions\MethodUnknown
      */
     public static function recreateFromStream(
-        $aggregateId,
-        array $events,
-        bool $skipEvents = true
+        int|string|AggregateIdentifier $aggregateId,
+        array                          $events,
+        bool                           $skipEvents = true
     ): AggregateRoot {
         $aggregate = new static($aggregateId);
         $aggregate->processEventsStream($events, $skipEvents);

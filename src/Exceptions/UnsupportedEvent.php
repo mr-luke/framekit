@@ -2,4 +2,6 @@
 
 namespace Framekit\Exceptions;
 
-class UnsupportedEvent extends \Exception {}
+use Exception;
+
+class UnsupportedEvent extends Exception {}

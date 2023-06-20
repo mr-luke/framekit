@@ -9,13 +9,10 @@ use Mrluke\Bus\Contracts\Process;
 use Framekit\Event;
 
 /**
- * EventBus contract.
- *
  * @author  Łukasz Sitnicki (mr-luke)
  * @package mr-luke/framekit
  * @link    http://github.com/mr-luke/framekit
  * @licence MIT
- * @version 2.0.0
  */
 interface EventBus
 {
@@ -30,8 +27,6 @@ interface EventBus
      * Return registered global Reactors list.
      *
      * @return array
-     * @throws \Mrluke\Bus\Exceptions\InvalidHandler
-     * @throws \ReflectionException
      */
     public function globalReactors(): array;
 
@@ -40,19 +35,22 @@ interface EventBus
      *
      * @param array $stack
      * @return void
+     * @throws \Mrluke\Bus\Exceptions\InvalidHandler
+     * @throws \ReflectionException
      */
     public function mapGlobals(array $stack): void;
 
     /**
-     * Publish Event to it's reactors.
+     * Publish Event to its reactors.
      *
-     * @param \Framekit\Event|null $event
-     * @return \Mrluke\Bus\Contracts\Process
+     * @param \Framekit\Event $event
+     * @return \Mrluke\Bus\Contracts\Process|null
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws \Mrluke\Bus\Exceptions\InvalidAction
      * @throws \Mrluke\Bus\Exceptions\InvalidHandler
      * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
      * @throws \Mrluke\Bus\Exceptions\MissingHandler
+     * @throws \Mrluke\Bus\Exceptions\RuntimeException
      * @throws \ReflectionException
      */
     public function publish(Event $event): ?Process;

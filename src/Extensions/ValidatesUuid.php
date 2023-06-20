@@ -3,8 +3,6 @@
 namespace Framekit\Extensions;
 
 /**
- * Extensions adds validation of UUID.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit

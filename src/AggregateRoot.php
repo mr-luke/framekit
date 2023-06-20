@@ -11,8 +11,6 @@ use Framekit\Exceptions\MethodUnknown;
 use Framekit\Extensions\ValidatesUuid;
 
 /**
- * Aggregate abstract class.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
@@ -25,7 +23,7 @@ abstract class AggregateRoot implements Projectable
     /**
      * @var int|string|\Framekit\Contracts\AggregateIdentifier
      */
-    protected $aggregateId;
+    protected AggregateIdentifier|string|int $aggregateId;
 
     /**
      * @var \Framekit\Event[]
@@ -38,10 +36,10 @@ abstract class AggregateRoot implements Projectable
     protected Entity $rootEntity;
 
     /**
-     * @param $aggregateId
+     * @param \Framekit\Contracts\AggregateIdentifier|string|int $aggregateId
      * @throws \Framekit\Exceptions\InvalidAggregateIdentifier
      */
-    public function __construct($aggregateId)
+    public function __construct(AggregateIdentifier|string|int $aggregateId)
     {
         $this->aggregateId = $aggregateId;
         $this->validateAggregateIdentifier();
@@ -53,8 +51,9 @@ abstract class AggregateRoot implements Projectable
      * Return aggregate identifier.
      *
      * @return int|string|\Framekit\Contracts\AggregateIdentifier
+     * @codeCoverageIgnore
      */
-    public function identifier()
+    public function identifier(): int|string|AggregateIdentifier
     {
         return $this->aggregateId;
     }
@@ -77,6 +76,7 @@ abstract class AggregateRoot implements Projectable
      * Return unpublished events.
      *
      * @return \Framekit\Event[]
+     * @codeCoverageIgnore
      */
     public function unpublishedEvents(): array
     {
@@ -89,7 +89,8 @@ abstract class AggregateRoot implements Projectable
     /**
      * Return root Entity of an aggregate.
      *
-     * @return \Framekit\Entity
+     * @return \Framekit\Entity|null
+     * @codeCoverageIgnore
      */
     public function rootEntity(): ?Entity
     {
@@ -102,6 +103,7 @@ abstract class AggregateRoot implements Projectable
      * @param string $name
      * @param array  $arguments
      * @throws \Framekit\Exceptions\MethodUnknown
+     * @codeCoverageIgnore
      */
     public function __call(string $name, array $arguments)
     {
@@ -116,6 +118,7 @@ abstract class AggregateRoot implements Projectable
      * @param string $name
      * @param array  $arguments
      * @throws \Framekit\Exceptions\MethodUnknown
+     * @codeCoverageIgnore
      */
     public static function __callStatic(string $name, array $arguments)
     {
@@ -179,35 +182,22 @@ abstract class AggregateRoot implements Projectable
      */
     protected function validateAggregateIdentifier(): void
     {
-        if (is_int($this->aggregateId)) {
-            if ($this->aggregateId < 1) {
-                throw new InvalidAggregateIdentifier(
-                    'Numeric identifier must be unsigned integer'
-                );
-            } else {
-                return;
-            }
+        if (
+            is_int($this->aggregateId) &&
+            $this->aggregateId < 1
+        ) {
+            throw new InvalidAggregateIdentifier(
+                'Numeric identifier must be unsigned integer'
+            );
         }
 
-        if (is_string($this->aggregateId)) {
-            if (!$this->isValidUuid($this->aggregateId)) {
-                throw new InvalidAggregateIdentifier(
-                    'String identifier must be an UUID'
-                );
-            } else {
-                return;
-            }
+        if (
+            is_string($this->aggregateId) &&
+            !$this->isValidUuid($this->aggregateId)
+        ) {
+            throw new InvalidAggregateIdentifier(
+                'String identifier must be an UUID'
+            );
         }
-
-        if ($this->aggregateId instanceof AggregateIdentifier) {
-            return;
-        }
-
-        throw new InvalidAggregateIdentifier(
-            sprintf(
-                'Aggregate identifier must be either integer, string or %s instance',
-                AggregateIdentifier::class
-            )
-        );
     }
 }

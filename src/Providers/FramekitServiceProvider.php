@@ -24,8 +24,6 @@ use Framekit\Eventing\EventStoreRepository;
 use Framekit\Eventing\Retrospector;
 
 /**
- * ServiceProvider for package.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
  *
@@ -41,7 +39,7 @@ class FramekitServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
 
@@ -61,7 +59,7 @@ class FramekitServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../../config/framekit.php', 'framekit');
 

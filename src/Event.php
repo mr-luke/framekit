@@ -21,30 +21,30 @@ abstract class Event implements Publishable, Serializable
     /**
      * Id of aggregate that fired event.
      *
-     * @var string
+     * @var string|int
      */
-    public $aggregateId;
+    public string|int $aggregateId;
 
     /**
      * Determine version of an event.
      *
      * @var int
      */
-    public static $eventVersion = 1;
+    public static int $__eventVersion__ = 1;
 
     /**
-     * Microtime when event has been fired.
+     * Micro-time when event has been fired.
      *
      * @var int
      */
-    public $firedAt;
+    public int $firedAt;
 
     /**
-     * Helper for accessing meta and stream info from eventstore
+     * Helper for accessing meta and stream info from event-store
      *
      * @var array
      */
-    public $__meta__ = [];
+    public array $__meta__ = [];
 
     /**
      * Event constructor.

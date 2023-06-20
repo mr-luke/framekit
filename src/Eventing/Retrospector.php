@@ -19,7 +19,6 @@ use InvalidArgumentException;
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT
- * @version   1.0.0
  */
 class Retrospector implements Contract
 {

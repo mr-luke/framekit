@@ -24,7 +24,6 @@ use Mrluke\Configuration\Contracts\ArrayHost;
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT
- * @version   1.0.0
  */
 final class EventStore implements Store
 {
@@ -45,7 +44,7 @@ final class EventStore implements Store
 
     /**
      * @param \Mrluke\Configuration\Contracts\ArrayHost $config
-     * @param \Framekit\Contracts\Serializer
+     * @param \Framekit\Contracts\Serializer            $serializer
      * @param \Framekit\Contracts\Mapper                $mapper
      */
     function __construct(ArrayHost $config, Serializer $serializer, Mapper $mapper)
@@ -56,25 +55,19 @@ final class EventStore implements Store
     }
 
     /**
-     * Store new payload in stream.
-     *
-     * @param string $stream_type
-     * @param string $stream_id
-     * @param array  $events
-     *
-     * @return void
+     * @inheritDoc
      */
-    public function commitToStream(string $stream_type, string $stream_id, array $events): void
+    public function commitToStream(string $streamType, string $streamId, array $events): void
     {
         DB::beginTransaction();
 
-        $last = $this->setupDBConnection()->where('stream_id', $stream_id)
+        $last = $this->setupDBConnection()->where('stream_id', $streamId)
             ->orderBy('sequence_no', 'DESC')
             ->lockForUpdate()
             ->first();
         $last = $last->sequence_no ?? 0;
 
-        $common = $this->composeCommon($stream_type, $stream_id);
+        $common = $this->composeCommon($streamType, $streamId);
 
         foreach ($events as $e) {
             if (!$e instanceof Event) {
@@ -89,9 +82,9 @@ final class EventStore implements Store
                 array_merge(
                     $common,
                     [
-                        'event'       => get_class($e),
-                        'payload'     => $this->serializer->serialize($e),
-                        'version'     => $e::$eventVersion,
+                        'event' => get_class($e),
+                        'payload' => $this->serializer->serialize($e),
+                        'version' => $e::$__eventVersion__,
                         'sequence_no' => ++$last,
                     ]
                 )
@@ -102,9 +95,7 @@ final class EventStore implements Store
     }
 
     /**
-     * Load available streams.
-     *
-     * @return array
+     * @inheritDoc
      */
     public function getAvailableStreams(): array
     {
@@ -115,15 +106,7 @@ final class EventStore implements Store
     }
 
     /**
-     * Load Stream based on id.
-     *
-     * @param string|null $streamId
-     * @param string|null $since
-     * @param string|null $till
-     * @param bool        $withMeta
-     *
-     * @return array
-     * @throws \Framekit\Exceptions\StreamNotFound
+     * @inheritDoc
      */
     public function loadStream(
         string  $streamId = null,
@@ -156,6 +139,24 @@ final class EventStore implements Store
         }
 
         return $events;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function overrideEvent(
+        int    $eventId,
+        string $event = null,
+        array  $payload = null,
+        int    $seqNo = null
+    ): void {
+        $this->setupDBConnection()->where('id', $eventId)->update(
+            array_filter([
+                'event' => $event,
+                'payload' => $payload,
+                'sequence_no' => $seqNo,
+            ])
+        );
     }
 
     /**
@@ -201,12 +202,12 @@ final class EventStore implements Store
         $now = now();
 
         return [
-            'stream_type'  => $streamType,
-            'stream_id'    => $streamId,
-            'meta'         => json_encode(
+            'stream_type' => $streamType,
+            'stream_id' => $streamId,
+            'meta' => json_encode(
                 [
                     'auth' => auth()->check() ? auth()->user()->id : null,
-                    'ip'   => request()->ip(),
+                    'ip' => request()->ip(),
                 ]
             ),
             'committed_at' => $now->toDateTimeString() . '.' . $now->micro,
@@ -225,7 +226,7 @@ final class EventStore implements Store
         $event = json_decode($payload, true);
         $class = $event['class'];
 
-        return $class::$eventVersion != $version;
+        return $class::$__eventVersion__ != $version;
     }
 
     /**

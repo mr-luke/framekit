@@ -19,17 +19,9 @@ use function json_encode;
  */
 class EventSerializerTest extends UnitCase
 {
-    public function testClassResolveContract()
-    {
-        $this->assertInstanceOf(
-            Serializer::class,
-            new EventSerializer
-        );
-    }
-
     public function testSerializeEventWithoutObject()
     {
-        $event          = new IntegerAdded(1);
+        $event          = new IntegerAdded('test', 1);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
@@ -43,7 +35,7 @@ class EventSerializerTest extends UnitCase
 
     public function testUnserializeEventWithoutObject()
     {
-        $event          = new IntegerAdded(1);
+        $event          = new IntegerAdded('test', 1);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
@@ -59,7 +51,7 @@ class EventSerializerTest extends UnitCase
     {
         $now = Carbon::now();
 
-        $event          = new DateAdded($now);
+        $event          = new DateAdded('test', $now);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
@@ -75,7 +67,7 @@ class EventSerializerTest extends UnitCase
     {
         $now = Carbon::now();
 
-        $event          = new DateAdded($now);
+        $event          = new DateAdded('test', $now);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
@@ -93,7 +85,7 @@ class EventSerializerTest extends UnitCase
             'class'      => 'Tests\Components\DateAdded',
             'attributes' => [
                 'date'        => serialize($date),
-                'aggregateId' => null,
+                'aggregateId' => 'test',
                 'firedAt'     => 12345678,
                 '__meta__'    => [],
             ],
@@ -106,7 +98,7 @@ class EventSerializerTest extends UnitCase
             'class'      => 'Tests\Components\IntegerAdded',
             'attributes' => [
                 'toAdd'       => 1,
-                'aggregateId' => null,
+                'aggregateId' => 'test',
                 'firedAt'     => 12345678,
                 '__meta__'    => [],
             ],

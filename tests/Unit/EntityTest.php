@@ -2,12 +2,11 @@
 
 namespace Tests\Unit;
 
-use Tests\Components\SumEntity;
-use Tests\UnitCase;
-
 use Carbon\Carbon;
 use Framekit\Contracts\Serializable;
 use Framekit\Entity;
+use Tests\Components\SumEntity;
+use Tests\UnitCase;
 
 /**
  * State unit tests.
@@ -16,59 +15,54 @@ use Framekit\Entity;
  * @link      http://github.com/mr-luke/framekit
  * @licence   MIT
  */
-class StateTest extends UnitCase
+class EntityTest extends UnitCase
 {
-    public function testClassResolveContract()
-    {
-        $state = $this->getMockForAbstractClass(Entity::class, ['uuid', Carbon::now()]);
-
-        $this->assertInstanceOf(
-            Serializable::class,
-            $state
-        );
-    }
-
     public function testGetCreatedAt()
     {
         $date = Carbon::now();
-        $state = $this->getMockForAbstractClass(Entity::class, ['uuid', $date]);
+        $entity = $this->getMockForAbstractClass(Entity::class, ['uuid', $date]);
 
         $this->assertEquals(
             $date,
-            $state->getCreatedAt()
+            $entity->createdAt()
         );
 
         $this->assertEquals(
             null,
-            $state->getDeletedAt()
+            $entity->deletedAt()
         );
     }
 
     public function testMarkAsRemoved()
     {
         $date = Carbon::now();
-        $state = $this->getMockForAbstractClass(Entity::class, ['uuid', $date]);
-        $state->markAsRemoved($date->addDay());
+        $entity = $this->getMockForAbstractClass(Entity::class, ['uuid', $date]);
+
+        $this->assertFalse($entity->isAlreadyDeleted());
+
+        $entity->markAsRemoved();
 
         $this->assertEquals(
-            $date,
-            $state->getDeletedAt()
+            $date->format('Y-m-d H:i'),
+            $entity->deletedAt()->format('Y-m-d H:i')
         );
+
+        $this->assertTrue($entity->isAlreadyDeleted());
     }
 
     public function testInitState()
     {
         $date = Carbon::now();
-        $state = SumEntity::init('uuid');
+        $entity = SumEntity::createWithCurrentTime('uuid');
 
         $this->assertEquals(
             $date->format('Y-m-d H:i'),
-            $state->getCreatedAt()->format('Y-m-d H:i')
+            $entity->createdAt()->format('Y-m-d H:i')
         );
 
         $this->assertEquals(
             'uuid',
-            $state->id
+            $entity->id
         );
     }
 }
