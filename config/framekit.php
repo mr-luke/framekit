@@ -13,7 +13,7 @@ return [
     |
     | Framekit allows to use different drivers for Stream & Snapshots support.
     | By default it uses Database drivers based on Illuminate\Database.
-    | TODO: Start to use them.
+    |
     */
 
     'drivers' => [

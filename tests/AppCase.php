@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Framekit\Providers\FramekitServiceProvider;
+use Mrluke\Bus\BusServiceProvider;
 use Orchestra\Testbench\TestCase;
 
 /**
@@ -60,6 +61,9 @@ class AppCase extends TestCase
      */
     protected function getPackageProviders($app): array
     {
-        return [FramekitServiceProvider::class];
+        return [
+            BusServiceProvider::class,
+            FramekitServiceProvider::class
+        ];
     }
 }

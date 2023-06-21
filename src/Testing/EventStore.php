@@ -28,8 +28,8 @@ final class EventStore implements Store
      *
      * @param string $stream_id
      * @param mixed  $event
-     *
      * @return self
+     * @throws \Framekit\Exceptions\StreamNotFound
      *
      * @codeCoverageIgnore
      */
@@ -52,8 +52,8 @@ final class EventStore implements Store
      *
      * @param string $stream_id
      * @param mixed  $event
-     *
      * @return self
+     * @throws \Framekit\Exceptions\StreamNotFound
      *
      * @codeCoverageIgnore
      */
@@ -107,12 +107,31 @@ final class EventStore implements Store
     /**
      * @inheritDoc
      */
+    public function loadRawStream(
+        string  $streamId = null,
+        ?string $since = null,
+        ?string $till = null
+    ): array {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function overrideEvent(
         int    $eventId,
         string $event = null,
         array  $payload = null,
         int    $seqNo = null
     ): void {
+        // DO nothing
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function replaceStream(string $streamId, array $stream): void
+    {
         // DO nothing
     }
 

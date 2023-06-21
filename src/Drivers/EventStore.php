@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Framekit\Drivers;
 
+use Exception;
 use Framekit\Contracts\Mapper;
 use Framekit\Contracts\Serializable;
 use Framekit\Contracts\Serializer;
@@ -163,19 +164,125 @@ final class EventStore implements Store
     /**
      * @inheritDoc
      */
+    public function loadRawStream(
+        string  $streamId = null,
+        ?string $since = null,
+        ?string $till = null
+    ): array {
+        if (!$this->checkIfStreamExists($streamId)) {
+            throw new StreamNotFound(
+                sprintf('Stream [%s] not found', $streamId)
+            );
+        }
+
+        return $this->getEvents($streamId, $since, $till)->map(function($item) {
+            $item['payload'] = json_decode($item['payload'], true);
+            return $item;
+        })->toArray();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function overrideEvent(
         int    $eventId,
         string $event = null,
         array  $payload = null,
         int    $seqNo = null
     ): void {
-        $this->setupDBConnection()->where('id', $eventId)->update(
-            array_filter([
-                'event' => $event,
-                'payload' => $payload,
-                'sequence_no' => $seqNo,
-            ])
-        );
+        DB::beginTransaction();
+
+        try {
+            $this->setupDBConnection()->where('id', $eventId)->update(
+                array_filter([
+                    'event' => $event,
+                    'payload' => !is_null($payload) ? json_encode($payload) : $payload,
+                    'sequence_no' => $seqNo,
+                ])
+            );
+
+            DB::commit();
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function replaceStream(string $streamId, array $stream): void
+    {
+        $requiredKeys = [
+            'committed_at', 'event', 'meta', 'payload',
+            'stream_id', 'stream_type', 'version',
+        ];
+
+        sort($requiredKeys);
+        foreach ($stream as $k => $e) {
+            if (!is_array($e)) {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        'Stream must be an array of events. %d element is not the event\'s array.',
+                        $k
+                    )
+                );
+            }
+
+            $keys = array_keys($e);
+            sort($keys);
+
+            if ($keys !== $requiredKeys) {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        'Each event must contains all required keys: [%s]. %d element is not passing the test.',
+                        implode(', ', $requiredKeys),
+                        $k
+                    )
+                );
+            }
+
+            if (!is_array($e['payload']) || !is_array($e['meta'])) {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        'Payload & Meta must be an array type (not serialized). %d element is not passing the test',
+                        $k
+                    )
+                );
+            }
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $builder = $this->setupDBConnection();
+
+            $builder->where('stream_id', $streamId)->delete();
+
+            $sequence = 1;
+            foreach ($stream as $e) {
+                $builder->insert(
+                    array_merge(
+                        $e,
+                        [
+                            'payload' => json_encode($e['payload']),
+                            'meta' => json_encode($e['meta']),
+                            'sequence_no' => $sequence
+                        ]
+                    )
+                );
+
+                ++$sequence;
+            }
+
+            DB::commit();
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -210,7 +317,7 @@ final class EventStore implements Store
                     'ip' => request()->ip(),
                 ]
             ),
-            'committed_at' => $now->toDateTimeString() . '.' . $now->micro,
+            'committed_at' => $now->format('Y-m-d H:i:s.u'),
         ];
     }
 

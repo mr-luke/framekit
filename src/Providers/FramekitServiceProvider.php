@@ -130,13 +130,14 @@ class FramekitServiceProvider extends ServiceProvider
         $this->app->singleton(
             'framekit.projector',
             function($app) {
-                /* @var \Illuminate\Foundation\Application $app */
-                $container = $app->make(Container::class);
+                /* @var \Mrluke\Configuration\Contracts\ArrayHost $config */
+                $config = $app->make(Config::class);
+                $className = $config->get('drivers.projector');
 
-                return new Projector(
+                return new $className(
                     $app->make(Config::class),
                     $app->make(ProcessRepository::class),
-                    $container,
+                    $app->make(Container::class),
                     $app->make(Logger::class),
                     function($connection = null) use ($app) {
                         return $app->make(Factory::class)->connection($connection);
@@ -148,13 +149,14 @@ class FramekitServiceProvider extends ServiceProvider
         $this->app->singleton(
             'framekit.event.bus',
             function($app) {
-                /* @var \Illuminate\Foundation\Application $app */
-                $container = $app->make(Container::class);
+                /* @var \Mrluke\Configuration\Contracts\ArrayHost $config */
+                $config = $app->make(Config::class);
+                $className = $config->get('drivers.event_bus');
 
-                return new EventBus(
+                return new $className(
                     $app->make(Config::class),
                     $app->make(ProcessRepository::class),
-                    $container,
+                    $app->make(Container::class),
                     $app->make(Logger::class),
                     function($connection = null) use ($app) {
                         return $app->make(Factory::class)->connection($connection);
@@ -173,8 +175,11 @@ class FramekitServiceProvider extends ServiceProvider
         $this->app->singleton(
             'framekit.event.store',
             function($app) {
+                /* @var \Mrluke\Configuration\Contracts\ArrayHost $config */
+                $config = $app->make(Config::class);
+                $className = $config->get('drivers.event_store');
 
-                return new EventStore(
+                return new $className(
                     $app->make(Config::class),
                     new EventSerializer,
                     $app->make(Mapper::class)

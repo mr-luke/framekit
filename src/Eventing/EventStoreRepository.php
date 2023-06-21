@@ -52,16 +52,7 @@ class EventStoreRepository implements EventRepository
     }
 
     /**
-     * Persist changes made on Aggregate.
-     *
-     * @param \Framekit\AggregateRoot $aggregate
-     * @return void
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     * @throws \Mrluke\Bus\Exceptions\InvalidAction
-     * @throws \Mrluke\Bus\Exceptions\InvalidHandler
-     * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
-     * @throws \Mrluke\Bus\Exceptions\MissingHandler
-     * @throws \ReflectionException|\Mrluke\Bus\Exceptions\MissingProcess
+     * @inheritDoc
      */
     public function persist(AggregateRoot $aggregate): void
     {
@@ -81,15 +72,11 @@ class EventStoreRepository implements EventRepository
     }
 
     /**
-     * Retrieve aggregate by AggregateId.
-     *
-     * @param string                                             $className
-     * @param int|string|\Framekit\Contracts\AggregateIdentifier $aggregateId
-     * @return \Framekit\AggregateRoot
-     * @throws \Framekit\Exceptions\InvalidAggregateIdentifier|\ReflectionException|\Framekit\Exceptions\StreamNotFound
+     * @inheritDoc
      */
-    public function retrieve(string                         $className,
-                             int|string|AggregateIdentifier $aggregateId
+    public function retrieve(
+        string                         $className,
+        int|string|AggregateIdentifier $aggregateId
     ): AggregateRoot {
         if (!class_exists($className)) {
             throw new InvalidAggregateIdentifier(

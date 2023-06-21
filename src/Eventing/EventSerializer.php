@@ -43,6 +43,8 @@ final class EventSerializer implements Serializer
             $attributes[$p->getName()] = $value;
         }
 
+        ksort($attributes);
+
         return json_encode(
             [
                 'class' => get_class($toSerialize),
