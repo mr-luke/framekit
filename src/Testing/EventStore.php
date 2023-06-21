@@ -26,21 +26,21 @@ final class EventStore implements Store
     /**
      * Determine if stream has event(s).
      *
-     * @param string $stream_id
+     * @param string $streamId
      * @param mixed  $event
      * @return self
      * @throws \Framekit\Exceptions\StreamNotFound
      *
      * @codeCoverageIgnore
      */
-    public function assertHasEvent(string $stream_id, $event): self
+    public function assertHasEvent(string $streamId, $event): self
     {
         foreach ($this->wrap($event) as $e) {
             $name = is_string($e) ? $e : get_class($e);
 
             PHPUnit::assertTrue(
-                $this->hasEvent($stream_id, $e),
-                "Missing event [" . $name . "] for given stream [{$stream_id}]"
+                $this->hasEvent($streamId, $e),
+                "Missing event [" . $name . "] for given stream [{$streamId}]"
             );
         }
 
@@ -50,21 +50,21 @@ final class EventStore implements Store
     /**
      * Determine if stream has event(s).
      *
-     * @param string $stream_id
+     * @param string $streamId
      * @param mixed  $event
      * @return self
      * @throws \Framekit\Exceptions\StreamNotFound
      *
      * @codeCoverageIgnore
      */
-    public function assertMissingEvent(string $stream_id, $event): self
+    public function assertMissingEvent(string $streamId, $event): self
     {
         foreach ($this->wrap($event) as $e) {
             $name = is_string($e) ? $e : get_class($e);
 
             PHPUnit::assertFalse(
-                $this->hasEvent($stream_id, $e),
-                "Unexpected event [" . $name . "] in stream [{$stream_id}]"
+                $this->hasEvent($streamId, $e),
+                "Unexpected event [" . $name . "] in stream [{$streamId}]"
             );
         }
 
@@ -162,13 +162,13 @@ final class EventStore implements Store
     /**
      * Determine if given Event exists in stream & is equal.
      *
-     * @param string                 $stream_id
+     * @param string                 $streamId
      * @param \Framekit\Event|string $event
      *
      * @return bool
      * @throws \Framekit\Exceptions\StreamNotFound
      */
-    private function hasEvent(string $stream_id, Event|string $event): bool
+    private function hasEvent(string $streamId, Event|string $event): bool
     {
         $deepTest = !is_string($event);
         $method = $deepTest ? 'eventDeepTest' : 'eventShallowTest';
@@ -177,7 +177,7 @@ final class EventStore implements Store
             $event->firedAt = 1;
         }
 
-        foreach ($this->loadStream($stream_id) as $e) {
+        foreach ($this->loadStream($streamId) as $e) {
             $e->firedAt = 1;
 
             if ($this->{$method}($event, $e)) {
