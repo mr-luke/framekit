@@ -44,7 +44,7 @@ class EventStoreRepository implements EventRepository
      * @param \Framekit\Contracts\Store     $store
      * @param \Framekit\Contracts\Projector $projector
      */
-    function __construct(EventBus $bus, Store $store, Projector $projector)
+    public function __construct(EventBus $bus, Store $store, Projector $projector)
     {
         $this->eventBus = $bus;
         $this->eventStore = $store;

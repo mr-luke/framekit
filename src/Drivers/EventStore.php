@@ -48,7 +48,7 @@ final class EventStore implements Store
      * @param \Framekit\Contracts\Serializer            $serializer
      * @param \Framekit\Contracts\Mapper                $mapper
      */
-    function __construct(ArrayHost $config, Serializer $serializer, Mapper $mapper)
+    public function __construct(ArrayHost $config, Serializer $serializer, Mapper $mapper)
     {
         $this->config = $config;
         $this->mapper = $mapper;

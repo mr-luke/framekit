@@ -33,7 +33,10 @@ final class EventSerializer implements Serializer
         $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
 
         foreach ($properties as $p) {
-            if ($p->isStatic()) continue;
+            if ($p->isStatic()) {
+                continue;
+            }
+
             $value = $p->getValue($toSerialize);
 
             if (is_object($value)) {
