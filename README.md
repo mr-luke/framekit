@@ -2,9 +2,12 @@
 
 [![Latest Stable Version](https://poser.pugx.org/mr-luke/framekit/v)](//packagist.org/packages/mr-luke/framekit)
 [![Total Downloads](https://poser.pugx.org/mr-luke/framekit/downloads)](//packagist.org/packages/mr-luke/framekit)
-[![Build Status](https://scrutinizer-ci.com/g/mr-luke/framekit/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mr-luke/framekit/build-status/master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mr-luke/framekit/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mr-luke/framekit/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/mr-luke/framekit/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/mr-luke/framekit/?branch=master)
+[![License](https://poser.pugx.org/mr-luke/bus/license)](//packagist.org/packages/mr-luke/framekit)
+
+![Tests Workflow](https://github.com/mr-luke/framekit/actions/workflows/run-testsuit.yaml/badge.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mr-luke_framekit&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=mr-luke_framekit)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=mr-luke_framekit&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=mr-luke_framekit)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=mr-luke_framekit&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=mr-luke_framekit)
 
 ## Getting Started
 
