@@ -2,22 +2,22 @@
 
 namespace Tests\Unit;
 
-use Tests\UnitCase;
-
 use Framekit\TransferObject;
+use InvalidArgumentException;
+use Tests\UnitCase;
 
 /**
  * TransferObject unit tests.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class TransferObjectTest extends UnitCase
 {
     public function testThrowsWhenAttributeDoesntExist()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $transfer = new TransferObject([
             'first' => 'value'

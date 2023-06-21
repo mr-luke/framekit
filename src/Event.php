@@ -14,45 +14,43 @@ use Framekit\Contracts\Serializable;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 abstract class Event implements Publishable, Serializable
 {
-    /**
-     * Id of aggregate that fired event.
-     *
-     * @var string
-     */
-    public $aggregateId;
-
     /**
      * Determine version of an event.
      *
      * @var int
      */
-    public static $eventVersion = 1;
+    public static int $__eventVersion__ = 1;
 
     /**
-     * Microtime when event has been fired.
-     *
-     * @var int
-     */
-    public $firedAt;
-
-    /**
-     * Helper for accessing meta and stream info from eventstore
+     * Helper for accessing meta and stream info from event-store
      *
      * @var array
      */
-    public $__meta__ = [];
+    public array $__meta__ = [];
+
+    /**
+     * Id of aggregate that fired event.
+     *
+     * @var string|int
+     */
+    public string|int $aggregateId;
+
+    /**
+     * Micro-time when event has been fired.
+     *
+     * @var int
+     */
+    public int $firedAt;
 
     /**
      * Event constructor.
      */
     public function __construct()
     {
-        $now = Carbon::now();
-
-        $this->firedAt = ($now->timestamp * 1000000) + $now->micro;
+        $this->firedAt = (int)Carbon::now()->getPreciseTimestamp();
     }
 }

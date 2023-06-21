@@ -4,19 +4,15 @@ declare(strict_types=1);
 
 namespace Framekit\Testing;
 
-use PHPUnit\Framework\Assert as PHPUnit;
-
 use Framekit\Contracts\Store;
 use Framekit\Event;
+use PHPUnit\Framework\Assert as PHPUnit;
 
 /**
- * EventStream testing class for Framekit.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
- * @version   1.0.0
+ * @licence   MIT
  */
 final class EventStore implements Store
 {
@@ -25,15 +21,15 @@ final class EventStore implements Store
      *
      * @var array
      */
-    private $events = [];
+    private array $events = [];
 
     /**
-     * Determine if strema has event(s).
+     * Determine if stream has event(s).
      *
      * @param string $stream_id
      * @param mixed  $event
-     *
      * @return self
+     * @throws \Framekit\Exceptions\StreamNotFound
      *
      * @codeCoverageIgnore
      */
@@ -52,12 +48,12 @@ final class EventStore implements Store
     }
 
     /**
-     * Determine if strema has event(s).
+     * Determine if stream has event(s).
      *
      * @param string $stream_id
      * @param mixed  $event
-     *
      * @return self
+     * @throws \Framekit\Exceptions\StreamNotFound
      *
      * @codeCoverageIgnore
      */
@@ -77,29 +73,19 @@ final class EventStore implements Store
     }
 
     /**
-     * Store new payload in stream.
-     *
-     * @param string $stream_type
-     * @param string $stream_id
-     * @param array  $events
-     *
-     * @return void
+     * @inheritDoc
      */
-    public function commitToStream(string $stream_type, string $stream_id, array $events): void
+    public function commitToStream(string $streamType, string $streamId, array $events): void
     {
-        if (!isset($this->events[$stream_id])) {
-            $this->events[$stream_id] = [];
+        if (!isset($this->events[$streamId])) {
+            $this->events[$streamId] = [];
         }
 
-        array_push($this->events[$stream_id], ...$events);
+        array_push($this->events[$streamId], ...$events);
     }
 
     /**
-     * Load available streams.
-     *
-     * @return array
-     *
-     * @codeCoverageIgnore
+     * @inheritDoc
      */
     public function getAvailableStreams(): array
     {
@@ -107,31 +93,53 @@ final class EventStore implements Store
     }
 
     /**
-     * Load Stream based on id.
-     *
-     * @param string|null $stream_id
-     * @param string|null $since
-     * @param string|null $till
-     * @param bool        $withMeta
-     *
-     * @return array
-     *
-     * @codeCoverageIgnore
+     * @inheritDoc
      */
     public function loadStream(
-        string $stream_id = null,
+        string  $streamId = null,
         ?string $since = null,
         ?string $till = null,
-        bool $withMeta = false
+        bool    $withMeta = false
     ): array {
-        return $this->events[$stream_id] ?? [];
+        return $this->events[$streamId] ?? [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function loadRawStream(
+        string  $streamId = null,
+        ?string $since = null,
+        ?string $till = null
+    ): array {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function overrideEvent(
+        int    $eventId,
+        string $event = null,
+        array  $payload = null,
+        int    $seqNo = null
+    ): void {
+        // DO nothing
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function replaceStream(string $streamId, array $stream): void
+    {
+        // DO nothing
     }
 
     /**
      * Make a deep test of event.
      *
-     * @param  \Framekit\Event $toTest
-     * @param  \Framekit\Event $fromStream
+     * @param \Framekit\Event $toTest
+     * @param \Framekit\Event $fromStream
      * @return bool
      */
     private function eventDeepTest(Event $toTest, Event $fromStream): bool
@@ -142,8 +150,8 @@ final class EventStore implements Store
     /**
      * Make a shallow test of event.
      *
-     * @param  string          $toTest
-     * @param  \Framekit\Event $fromStream
+     * @param string          $toTest
+     * @param \Framekit\Event $fromStream
      * @return bool
      */
     private function eventShallowTest(string $toTest, Event $fromStream): bool
@@ -158,18 +166,19 @@ final class EventStore implements Store
      * @param \Framekit\Event|string $event
      *
      * @return bool
+     * @throws \Framekit\Exceptions\StreamNotFound
      */
-    private function hasEvent(string $stream_id, $event): bool
+    private function hasEvent(string $stream_id, Event|string $event): bool
     {
         $deepTest = !is_string($event);
         $method = $deepTest ? 'eventDeepTest' : 'eventShallowTest';
 
         if ($deepTest) {
-            $event->firedAt = null;
+            $event->firedAt = 1;
         }
 
         foreach ($this->loadStream($stream_id) as $e) {
-            $e->firedAt = null;
+            $e->firedAt = 1;
 
             if ($this->{$method}($event, $e)) {
                 return true;

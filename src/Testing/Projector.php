@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace Framekit\Testing;
 
-use PHPUnit\Framework\Assert as PHPUnit;
-
 use Framekit\AggregateRoot;
 use Framekit\Contracts\Projector as Contract;
-use Framekit\Exceptions\MissingProjection;
 use Framekit\Event;
+use Framekit\Exceptions\MissingProjection;
 use Framekit\Projection;
+use Mrluke\Bus\Contracts\Process;
+use PHPUnit\Framework\Assert as PHPUnit;
 
 /**
- * Projector is testing class.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 final class Projector implements Contract
 {
@@ -27,14 +25,14 @@ final class Projector implements Contract
      *
      * @var array
      */
-    private $projected = [];
+    private array $projected = [];
 
     /**
      * Register of Event->Projector pairs.
      *
      * @var array
      */
-    private $register;
+    private array $register;
 
     /**
      * @param array $stack
@@ -45,11 +43,22 @@ final class Projector implements Contract
     }
 
     /**
+     * Return registered Projections list.
+     *
+     * @return array
+     * @codeCoverageIgnore
+     */
+    public function aggregateProjections(): array
+    {
+        return $this->register;
+    }
+
+    /**
      * Assert if given projections has been called.
      *
-     * @param  string $aggregate
-     * @param  string $projection
-     * @param  string $method
+     * @param string $aggregate
+     * @param string $projection
+     * @param string $method
      * @return self
      *
      * @codeCoverageIgnore
@@ -70,9 +79,9 @@ final class Projector implements Contract
     /**
      * Assert if given projections has been called.
      *
-     * @param  string $aggregate
-     * @param  mixed  $projection
-     * @param  string $method
+     * @param string $aggregate
+     * @param mixed  $projection
+     * @param string $method
      * @return self
      *
      * @codeCoverageIgnore
@@ -91,23 +100,53 @@ final class Projector implements Contract
     }
 
     /**
-     * Determine if called.
+     * Register Projections stack.
      *
-     * @param  string $aggregate
-     * @param  string $projection
-     * @param  string $method
-     * @return bool
+     * @param array $stack
+     * @return void
+     *
+     * @codeCoverageIgnore
      */
-    private function isCalled(string $aggregate, string $projection, string $method): bool
+    public function map(array $stack): void
     {
-        return ($projection == $this->register[$aggregate])
-            && in_array($method, $this->projected[$aggregate] ?? []);
+        $this->register = array_merge_recursive($this->register, $stack);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function project(AggregateRoot $aggregate): array
+    {
+        $aggregateClass = get_class($aggregate);
+
+        $this->addProjectedEvents($aggregateClass, $aggregate->unpublishedEvents());
+
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function projectByEvents(AggregateRoot $aggregate, array $events): array
+    {
+        $this->addProjectedEvents(get_class($aggregate), $events);
+
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function projectSingle(AggregateRoot $aggregate, Event $event): Process
+    {
+        $this->addProjectedEvents(get_class($aggregate), [$event]);
+
     }
 
     /**
      * Return projected Event's method list.
      *
-     * @param  string|null $aggregate
+     * @param string|null $aggregate
      * @return array
      *
      * @codeCoverageIgnore
@@ -118,65 +157,10 @@ final class Projector implements Contract
     }
 
     /**
-     * Return registered Projections list.
-     *
-     * @return array
-     *
-     * @codeCoverageIgnore
-     */
-    public function projections(): array
-    {
-        return $this->register;
-    }
-
-    /**
-     * Project changes for given aggregate.
-     *
-     * @param  \Framekit\AggregateRoot  $aggregate
-     * @param  array                    $events
-     * @return void
-     * @throws \Framekit\Exceptions\MissingProjection
-     */
-    public function project(AggregateRoot $aggregate, array $events): void
-    {
-        $aggregate = get_class($aggregate);
-
-        $this->addProjectedEvents($aggregate, $events);
-    }
-
-    /**
-     * Project changes for given aggregate.
-     *
-     * @param string $aggregate
-     * @param \Framekit\Event $event
-     * @return void
-     *
-     * @codeCoverageIgnore
-     * @throws \Framekit\Exceptions\MissingProjection
-     */
-    public function projectByEvent(string $aggregate, Event $event): void
-    {
-        $this->addProjectedEvents($aggregate, [$event]);
-    }
-
-    /**
-     * Register Projections stack.
-     *
-     * @param  array $stack
-     * @return void
-     *
-     * @codeCoverageIgnore
-     */
-    public function register(array $stack): void
-    {
-        $this->register = array_merge($this->register, $stack);
-    }
-
-    /**
      * Add projected events to stack.
      *
-     * @param  string $aggregate
-     * @param  array  $events
+     * @param string $aggregate
+     * @param array  $events
      * @return void
      * @throws \Framekit\Exceptions\MissingProjection
      */
@@ -197,5 +181,19 @@ final class Projector implements Contract
             $this->projected[$aggregate] = [];
         }
         array_push($this->projected[$aggregate], ...$methods);
+    }
+
+    /**
+     * Determine if called.
+     *
+     * @param string $aggregate
+     * @param string $projection
+     * @param string $method
+     * @return bool
+     */
+    private function isCalled(string $aggregate, string $projection, string $method): bool
+    {
+        return ($projection == $this->register[$aggregate])
+            && in_array($method, $this->projected[$aggregate] ?? []);
     }
 }

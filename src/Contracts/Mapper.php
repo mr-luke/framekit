@@ -10,19 +10,20 @@ namespace Framekit\Contracts;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 interface Mapper
 {
     /**
      * Map event to newest version.
      *
-     * @param  array  $payload
-     * @param  int    $from
-     * @param  array  $upstream
-     * @return void
+     * @param string $event
+     * @param array  $payload
+     * @param int    $from
+     * @param array  $upstream
+     * @return array
      */
-    public function map(array $payload, int $from, array $upstream): array;
+    public function map(string $event, array $payload, int $from, array $upstream): array;
 
     /**
      * Return registered Mappers list.
@@ -34,7 +35,7 @@ interface Mapper
     /**
      * Register Reactors stack.
      *
-     * @param  array $stack
+     * @param array $stack
      * @return void
      */
     public function register(array $stack): void;

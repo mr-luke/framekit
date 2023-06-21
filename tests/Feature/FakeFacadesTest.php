@@ -2,9 +2,6 @@
 
 namespace Tests\Feature;
 
-use Tests\AppCase;
-use Tests\NonPublicMethodTool;
-
 use Framekit\Contracts\Projector as ProjectorContract;
 use Framekit\Contracts\Store as StoreContract;
 use Framekit\Drivers\EventStore as RealStore;
@@ -13,13 +10,14 @@ use Framekit\Facades\EventStore;
 use Framekit\Facades\Projector;
 use Framekit\Testing\EventStore as FakeStore;
 use Framekit\Testing\Projector as FakeProjector;
+use Tests\AppCase;
 
 /**
  * Facades feature tests.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class FakeFacadesTest extends AppCase
 {

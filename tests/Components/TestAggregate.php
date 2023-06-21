@@ -2,43 +2,30 @@
 
 namespace Tests\Components;
 
-use Carbon\Carbon;
 use Framekit\AggregateRoot;
-use Framekit\Events\AggregateCreated;
-use Framekit\Events\AggregateRemoved;
-use Framekit\Extentions\EventSourcedAggregate;
+use Framekit\Event;
+use Framekit\Extensions\EventSourcedAggregate;
 
 /**
- * Test Event.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class TestAggregate extends AggregateRoot
 {
     use EventSourcedAggregate;
 
     /**
-     * Handle aggreagate creation.
-     *
-     * @param  \Framekit\Events\AggregateCreated
-     * @return void
+     * @inheritDoc
      */
-    protected function applyAggregateCreated(AggregateCreated $event): void
+    protected function bootRootEntity(): void
     {
-
+        // TODO: Implement bootRootEntity() method.
     }
 
-    /**
-     * Handle aggreagate removal.
-     *
-     * @param  \Framekit\Events\AggregateRemoved
-     * @return void
-     */
-    protected function applyAggregateRemoved(AggregateRemoved $event): void
+    public function do(Event $event): void
     {
-
+        $this->fireEvent($event);
     }
 }

@@ -4,171 +4,150 @@ declare(strict_types=1);
 
 namespace Framekit\Drivers;
 
-use Illuminate\Foundation\Application;
-
-use Framekit\Contracts\EventBus as Bus;
-use Framekit\Contracts\Publishable;
-use Framekit\Exceptions\UnsupportedEvent;
-use Framekit\Extentions\ClassResolver;
-use Framekit\Reactor;
+use Framekit\Contracts\EventBus as EventBusContract;
+use Framekit\Event;
+use Framekit\Exceptions\MissingReactor;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Log\Logger;
+use Mrluke\Bus\Contracts\Handler;
+use Mrluke\Bus\Contracts\HasAsyncProcesses;
+use Mrluke\Bus\Contracts\Process;
+use Mrluke\Bus\Contracts\ProcessRepository;
+use Mrluke\Bus\Contracts\ShouldBeAsync;
+use Mrluke\Bus\Contracts\Trigger;
+use Mrluke\Bus\Exceptions\InvalidHandler;
+use Mrluke\Bus\Extensions\UsesDefaultQueue;
+use Mrluke\Bus\MultipleHandlerBus;
+use Mrluke\Configuration\Contracts\ArrayHost;
+use ReflectionClass;
 
 /**
  * EventBus is responsible for detecting reaction.
  *
- * @author    Łukasz Sitnicki (mr-luke)
- * @package   mr-luke/framekit
- * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @author  Łukasz Sitnicki (mr-luke)
+ * @package mr-luke/framekit
+ * @link    http://github.com/mr-luke/framekit
+ * @licence MIT
+ *
+ * @property mixed queueConnection
  */
-final class EventBus implements Bus
+class EventBus extends MultipleHandlerBus implements EventBusContract, HasAsyncProcesses
 {
-    use ClassResolver;
+    use UsesDefaultQueue;
+
+    public bool $persistSyncInstructions = false;
+
+    public bool $throwWhenNoHandler = false;
+
+    protected array $globals = [];
 
     /**
-     * Register of global Reactors.
-     *
-     * @var array
+     * @param \Mrluke\Configuration\Contracts\ArrayHost $config
+     * @param \Mrluke\Bus\Contracts\ProcessRepository   $repository
+     * @param \Illuminate\Contracts\Container\Container $container
+     * @param \Illuminate\Log\Logger                    $logger
+     * @param null                                      $queueResolver
+     * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
      */
-    protected $globals;
+    public function __construct(
+        ArrayHost         $config,
+        ProcessRepository $repository,
+        Container         $container,
+        Logger            $logger,
+                          $queueResolver = null
+    ) {
+        parent::__construct($repository, $container, $logger, $queueResolver);
 
-    /**
-     * Register of Event->Reactor pairs.
-     *
-     * @var array
-     */
-    protected $register;
-
-    /**
-     * @param array $stack
-     */
-    public function __construct(Application $app, array $stack = [], array $globals = [])
-    {
-        $this->app      = $app;
-        $this->globals  = $globals;
-        $this->register = $stack;
+        $this->queueConnection = $config->get('queues.event_bus');
     }
 
     /**
-     * Return registered global Reactors list.
-     *
-     * @return array
+     * @inheritDoc
+     * @codeCoverageIgnore
      */
-    public function globalHandlers(): array
+    public function eventReactors(): array
+    {
+        return $this->handlers;
+    }
+
+    /**
+     * @inheritDoc
+     * @codeCoverageIgnore
+     */
+    public function globalReactors(): array
     {
         return $this->globals;
     }
 
     /**
-     * Return registered Reactors list.
-     *
-     * @return array
+     * @inheritDoc
      */
-    public function handlers(): array
+    public function mapGlobals(array $stack): void
     {
-        return $this->register;
-    }
+        foreach ($stack as $c) {
+            $reflection = new ReflectionClass($c);
 
-    /**
-     * Handle Publishable with coresponding Handler.
-     *
-     * @param \Framekit\Contracts\Publishable $source
-     *
-     * @return void
-     * @throws UnsupportedEvent
-     */
-    public function publish(Publishable $source): void
-    {
-        if (isset($this->register[get_class($source)])) {
-            $this->fireEventReactors($source, $this->register[get_class($source)]);
+            if (
+                !$reflection->isInstantiable() ||
+                !$reflection->implementsInterface(Handler::class)
+            ) {
+                throw new InvalidHandler(
+                    sprintf('Handler must be an instance of %s', Handler::class)
+                );
+            }
         }
 
-        $this->publishForGlobals($source);
-    }
-
-    /**
-     * Register Reactors stack.
-     *
-     * @param  array $stack
-     * @return void
-     */
-    public function register(array $stack): void
-    {
-        $this->register = array_merge($this->register, $stack);
-    }
-
-    /**
-     * Register Reactors stack.
-     *
-     * @param  array $stack
-     * @return void
-     */
-    public function registerGlobals(array $stack): void
-    {
         $this->globals = array_merge($this->globals, $stack);
     }
 
     /**
-     * Replace registered Reactors by given.
-     *
-     * @param  array  $stack
-     * @return void
+     * @inheritDoc
      */
-    public function replace(array $stack): void
+    public function publish(Event $event): ?Process
     {
-        $this->register = $stack;
-    }
-
-    /**
-     * Handle Publishable with global Handlers.
-     *
-     * @param \Framekit\Contracts\Publishable $source
-     *
-     * @return void
-     * @throws UnsupportedEvent
-     */
-    protected function publishForGlobals(Publishable $source): void
-    {
-        $this->fireEventReactors($source, $this->globals);
-    }
-
-    /**
-     * Resolve and fire handler.
-     *
-     * @param  \Framekit\Contracts\Publishable $source
-     * @param  string|array                    $destinations
-     *
-     * @return void
-     * @throws \Framekit\Exceptions\UnsupportedEvent
-     */
-    private function fireEventReactors(Publishable $source, $destinations): void
-    {
-        if(!is_array($destinations)) {
-            $destinations = [$destinations];
-        }
-
-        $this->validateReactors($destinations);
-
-        foreach($destinations as $destination) {
-            $destination->handle($source);
-        }
-    }
-
-    /**
-     * Resolve and vaidate reactors
-     *
-     * @param $destinations
-     *
-     * @throws \Framekit\Exceptions\UnsupportedEvent
-     */
-    private function validateReactors(&$destinations)
-    {
-        foreach($destinations as &$destination) {
-            $destination = $this->resolveClass($destination);
-            if (! $destination instanceof Reactor) {
-                throw new UnsupportedEvent(
-                    sprintf('Reactor has to extend %s', Reactor::class)
-                );
+        if (!$this->hasHandler($event)) {
+            if (!$this->throwWhenNoHandler) {
+                return null;
             }
+
+            $this->throwOnMissingHandler($event);
         }
+
+        $handlers = array_merge(
+            $this->globalReactors(),
+            $this->handler($event)
+        );
+        $process = $this->createProcess($event, $handlers);
+
+        $this->processHandlersStack(
+            $event,
+            $process,
+            $handlers,
+            $event instanceof ShouldBeAsync
+        );
+
+        return $process;
+    }
+
+    /**
+     * @inheritDoc
+     * @codeCoverageIgnore
+     */
+    protected function getBusName(): string
+    {
+        return 'event-bus';
+    }
+
+    /**
+     * Throw exception when handler is missing.
+     *
+     * @param \Mrluke\Bus\Contracts\Trigger $trigger
+     * @throws \Framekit\Exceptions\MissingReactor
+     */
+    protected function throwOnMissingHandler(Trigger $trigger): void
+    {
+        throw new MissingReactor(
+            sprintf('Missing handler for the event [%s]', get_class($trigger))
+        );
     }
 }

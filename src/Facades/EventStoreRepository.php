@@ -2,8 +2,8 @@
 
 namespace Framekit\Facades;
 
-use Illuminate\Support\Facades\Facade;
 use Framekit\Eventing\EventStoreRepository as Faked;
+use Illuminate\Support\Facades\Facade;
 
 /**
  * @codeCoverageIgnore
@@ -14,6 +14,7 @@ class EventStoreRepository extends Facade
      * Create faked EventStoreRepository
      *
      * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public static function fake(): void
     {
@@ -21,11 +22,13 @@ class EventStoreRepository extends Facade
         EventStore::fake();
         Projector::fake();
 
-        static::swap(new Faked(
-            app()->make('framekit.event.bus'),
-            app()->make('framekit.event.store'),
-            app()->make('framekit.projector')
-        ));
+        static::swap(
+            new Faked(
+                app()->make('framekit.event.bus'),
+                app()->make('framekit.event.store'),
+                app()->make('framekit.projector')
+            )
+        );
     }
 
     /**
@@ -33,7 +36,7 @@ class EventStoreRepository extends Facade
      *
      * @return string
      */
-    protected static function getFacadeAccessor()
+    protected static function getFacadeAccessor(): string
     {
         return 'framekit.event.repository';
     }

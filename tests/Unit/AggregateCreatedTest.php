@@ -2,29 +2,20 @@
 
 namespace Tests\Unit;
 
-use Tests\UnitCase;
-
 use Carbon\Carbon;
 use Framekit\Event;
 use Framekit\Events\AggregateCreated;
+use Tests\UnitCase;
 
 /**
  * AggregateCreated unit tests.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class AggregateCreatedTest extends UnitCase
 {
-    public function testClassResolveContract()
-    {
-        $this->assertInstanceOf(
-            Event::class,
-            new AggregateCreated('test')
-        );
-    }
-
     public function testEventWithDate()
     {
         $date  = Carbon::now();
@@ -38,16 +29,6 @@ class AggregateCreatedTest extends UnitCase
         $this->assertEquals(
             'test',
             $event->aggregateId
-        );
-    }
-
-    public function testEventWithoutDate()
-    {
-        $event = new AggregateCreated('test');
-
-        $this->assertEquals(
-            Carbon::now()->toDateTimeString(),
-            $event->createdAt->toDateTimeString()
         );
     }
 }

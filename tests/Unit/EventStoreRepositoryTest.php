@@ -2,25 +2,25 @@
 
 namespace Tests\Unit;
 
-use Tests\Components\DateAdded;
-use Tests\Components\TestAggregate;
-use Tests\UnitCase;
-
 use Framekit\AggregateRoot;
-use Framekit\Contracts\Bus;
+use Framekit\Contracts\EventBus;
 use Framekit\Contracts\Projector;
 use Framekit\Contracts\Repository;
 use Framekit\Contracts\Store;
-use Framekit\Eventing\EventStoreRepository;
 use Framekit\Event;
-use Framekit\Exceptions\UnsupportedAggregate;
+use Framekit\Eventing\EventStoreRepository;
+use Framekit\Exceptions\InvalidAggregateIdentifier;
+use Illuminate\Support\Str;
+use Tests\Components\DateAdded;
+use Tests\Components\TestAggregate;
+use Tests\UnitCase;
 
 /**
  * EventStoreRepository unit tests.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class EventStoreRepositoryTest extends UnitCase
 {
@@ -29,7 +29,7 @@ class EventStoreRepositoryTest extends UnitCase
         $this->assertInstanceOf(
             Repository::class,
             new EventStoreRepository(
-                $this->createMock(Bus::class),
+                $this->createMock(EventBus::class),
                 $this->createMock(Store::class),
                 $this->createMock(Projector::class)
             )
@@ -38,111 +38,113 @@ class EventStoreRepositoryTest extends UnitCase
 
     public function testPersistMethodWithOutEvents()
     {
-        $aggreagateMock = $this->getMockBuilder(AggregateRoot::class)
-                               ->setMethods(['boot', 'getId', 'getUncommittedEvents'])
-                               ->disableOriginalConstructor()
-                               ->getMock();
+        $aggregateMock = $this->getMockBuilder(AggregateRoot::class)
+            ->setMethods(['bootRootEntity', 'identifier', 'unpublishedEvents'])
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $aggreagateMock->expects($this->once())
-                       ->method('getId')
-                       ->willReturn('test');
+        $aggregateMock->expects($this->once())
+            ->method('identifier')
+            ->willReturn('test');
 
-        $aggreagateMock->expects($this->once())
-                       ->method('getUncommittedEvents')
-                       ->willReturn([]);
+        $aggregateMock->expects($this->once())
+            ->method('unpublishedEvents')
+            ->willReturn([]);
 
-        $busMock = $this->createMock(Bus::class);
+        $busMock = $this->createMock(EventBus::class);
         $busMock->expects($this->never())
-                ->method('publish');
+            ->method('publish');
 
         $storeMock = $this->createMock(Store::class);
         $storeMock->expects($this->once())
-                  ->method('commitToStream')
-                  ->with(get_class($aggreagateMock), $this->equalTo('test'));
+            ->method('commitToStream')
+            ->with(get_class($aggregateMock), $this->equalTo('test'));
 
         $projectorMock = $this->createMock(Projector::class);
         $projectorMock->expects($this->once())
-                      ->method('project')
-                      ->with(
-                          $this->equalTo($aggreagateMock),
-                          $this->equalTo([])
-                      );
+            ->method('projectByEvents')
+            ->with(
+                $this->equalTo($aggregateMock),
+                $this->equalTo([])
+            );
 
         $repository = new EventStoreRepository(
             $busMock, $storeMock, $projectorMock
         );
 
-        $repository->persist($aggreagateMock);
+        $repository->persist($aggregateMock);
     }
 
     public function testPersistMethodWithEvents()
     {
         $event = $this->createMock(Event::class);
 
-        $aggreagateMock = $this->getMockBuilder(AggregateRoot::class)
-                               ->setMethods(['boot', 'getId', 'getUncommittedEvents'])
-                               ->disableOriginalConstructor()
-                               ->getMock();
+        $aggregateMock = $this->getMockBuilder(AggregateRoot::class)
+            ->setMethods(['bootRootEntity', 'identifier', 'unpublishedEvents'])
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $aggreagateMock->expects($this->once())
-                       ->method('getId')
-                       ->willReturn('test');
+        $aggregateMock->expects($this->once())
+            ->method('identifier')
+            ->willReturn('test');
 
-        $aggreagateMock->expects($this->once())
-                       ->method('getUncommittedEvents')
-                       ->willReturn([
-                           $event
-                       ]);
+        $aggregateMock->expects($this->once())
+            ->method('unpublishedEvents')
+            ->willReturn([
+                $event
+            ]);
 
-        $busMock = $this->createMock(Bus::class);
+        $busMock = $this->createMock(EventBus::class);
         $busMock->expects($this->once())
-                ->method('publish');
+            ->method('publish');
 
         $storeMock = $this->createMock(Store::class);
         $storeMock->expects($this->once())
-                  ->method('commitToStream')
-                  ->with(get_class($aggreagateMock), $this->equalTo('test'));
+            ->method('commitToStream')
+            ->with(get_class($aggregateMock), $this->equalTo('test'));
 
         $projectorMock = $this->createMock(Projector::class);
         $projectorMock->expects($this->once())
-                      ->method('project')
-                      ->with(
-                          $this->equalTo($aggreagateMock),
-                          $this->equalTo([$event])
-                      );
+            ->method('projectByEvents')
+            ->with(
+                $this->equalTo($aggregateMock),
+                $this->equalTo([$event])
+            );
 
         $repository = new EventStoreRepository(
             $busMock, $storeMock, $projectorMock
         );
 
-        $repository->persist($aggreagateMock);
+        $repository->persist($aggregateMock);
     }
 
-    public function testRetriveMethod()
+    public function testRetrieveMethod()
     {
+        $uuid = Str::uuid();
+
         $storeMock = $this->createMock(Store::class);
         $storeMock->expects($this->once())
-                  ->method('loadStream')
-                  ->with($this->equalTo('test'))
-                  ->willReturn([]);
+            ->method('loadStream')
+            ->with($this->equalTo($uuid))
+            ->willReturn([]);
 
         $repository = new EventStoreRepository(
-            $this->createMock(Bus::class),
+            $this->createMock(EventBus::class),
             $storeMock,
             $this->createMock(Projector::class)
         );
 
-        $instance = $repository->retrieve(TestAggregate::class, 'test');
+        $instance = $repository->retrieve(TestAggregate::class, $uuid);
 
         $this->assertInstanceOf(AggregateRoot::class, $instance);
     }
 
-    public function testTrownWhenRetriveHasNoClass()
+    public function testThrowWhenRetrieveHasNoClass()
     {
-        $this->expectException(UnsupportedAggregate::class);
+        $this->expectException(InvalidAggregateIdentifier::class);
 
         $repository = new EventStoreRepository(
-            $this->createMock(Bus::class),
+            $this->createMock(EventBus::class),
             $this->createMock(Store::class),
             $this->createMock(Projector::class)
         );
@@ -150,12 +152,12 @@ class EventStoreRepositoryTest extends UnitCase
         $repository->retrieve('test', 'test');
     }
 
-    public function testTrownWhenRetriveHasNoAggregate()
+    public function testThrowWhenRetrieveHasNoAggregate()
     {
-        $this->expectException(UnsupportedAggregate::class);
+        $this->expectException(InvalidAggregateIdentifier::class);
 
         $repository = new EventStoreRepository(
-            $this->createMock(Bus::class),
+            $this->createMock(EventBus::class),
             $this->createMock(Store::class),
             $this->createMock(Projector::class)
         );

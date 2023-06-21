@@ -6,14 +6,13 @@ namespace Framekit\Contracts;
 
 use Framekit\AggregateRoot;
 use Framekit\Event;
+use Mrluke\Bus\Contracts\Process;
 
 /**
- * Projector contract.
- *
- * @author    Łukasz Sitnicki (mr-luke)
- * @package   mr-luke/framekit
- * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @author  Łukasz Sitnicki (mr-luke)
+ * @package mr-luke/framekit
+ * @link    http://github.com/mr-luke/framekit
+ * @licence MIT
  */
 interface Projector
 {
@@ -22,31 +21,52 @@ interface Projector
      *
      * @return array
      */
-    public function projections(): array;
+    public function aggregateProjections(): array;
 
     /**
      * Project changes for given aggregate.
      *
-     * @param  \Framekit\AggregateRoot  $aggregate
-     * @param  array                    $events
-     * @return void
+     * @param \Framekit\AggregateRoot $aggregate
+     * @return \Mrluke\Bus\Contracts\Process[]
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Mrluke\Bus\Exceptions\InvalidAction
+     * @throws \Mrluke\Bus\Exceptions\InvalidHandler
+     * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
+     * @throws \Mrluke\Bus\Exceptions\MissingHandler
+     * @throws \Mrluke\Bus\Exceptions\MissingProcess
+     * @throws \ReflectionException
      */
-    public function project(AggregateRoot $aggregate, array $events): void;
+    public function project(AggregateRoot $aggregate): array;
 
     /**
      * Project changes for given aggregate.
      *
-     * @param  string           $aggregate
-     * @param  \Framekit\Event  $event
-     * @return void
+     * @param \Framekit\AggregateRoot $aggregate
+     * @param array                   $events
+     * @return \Mrluke\Bus\Contracts\Process[]
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Mrluke\Bus\Exceptions\InvalidAction
+     * @throws \Mrluke\Bus\Exceptions\InvalidHandler
+     * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
+     * @throws \Mrluke\Bus\Exceptions\MissingHandler
+     * @throws \Mrluke\Bus\Exceptions\MissingProcess
+     * @throws \ReflectionException
      */
-    public function projectByEvent(string $aggregate, Event $event): void;
+    public function projectByEvents(AggregateRoot $aggregate, array $events): array;
 
     /**
-     * Register Projections stack.
+     * Project changes for given aggregate.
      *
-     * @param  array $stack
-     * @return void
+     * @param \Framekit\AggregateRoot $aggregate
+     * @param \Framekit\Event         $event
+     * @return \Mrluke\Bus\Contracts\Process
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Mrluke\Bus\Exceptions\InvalidAction
+     * @throws \Mrluke\Bus\Exceptions\InvalidHandler
+     * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
+     * @throws \Mrluke\Bus\Exceptions\MissingHandler
+     * @throws \Mrluke\Bus\Exceptions\MissingProcess
+     * @throws \ReflectionException
      */
-    public function register(array $stack): void;
+    public function projectSingle(AggregateRoot $aggregate, Event $event): Process;
 }

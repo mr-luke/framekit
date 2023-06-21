@@ -6,37 +6,27 @@ use Illuminate\Database\Migrations\Migration;
 
 use Framekit\Contracts\Config as FramekitConfig;
 
-class CreateEventStoreTable extends Migration
+return new class extends Migration
 {
-    /**
-     * Instance of EventStore.
-     *
-     * @var \Framekit\Contracts\Config
-     */
-    protected $config;
-
-    public function __construct()
-    {
-        $this->config = app()->make(FramekitConfig::class);
-    }
-
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create($this->config->get('tables.eventstore'), function (Blueprint $table) {
+        $config = app()->make(FramekitConfig::class);
+
+        Schema::create($config->get('tables.eventstore'), function (Blueprint $table) {
             $table->increments('id');
             $table->string('stream_type');
-            $table->uuid('stream_id');
+            $table->uuid('stream_id')->index();
             $table->string('event');
             $table->jsonb('payload');
             $table->unsignedSmallInteger('version');
-            $table->unsignedInteger('sequence_no')->default(0);
+            $table->unsignedInteger('sequence_no')->index()->default(0);
             $table->jsonb('meta');
-            $table->timestamp('commited_at', 6);
+            $table->timestamp('committed_at', 6);
         });
     }
 
@@ -45,8 +35,10 @@ class CreateEventStoreTable extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists($this->config->get('tables.eventstore'));
+        $config = app()->make(FramekitConfig::class);
+
+        Schema::dropIfExists($config->get('tables.eventstore'));
     }
-}
+};

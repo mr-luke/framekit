@@ -2,26 +2,17 @@
 
 namespace Tests;
 
+use Framekit\Providers\FramekitServiceProvider;
+use Mrluke\Bus\BusServiceProvider;
 use Orchestra\Testbench\TestCase;
 
 /**
- * Feature AppCase for package.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class AppCase extends TestCase
 {
-    /**
-     * DB configuration.
-     */
-    const DB_HOST = 'localhost';
-    const DB_NAME = 'dev';
-    const DB_USER = 'dev';
-    const DB_PASS = '';
-    const DB_PREFIX = '';
-
     /**
      * Setup TestCase.
      *
@@ -31,10 +22,9 @@ class AppCase extends TestCase
     {
         parent::setUp();
 
-        $this->artisan('migrate:refresh', [
-            '--database' => 'mysql',
-            '--realpath' => realpath(__DIR__.'/../database/migrations'),
-        ]);
+        $this->loadLaravelMigrations(['--database' => 'sqlite']);
+
+        $this->artisan('migrate')->run();
     }
 
     /**
@@ -44,13 +34,13 @@ class AppCase extends TestCase
      *
      * @return string|null
      */
-    protected function getApplicationTimezone($app)
+    protected function getApplicationTimezone($app): ?string
     {
         return 'Europe/Warsaw';
     }
 
     /**
-     * Seting enviroment for Test.
+     * Setting environment for Test.
      *
      * @param \Illuminate\Foundation\Application $app
      *
@@ -58,19 +48,8 @@ class AppCase extends TestCase
      */
     protected function getEnvironmentSetUp($app): void
     {
-        $app['path.base'] = __DIR__.'/..';
-        $app['config']->set('database.default', 'mysql');
-        $app['config']->set('database.connections.mysql', [
-            'driver'    => 'mysql',
-            'host'      => env('DB_HOST', static::DB_HOST),
-            'database'  => env('DB_NAME', static::DB_NAME),
-            'username'  => env('DB_USER', static::DB_USER),
-            'password'  => env('DB_PASS', static::DB_PASS),
-            'prefix'    => env('DB_PREFIX', static::DB_PREFIX),
-            'charset'   => 'utf8',
-            'collation' => 'utf8_unicode_ci',
-            'strict'    => true,
-        ]);
+        $app['path.base'] = __DIR__ . '/..';
+        $app['config']->set('database.default', 'sqlite');
     }
 
     /**
@@ -83,7 +62,8 @@ class AppCase extends TestCase
     protected function getPackageProviders($app): array
     {
         return [
-            \Framekit\Providers\FramekitServiceProvider::class,
+            BusServiceProvider::class,
+            FramekitServiceProvider::class
         ];
     }
 }

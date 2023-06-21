@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace Framekit\Drivers;
 
-use Illuminate\Foundation\Application;
-use InvalidArgumentException;
-
 use Framekit\AggregateRoot;
-use Framekit\Projection;
-use Framekit\Contracts\Projector as Contract;
-use Framekit\Extentions\ClassResolver;
-use Framekit\Exceptions\MethodUnknown;
-use Framekit\Exceptions\MissingProjection;
+use Framekit\Contracts\Projector as ProjectorContract;
 use Framekit\Event;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Log\Logger;
+use Mrluke\Bus\Contracts\AsyncBus;
+use Mrluke\Bus\Contracts\Process;
+use Mrluke\Bus\Contracts\ProcessRepository;
+use Mrluke\Bus\Extensions\UsesDefaultQueue;
+use Mrluke\Bus\MultipleHandlerBus;
+use Mrluke\Configuration\Contracts\ArrayHost;
 
 /**
  * Projector is responsible for projecting changes to DB.
@@ -21,126 +22,85 @@ use Framekit\Event;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
-final class Projector implements Contract
+class Projector extends MultipleHandlerBus implements ProjectorContract, AsyncBus
 {
-    use ClassResolver;
+    use UsesDefaultQueue;
+
+    public bool $persistSyncInstructions = false;
+
+    public bool $throwWhenNoHandler = false;
 
     /**
-     * Register of Event->Reactor pairs.
-     *
-     * @var array
+     * @param \Mrluke\Configuration\Contracts\ArrayHost $config
+     * @param \Mrluke\Bus\Contracts\ProcessRepository   $repository
+     * @param \Illuminate\Contracts\Container\Container $container
+     * @param \Illuminate\Log\Logger                    $logger
+     * @param null                                      $queueResolver
+     * @throws \Mrluke\Bus\Exceptions\MissingConfiguration
      */
-    protected $register;
+    public function __construct(
+        ArrayHost         $config,
+        ProcessRepository $repository,
+        Container         $container,
+        Logger            $logger,
+                          $queueResolver = null
+    ) {
+        parent::__construct($repository, $container, $logger, $queueResolver);
 
-    /**
-     * @param \Illuminate\Foundation\Application  $app
-     * @param array                               $stack
-     */
-    public function __construct(Application $app, array $stack = [])
-    {
-        $this->app      = $app;
-        $this->register = $stack;
+        $this->queueName = $config->get('queues.projector');
     }
 
     /**
      * Return registered Projections list.
      *
      * @return array
-     *
      * @codeCoverageIgnore
      */
-    public function projections(): array
+    public function aggregateProjections(): array
     {
-        return $this->register;
+        return $this->handlers;
     }
 
     /**
-     * Project changes for given aggregate.
-     *
-     * @param  \Framekit\AggregateRoot  $aggregate
-     * @param  array                    $events
-     * @return void
-     *
-     * @throws \Framekit\Exceptions\MissingProjection
-     * @throws \ReflectionException
+     * @inheritDoc
+     * @throws \Mrluke\Bus\Exceptions\RuntimeException
      */
-    public function project(AggregateRoot $aggregate, array $events): void
+    public function project(AggregateRoot $aggregate): array
     {
-        $projection = $this->getProjection(get_class($aggregate));
-
-        foreach ($events as $e) {
-            if (! $e instanceof Event) {
-                throw new InvalidArgumentException(
-                    sprintf('Projected events must be instance of %s', Event::class)
-                );
-            }
-
-            $projection->handle($e);
-        }
-    }
-
-    /**
-     * Project changes for given aggregate.
-     *
-     * @param string $aggregate
-     * @param \Framekit\Event $event
-     * @return void
-     *
-     * @throws \Framekit\Exceptions\MissingProjection
-     * @throws \ReflectionException
-     */
-    public function projectByEvent(string $aggregate, Event $event): void
-    {
-        $projection = $this->getProjection($aggregate);
-        $projection->handle($event);
-    }
-
-    /**
-     * Register Projections stack.
-     *
-     * @param  array $stack
-     * @return void
-     *
-     * @codeCoverageIgnore
-     */
-    public function register(array $stack): void
-    {
-        $this->register = array_merge($this->register, $stack);
-    }
-
-    /**
-     * Return aggregate's projection.
-     *
-     * @param  string  $aggregate
-     * @return \Framekit\Projection
-     *
-     * @throws \Framekit\Exceptions\MissingProjection
-     * @throws \ReflectionException
-     */
-    protected function getProjection(string $aggregate): Projection
-    {
-        if (!isset($this->register[$aggregate]) || empty($this->register[$aggregate])) {
-            throw new MissingProjection(
-                sprintf('Missing projection for aggregate %s', $aggregate)
-            );
-        }
-
-        return $this->resolveClass($this->register[$aggregate]);
-    }
-
-    /**
-     * Capture all bad calls.
-     *
-     * @param  string $name
-     * @param  array  $arguments
-     * @throws \Framekit\Exceptions\MethodUnknown
-     */
-    public function __call(string $name, array $arguments)
-    {
-        throw new MethodUnknown(
-            sprintf('Trying to call unknown method [%s]. Assert methods available only in testing mode.', $name)
+        return $this->dispatchMultiple(
+            $aggregate,
+            $aggregate->unpublishedEvents()
         );
+    }
+
+    /**
+     * @inheritDoc
+     * @throws \Mrluke\Bus\Exceptions\RuntimeException
+     */
+    public function projectByEvents(AggregateRoot $aggregate, array $events): array
+    {
+        return $this->dispatchMultiple(
+            $aggregate,
+            $events
+        );
+    }
+
+    /**
+     * @inheritDoc
+     * @throws \Mrluke\Bus\Exceptions\RuntimeException
+     */
+    public function projectSingle(AggregateRoot $aggregate, Event $event): Process
+    {
+        return $this->dispatch($event, $aggregate);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getBusName(): string
+    {
+        return 'projector';
     }
 }

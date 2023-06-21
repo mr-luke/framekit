@@ -4,27 +4,26 @@ declare(strict_types=1);
 
 namespace Tests\Components;
 
-use Framekit\Event;
+use Mrluke\Bus\Contracts\Instruction;
+
 use Framekit\Projection;
 
 /**
- * DummyProjection class.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class DummyProjection extends Projection
 {
     /**
      * Handle projection.
      *
-     * @param  \Framekit\Event  $event
-     * @return void
+     * @param \Mrluke\Bus\Contracts\Instruction $instruction
+     * @return mixed
      */
-    public function handle(Event $event): void
+    public function handle(Instruction $instruction): mixed
     {
-        $event->dummy();
+        $instruction->dummy();
     }
 }

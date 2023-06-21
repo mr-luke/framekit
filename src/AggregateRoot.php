@@ -4,53 +4,47 @@ declare(strict_types=1);
 
 namespace Framekit;
 
+use Framekit\Contracts\AggregateIdentifier;
+use Framekit\Contracts\Projectable;
+use Framekit\Exceptions\InvalidAggregateIdentifier;
 use Framekit\Exceptions\MethodUnknown;
+use Framekit\Extensions\ValidatesUuid;
 
 /**
- * Aggregate abstract class.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
-abstract class AggregateRoot
+abstract class AggregateRoot implements Projectable
 {
-    /**
-     * @var string (uuid)
-     */
-    protected $aggregateId;
+    use ValidatesUuid;
 
     /**
-     * @var \Framekit\State
+     * @var int|string|\Framekit\Contracts\AggregateIdentifier
      */
-    protected $state;
+    protected AggregateIdentifier|string|int $aggregateId;
 
-    public function __construct(string $aggregateId)
+    /**
+     * @var \Framekit\Event[]
+     */
+    protected array $aggregatedEvents = [];
+
+    /**
+     * @var \Framekit\Entity
+     */
+    protected Entity $rootEntity;
+
+    /**
+     * @param \Framekit\Contracts\AggregateIdentifier|string|int $aggregateId
+     * @throws \Framekit\Exceptions\InvalidAggregateIdentifier
+     */
+    public function __construct(AggregateIdentifier|string|int $aggregateId)
     {
         $this->aggregateId = $aggregateId;
+        $this->validateAggregateIdentifier();
 
-        $this->boot();
-    }
-
-    /**
-     * Return aggregate identifier.
-     *
-     * @return string
-     */
-    public function getId(): string
-    {
-        return $this->aggregateId;
-    }
-
-    /**
-     * Return state of aggregate.
-     *
-     * @return \Framekit\State
-     */
-    public function getState(): ?State
-    {
-        return $this->state;
+        $this->bootRootEntity();
     }
 
     /**
@@ -59,6 +53,7 @@ abstract class AggregateRoot
      * @param string $name
      * @param array  $arguments
      * @throws \Framekit\Exceptions\MethodUnknown
+     * @codeCoverageIgnore
      */
     public function __call(string $name, array $arguments)
     {
@@ -73,12 +68,63 @@ abstract class AggregateRoot
      * @param string $name
      * @param array  $arguments
      * @throws \Framekit\Exceptions\MethodUnknown
+     * @codeCoverageIgnore
      */
     public static function __callStatic(string $name, array $arguments)
     {
         throw new MethodUnknown(
             sprintf('Trying to call unknown method [%s]', $name)
         );
+    }
+
+    /**
+     * Return aggregate identifier.
+     *
+     * @return int|string|\Framekit\Contracts\AggregateIdentifier
+     * @codeCoverageIgnore
+     */
+    public function identifier(): int|string|AggregateIdentifier
+    {
+        return $this->aggregateId;
+    }
+
+    /**
+     * Return root Entity of an aggregate.
+     *
+     * @return \Framekit\Entity|null
+     * @codeCoverageIgnore
+     */
+    public function rootEntity(): ?Entity
+    {
+        return $this->rootEntity;
+    }
+
+    /**
+     * Determine is apply change method exists.
+     *
+     * @param \Framekit\Event $event
+     * @return bool
+     */
+    public function understandsEvent(Event $event): bool
+    {
+        return method_exists(
+            $this,
+            $this->composeApplierMethodName($event)
+        );
+    }
+
+    /**
+     * Return unpublished events.
+     *
+     * @return \Framekit\Event[]
+     * @codeCoverageIgnore
+     */
+    public function unpublishedEvents(): array
+    {
+        $events = $this->aggregatedEvents;
+        $this->aggregatedEvents = [];
+
+        return $events;
     }
 
     /**
@@ -95,6 +141,13 @@ abstract class AggregateRoot
     }
 
     /**
+     * Boot method is responsible for initiate root Entity.
+     *
+     * @return void
+     */
+    abstract protected function bootRootEntity(): void;
+
+    /**
      * Compose apply change method name.
      *
      * @param \Framekit\Event $event
@@ -109,23 +162,42 @@ abstract class AggregateRoot
     }
 
     /**
-     * Determine is apply change method exists.
+     * Fire Event on aggregate & add event to uncommitted.
      *
      * @param \Framekit\Event $event
-     * @return bool
+     * @return void
      */
-    protected function understandsEvent(Event $event): bool
+    protected function fireEvent(Event $event): void
     {
-        return method_exists(
-            $this,
-            $this->composeApplierMethodName($event)
-        );
+        $this->applyChange($event);
+
+        $this->aggregatedEvents[] = $event;
     }
 
     /**
-     * Boot method is responsible for creating init state.
+     * Validate if Aggregate has correct identifier applied.
      *
      * @return void
+     * @throws \Framekit\Exceptions\InvalidAggregateIdentifier
      */
-    abstract protected function boot(): void;
+    protected function validateAggregateIdentifier(): void
+    {
+        if (
+            is_int($this->aggregateId) &&
+            $this->aggregateId < 1
+        ) {
+            throw new InvalidAggregateIdentifier(
+                'Numeric identifier must be unsigned integer'
+            );
+        }
+
+        if (
+            is_string($this->aggregateId) &&
+            !$this->isValidUuid($this->aggregateId)
+        ) {
+            throw new InvalidAggregateIdentifier(
+                'String identifier must be an UUID'
+            );
+        }
+    }
 }

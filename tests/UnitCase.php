@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class UnitCase extends TestCase
 {

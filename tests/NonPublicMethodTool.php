@@ -10,25 +10,23 @@ use ReflectionMethod;
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 trait NonPublicMethodTool
 {
     /**
-     * Tool for testing protected and private methods.
-     *
      * Usage:
      * $compose = self::getMethodOfClass(Class::class, 'method');
+     * $compose->setAccessible(true;)
      * $compose->invokeArgs($classInstance, [$args]);
      *
-     * @param  string $class
-     * @param  string $method
+     * @param string $class
+     * @param string $method
      * @return \ReflectionMethod
+     * @throws \ReflectionException
      */
     protected static function getMethodOfClass(string $class, string $method): ReflectionMethod
     {
-        $method = (new ReflectionClass($class))->getMethod($method);
-        $method->setAccessible(true);
-        return $method;
+        return (new ReflectionClass($class))->getMethod($method);
     }
 }

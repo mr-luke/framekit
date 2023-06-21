@@ -1,5 +1,9 @@
 <?php
 
+use Framekit\Drivers\EventBus;
+use Framekit\Drivers\EventStore;
+use Framekit\Drivers\Projector;
+
 return [
 
     /*
@@ -7,16 +11,30 @@ return [
     | Default Drivers
     |--------------------------------------------------------------------------
     |
-    | Framekit allows to use different drivers for Steram & Snapshots support.
+    | Framekit allows to use different drivers for Stream & Snapshots support.
     | By default it uses Database drivers based on Illuminate\Database.
     |
     */
 
     'drivers' => [
-        'command_bus' => \Framekit\Drivers\CommandBus::class,
-        'event_bus'   => \Framekit\Drivers\EventBus::class,
-        'event_store' => \Framekit\Drivers\EventStore::class,
-        'projector'   => \Framekit\Drivers\Projector::class,
+        'event_bus'   => EventBus::class,
+        'event_store' => EventStore::class,
+        'projector'   => Projector::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Queue connections
+    |--------------------------------------------------------------------------
+    |
+    | Framekit allows to use async Bus. Here you can set queue connection for
+    | each of Framekit's bus.
+    |
+    */
+
+    'queues' => [
+        'event_bus' => env('EVENTBUS_QUEUE'),
+        'projector' => env('PROJECTOR_QUEUE')
     ],
 
     /*
@@ -24,8 +42,8 @@ return [
     | Snapshot interval
     |--------------------------------------------------------------------------
     |
-    | Framekit allows you to determine when new snapshop should be created.
-    | By default each 100 events new snapshot will occure. You can disable this
+    | Framekit allows you to determine when new snapshot should be created.
+    | By default each 100 events new snapshot will occur. You can disable this
     | feature by settings 'null' value.
     |
     | Allowed: int | null

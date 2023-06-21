@@ -4,30 +4,35 @@ declare(strict_types=1);
 
 namespace Framekit\Eventing;
 
+use Framekit\Contracts\Serializable;
+use Framekit\Contracts\Serializer;
 use ReflectionClass;
 use ReflectionProperty;
 
-use Framekit\Contracts\Serializable;
-use Framekit\Contracts\Serializer;
-
+/**
+ * EventSerializer class serialize events of Aggregate
+ * for stream persistence.
+ *
+ * @author    Łukasz Sitnicki (mr-luke)
+ * @package   mr-luke/framekit
+ * @link      http://github.com/mr-luke/framekit
+ * @licence   MIT
+ */
 final class EventSerializer implements Serializer
 {
     /**
      * Serialize object to string.
      *
-     * @param  \Framekit\Contracts\Serializable  $toSerialize
-     * @param  string                            $subject
+     * @param \Framekit\Contracts\Serializable $toSerialize
      * @return string
-     *
-     * @throws \InvalidArgumentException
      */
     public function serialize(Serializable $toSerialize): string
     {
-        $attributes   = [];
-        $reflection   = new ReflectionClass($toSerialize);
-        $propertities = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+        $attributes = [];
+        $reflection = new ReflectionClass($toSerialize);
+        $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
 
-        foreach ($propertities as $p) {
+        foreach ($properties as $p) {
             if ($p->isStatic()) continue;
             $value = $p->getValue($toSerialize);
 
@@ -38,20 +43,22 @@ final class EventSerializer implements Serializer
             $attributes[$p->getName()] = $value;
         }
 
-        return json_encode([
-            'class'      => get_class($toSerialize),
-            'attributes' => $attributes
-        ]);
+        ksort($attributes);
+
+        return json_encode(
+            [
+                'class' => get_class($toSerialize),
+                'attributes' => $attributes
+            ]
+        );
     }
 
     /**
      * Unserialize to object.
      *
-     * @param  string  $serialized
-     * @param  string  $subject
+     * @param string $serialized
      * @return \Framekit\Contracts\Serializable
-     *
-     * @throws \InvalidArgumentException
+     * @throws \ReflectionException
      */
     public function unserialize(string $serialized): Serializable
     {
@@ -67,6 +74,7 @@ final class EventSerializer implements Serializer
             $instance->{$a} = $v;
         }
 
+        /* @var Serializable $instance */
         return $instance;
     }
 }

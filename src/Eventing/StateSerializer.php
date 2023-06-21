@@ -8,20 +8,20 @@ use Framekit\Contracts\Serializable;
 use Framekit\Contracts\Serializer;
 
 /**
- * StateSerializer class serialize state of Aggregate
- * for Snapshoting.
+ * StateSerializer class serialize entities of Aggregate
+ * for Snapshotting or persistence.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 final class StateSerializer implements Serializer
 {
     /**
      * Serialize object to string.
      *
-     * @param  \Framekit\Contracts\Serializable  $toSerialize
+     * @param \Framekit\Contracts\Serializable $toSerialize
      * @return string
      */
     public function serialize(Serializable $toSerialize): string
@@ -32,7 +32,7 @@ final class StateSerializer implements Serializer
     /**
      * Unserialize to object.
      *
-     * @param  string  $serialized
+     * @param string $serialized
      * @return \Framekit\Contracts\Serializable
      */
     public function unserialize(string $serialized): Serializable

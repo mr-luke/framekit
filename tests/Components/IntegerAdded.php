@@ -5,27 +5,27 @@ namespace Tests\Components;
 use Framekit\Event;
 
 /**
- * Test Event.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class IntegerAdded extends Event
 {
     /**
      * @var int
      */
-    public $toAdd;
+    public int $toAdd;
 
     /**
-     * @param int $toAdd
+     * @param string $id
+     * @param int    $toAdd
      */
-    public function __construct(int $toAdd)
+    public function __construct(string $id, int $toAdd)
     {
         parent::__construct();
-        
+        $this->aggregateId = $id;
+
         $this->toAdd = $toAdd;
     }
 }

@@ -13,29 +13,29 @@ use Framekit\Event;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class AggregateRemoved extends Event
 {
     /**
-     * @var string
+     * @var int|string
      */
-    public $aggregateId;
+    public string|int $aggregateId;
 
     /**
      * @var \Carbon\Carbon
      */
-    public $deletedAt;
+    public Carbon $deletedAt;
 
     /**
-     * @param string         $aggregateId
-     * @param \Carbon\Carbon $created_at
+     * @param int|string     $aggregateId
+     * @param \Carbon\Carbon $deletedAt
      */
-    public function __construct(string $aggregateId, Carbon $deleted_at = null)
+    public function __construct(int|string $aggregateId, Carbon $deletedAt)
     {
         parent::__construct();
-        
+
         $this->aggregateId = $aggregateId;
-        $this->deletedAt   = $deleted_at ?? Carbon::now();
+        $this->deletedAt = $deletedAt;
     }
 }

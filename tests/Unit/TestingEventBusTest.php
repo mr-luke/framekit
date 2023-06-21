@@ -2,20 +2,17 @@
 
 namespace Tests\Unit;
 
-use Tests\Components\DummyReactor;
+use Framekit\Testing\EventBus;
 use Tests\Components\IntegerAdded;
 use Tests\NonPublicMethodTool;
 use Tests\UnitCase;
-
-use Framekit\Contracts\EventBus as Contract;
-use Framekit\Testing\EventBus;
 
 /**
  * Testing\EventBus unit tests.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class TestingEventBusTest extends UnitCase
 {
@@ -26,7 +23,7 @@ class TestingEventBusTest extends UnitCase
         $bus = new EventBus([
             IntegerAdded::class => 'DummyReactor'
         ]);
-        $bus->publish(new IntegerAdded(2));
+        $bus->publish(new IntegerAdded('test', 2));
 
         $this->assertEquals(
             [
@@ -41,7 +38,7 @@ class TestingEventBusTest extends UnitCase
         $bus = new EventBus([
             IntegerAdded::class => 'DummyReactor'
         ]);
-        $bus->publish(new IntegerAdded(2));
+        $bus->publish(new IntegerAdded('test', 2));
 
         $compose = self::getMethodOfClass(EventBus::class, 'isCalled');
 

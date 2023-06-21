@@ -4,23 +4,22 @@ declare(strict_types=1);
 
 namespace Framekit;
 
-use Framekit\Event;
+use Mrluke\Bus\Contracts\Handler;
+use Mrluke\Bus\Contracts\Instruction;
 
 /**
- * Reactor abstract class.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
-abstract class Reactor
+abstract class Reactor implements Handler
 {
     /**
      * Apply event to state.
      *
-     * @param  \Framekit\Event  $event
-     * @return void
+     * @param \Mrluke\Bus\Contracts\Instruction $instruction
+     * @return mixed
      */
-    abstract public function handle(Event $event): void;
+    abstract public function handle(Instruction $instruction): mixed;
 }

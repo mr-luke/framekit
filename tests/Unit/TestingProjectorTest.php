@@ -2,21 +2,20 @@
 
 namespace Tests\Unit;
 
+use Framekit\Exceptions\MissingProjection;
+use Framekit\Testing\Projector;
+use Illuminate\Support\Str;
 use Tests\Components\IntegerAdded;
 use Tests\Components\TestAggregate;
 use Tests\NonPublicMethodTool;
 use Tests\UnitCase;
-
-use Framekit\Contracts\Projector as Contract;
-use Framekit\Exceptions\MissingProjection;
-use Framekit\Testing\Projector;
 
 /**
  * Testing\Projector unit tests.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class TestingProjectorTest extends UnitCase
 {
@@ -26,18 +25,20 @@ class TestingProjectorTest extends UnitCase
     {
         $this->expectException(MissingProjection::class);
 
+        $uuid = Str::uuid();
         $projector = new Projector();
-        $projector->project(new TestAggregate('uuid1'), []);
+        $projector->projectByEvents(new TestAggregate($uuid), []);
     }
 
     public function testThrowsWhenAggregateHasNoProjectionRegistered()
     {
         $this->expectException(MissingProjection::class);
 
+        $uuid = Str::uuid();
         $projector = new Projector([
             TestAggregate::class => null
         ]);
-        $projector->project(new TestAggregate('uuid1'), []);
+        $projector->project(new TestAggregate($uuid));
     }
 
     public function testProjectEvents()
@@ -45,8 +46,10 @@ class TestingProjectorTest extends UnitCase
         $projector = new Projector([
             TestAggregate::class => 'DummyProjection'
         ]);
-        $projector->project(new TestAggregate('uuid1'), [
-            new IntegerAdded(2)
+
+        $uuid = Str::uuid();
+        $projector->projectByEvents(new TestAggregate($uuid), [
+            new IntegerAdded($uuid, 2)
         ]);
 
         $this->assertEquals(
@@ -62,8 +65,10 @@ class TestingProjectorTest extends UnitCase
         $projector = new Projector([
             TestAggregate::class => 'DummyProjection'
         ]);
-        $projector->project(new TestAggregate('uuid1'), [
-            new IntegerAdded(2)
+
+        $uuid = Str::uuid();
+        $projector->projectByEvents(new TestAggregate($uuid), [
+            new IntegerAdded($uuid, 2)
         ]);
 
         $compose = self::getMethodOfClass(Projector::class, 'isCalled');

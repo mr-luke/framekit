@@ -2,100 +2,98 @@
 
 namespace Tests\Unit;
 
+use Framekit\Drivers\EventBus;
+use Framekit\Exceptions\MissingReactor;
+use Mrluke\Bus\Exceptions\InvalidHandler;
+use Mrluke\Bus\Process;
+use Tests\Components\DummyProjection;
+use Tests\Components\DummyReactor;
+use Tests\Components\IntegerAdded;
 use Tests\UnitCase;
 
-use Framekit\Contracts\Bus;
-use Framekit\Drivers\EventBus;
-use Illuminate\Foundation\Application;
-
 /**
- * EventBus unit tests.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class EventBusTest extends UnitCase
 {
-    public function testClassResolveContract()
+    public function testMapGlobals()
     {
-        $this->assertInstanceOf(
-            Bus::class,
-            new EventBus($this->createMock(Application::class))
+        $bus = $this->getMockBuilder(EventBus::class)
+            ->onlyMethods(['createProcess', 'processHandlersStack'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $bus->mapGlobals([DummyReactor::class]);
+
+        $this->assertEquals(
+            [DummyReactor::class],
+            $bus->globalReactors()
         );
     }
 
-    public function testRegisterHandlerViaConstructor()
+    public function testThrowWhenGlobalReactorIsNotAReactor()
     {
-        $bus = new EventBus($this->createMock(Application::class), [
-            'from' => 'to'
-        ]);
+        $this->expectException(InvalidHandler::class);
 
-        $this->assertEquals(
-            ['from' => 'to'],
-            $bus->handlers()
+        $bus = $this->getMockBuilder(EventBus::class)
+            ->onlyMethods(['createProcess', 'processHandlersStack'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $bus->mapGlobals([EntityTest::class]);
+    }
+
+    public function testIfReturnsNullWhenNoReactor()
+    {
+        $bus = $this->getMockBuilder(EventBus::class)
+            ->onlyMethods(['createProcess', 'processHandlersStack'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->assertNull(
+            $bus->publish(new IntegerAdded('test', 1))
         );
     }
 
-    public function testRegisterHandlers()
+    public function testThrowsWhenNoReactor()
     {
-        $bus = new EventBus($this->createMock(Application::class));
+        $this->expectException(MissingReactor::class);
 
-        $this->assertTrue(!$bus->handlers());
+        $bus = $this->getMockBuilder(EventBus::class)
+            ->onlyMethods(['createProcess', 'processHandlersStack'])
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $bus->register(['from' => 'to']);
-
-        $this->assertEquals(
-            ['from' => 'to'],
-            $bus->handlers()
-        );
+        $bus->throwWhenNoHandler = true;
+        $bus->publish(new IntegerAdded('test', 1));
     }
 
-    public function testReplaceMethod()
+    public function testIfGlobalReactorsAreExecutedForAnEvent()
     {
-        $bus = new EventBus($this->createMock(Application::class), [
-            'from' => 'to'
-        ]);
+        $bus = $this->getMockBuilder(EventBus::class)
+            ->onlyMethods(['createProcess', 'processHandlersStack'])
+            ->disableOriginalConstructor()->getMock();
+
+        $handlersStack = [DummyProjection::class, DummyReactor::class];
+        $process = Process::create('bus', IntegerAdded::class, $handlersStack);
+
+        $event = new IntegerAdded('test', 1);
+
+        $bus->expects($this->once())
+            ->method('createProcess')
+            ->with($event, $handlersStack)
+            ->willReturn($process);
+
+        $bus->expects($this->once())->method('processHandlersStack');
+
+        $bus->mapGlobals([DummyProjection::class]);
+        $bus->map([IntegerAdded::class => [DummyReactor::class]]);
 
         $this->assertEquals(
-            ['from' => 'to'],
-            $bus->handlers()
-        );
-
-        $bus->replace([
-            'from2' => 'to2'
-        ]);
-
-        $this->assertEquals(
-            ['from2' => 'to2'],
-            $bus->handlers()
-        );
-    }
-
-    public function testRegisterGlobals()
-    {
-        $bus = new EventBus($this->createMock(Application::class));
-
-        $this->assertEquals(
-            [],
-            $bus->globalHandlers()
-        );
-
-        $bus->registerGlobals([
-            'Class1',
-            'Class2'
-        ]);
-
-        $this->assertEquals(
-            ['Class1', 'Class2'],
-            $bus->globalHandlers()
-        );
-
-        $bus->registerGlobals(['Class3']);
-
-        $this->assertEquals(
-            ['Class1', 'Class2', 'Class3'],
-            $bus->globalHandlers()
+            $process,
+            $bus->publish($event)
         );
     }
 }

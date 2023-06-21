@@ -3,34 +3,28 @@
 namespace Tests\Unit;
 
 use Carbon\Carbon;
-use Framekit\Contracts\Serializer;
 use Framekit\Eventing\EventSerializer;
+use Tests\Components\DateAdded;
+use Tests\Components\IntegerAdded;
 use Tests\UnitCase;
+use function json_encode;
 
 /**
  * EventSerializer unit tests.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class EventSerializerTest extends UnitCase
 {
-    public function testClassResolveContract()
-    {
-        $this->assertInstanceOf(
-            Serializer::class,
-            new EventSerializer
-        );
-    }
-
     public function testSerializeEventWithoutObject()
     {
-        $event          = new \Tests\Components\IntegerAdded(1);
+        $event = new IntegerAdded('test', 1);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
-        $after      = $serializer->serialize($event);
+        $after = $serializer->serialize($event);
 
         $this->assertEquals(
             $this->getQualifiedPlainJson(),
@@ -40,11 +34,11 @@ class EventSerializerTest extends UnitCase
 
     public function testUnserializeEventWithoutObject()
     {
-        $event          = new \Tests\Components\IntegerAdded(1);
+        $event = new IntegerAdded('test', 1);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
-        $class      = $serializer->unserialize($this->getQualifiedPlainJson());
+        $class = $serializer->unserialize($this->getQualifiedPlainJson());
 
         $this->assertEquals(
             $event,
@@ -56,11 +50,11 @@ class EventSerializerTest extends UnitCase
     {
         $now = Carbon::now();
 
-        $event          = new \Tests\Components\DateAdded($now);
+        $event = new DateAdded('test', $now);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
-        $after      = $serializer->serialize($event);
+        $after = $serializer->serialize($event);
 
         $this->assertEquals(
             $this->getQualifiedDateJson($now),
@@ -72,11 +66,11 @@ class EventSerializerTest extends UnitCase
     {
         $now = Carbon::now();
 
-        $event          = new \Tests\Components\DateAdded($now);
+        $event = new DateAdded('test', $now);
         $event->firedAt = 12345678;
 
         $serializer = new EventSerializer;
-        $class      = $serializer->unserialize($this->getQualifiedDateJson($now));
+        $class = $serializer->unserialize($this->getQualifiedDateJson($now));
 
         $this->assertEquals(
             $event,
@@ -86,26 +80,26 @@ class EventSerializerTest extends UnitCase
 
     protected function getQualifiedDateJson(Carbon $date): string
     {
-        return \json_encode([
-            'class'      => 'Tests\Components\DateAdded',
+        return json_encode([
+            'class' => 'Tests\Components\DateAdded',
             'attributes' => [
-                'date'        => serialize($date),
-                'aggregateId' => null,
-                'firedAt'     => 12345678,
-                '__meta__'    => [],
+                '__meta__' => [],
+                'aggregateId' => 'test',
+                'date' => serialize($date),
+                'firedAt' => 12345678,
             ],
         ]);
     }
 
     protected function getQualifiedPlainJson(): string
     {
-        return \json_encode([
-            'class'      => 'Tests\Components\IntegerAdded',
+        return json_encode([
+            'class' => 'Tests\Components\IntegerAdded',
             'attributes' => [
-                'toAdd'       => 1,
-                'aggregateId' => null,
-                'firedAt'     => 12345678,
-                '__meta__'    => [],
+                '__meta__' => [],
+                'aggregateId' => 'test',
+                'firedAt' => 12345678,
+                'toAdd' => 1,
             ],
         ]);
     }

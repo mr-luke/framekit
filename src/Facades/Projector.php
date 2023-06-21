@@ -2,16 +2,15 @@
 
 namespace Framekit\Facades;
 
-use Illuminate\Support\Facades\Facade;
-
 use Framekit\Contracts\Projector as Contract;
 use Framekit\Testing\Projector as Fake;
+use Illuminate\Support\Facades\Facade;
 
 /**
  * @method self assertMethodCalled(string $aggregate, string $projection, string $method)
  * @method self assertMethodHasntCalled(string $aggregate, string $projection, string $method)
  *
- * @method array projections()
+ * @method static array aggregateProjections()
  * @method void register(array $stack)
  *
  * @codeCoverageIgnore
@@ -25,9 +24,11 @@ class Projector extends Facade
      */
     public static function fake(): Contract
     {
-        static::swap(new Fake(
-            static::projections()
-        ));
+        static::swap(
+            new Fake(
+                static::aggregateProjections()
+            )
+        );
 
         return static::getFacadeRoot();
     }
@@ -37,7 +38,7 @@ class Projector extends Facade
      *
      * @return string
      */
-    protected static function getFacadeAccessor()
+    protected static function getFacadeAccessor(): string
     {
         return 'framekit.projector';
     }

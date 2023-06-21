@@ -2,18 +2,33 @@
 
 namespace Framekit\Providers;
 
+use Framekit\Contracts\CommandBus;
+use Framekit\Contracts\Config;
+use Framekit\Contracts\EventRepository;
+use Framekit\Contracts\Mapper;
+use Framekit\Contracts\Store;
+use Framekit\Drivers\EventBus;
+use Framekit\Drivers\EventMapper;
+use Framekit\Drivers\EventStore;
+use Framekit\Drivers\Projector;
+use Framekit\Eventing\EventSerializer;
+use Framekit\Eventing\EventStoreRepository;
+use Framekit\Eventing\Retrospector;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Queue\Factory;
+use Illuminate\Log\Logger;
 use Illuminate\Support\ServiceProvider;
+use Mrluke\Bus\Contracts\ProcessRepository;
+use Mrluke\Configuration\Host;
+use Mrluke\Configuration\Schema;
 
 /**
- * ServiceProvider for package.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
  *
  * @category  Laravel
  * @package   mr-luke/framekit
- * @license   MIT
- *
+ * @licence   MIT
  * @codeCoverageIgnore
  */
 class FramekitServiceProvider extends ServiceProvider
@@ -23,13 +38,19 @@ class FramekitServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
 
-        $this->publishes([__DIR__ .'/../../config/framekit.php' => config_path('framekit.php')], 'config');
+        $this->publishes(
+            [__DIR__ . '/../../config/framekit.php' => config_path('framekit.php')],
+            'config'
+        );
 
-        $this->publishes([__DIR__.'/../../database/migrations/' => database_path('migrations')], 'migrations');
+        $this->publishes(
+            [__DIR__ . '/../../database/migrations/' => database_path('migrations')],
+            'migrations'
+        );
     }
 
     /**
@@ -37,88 +58,157 @@ class FramekitServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ .'/../../config/framekit.php', 'framekit');
+        $this->mergeConfigFrom(__DIR__ . '/../../config/framekit.php', 'framekit');
 
-        $this->app->singleton(\Framekit\Contracts\Config::class, function ($app) {
+        $this->app->bind(
+            CommandBus::class,
+            function($app) {
+                return $app->make(\Mrluke\Bus\Contracts\CommandBus::class);
+            }
+        );
 
-            $schema = \Mrluke\Configuration\Schema::createFromFile(
-                __DIR__.'/../../config/schema.json',
-                true
-            );
+        $this->app->singleton(
+            Config::class,
+            function($app) {
 
-            return new \Mrluke\Configuration\Host(
-                $app['config']->get('framekit'),
-                $schema
-            );
-        });
+                $schema = Schema::createFromFile(
+                    __DIR__ . '/../../config/schema.json',
+                    true
+                );
 
-        $this->app->singleton(\Framekit\Contracts\CommandBus::class, function ($app) {
-            return new \Framekit\Drivers\CommandBus($app);
-        });
+                return new Host(
+                    $app['config']->get('framekit'),
+                    $schema
+                );
+            }
+        );
 
-        $this->app->singleton(\Framekit\Contracts\EventBus::class, function ($app) {
-            return $app->make('framekit.event.bus');
-        });
+        $this->app->singleton(
+            \Framekit\Contracts\EventBus::class,
+            function($app) {
+                return $app->make('framekit.event.bus');
+            }
+        );
 
-        $this->app->singleton(\Framekit\Contracts\Mapper::class, function ($app) {
-            return $app->make('framekit.event.mapper');
-        });
+        $this->app->singleton(
+            Mapper::class,
+            function($app) {
+                return $app->make('framekit.event.mapper');
+            }
+        );
 
-        $this->app->bind(\Framekit\Contracts\Projector::class, function ($app) {
-            return $app->make('framekit.projector');
-        });
+        $this->app->bind(
+            \Framekit\Contracts\Projector::class,
+            function($app) {
+                return $app->make('framekit.projector');
+            }
+        );
 
-        $this->app->bind(\Framekit\Contracts\Store::class, function ($app) {
-            return $app->make('framekit.event.store');
-        });
+        $this->app->bind(
+            Store::class,
+            function($app) {
+                return $app->make('framekit.event.store');
+            }
+        );
 
-        $this->app->bind(\Framekit\Contracts\EventRepository::class, function ($app) {
-            return $app->make('framekit.event.repository');
-        });
+        $this->app->bind(
+            EventRepository::class,
+            function($app) {
+                return $app->make('framekit.event.repository');
+            }
+        );
 
-        $this->app->bind(\Framekit\Contracts\Retrospector::class, function ($app) {
-            return $app->make('framekit.event.retrospector');
-        });
+        $this->app->bind(
+            \Framekit\Contracts\Retrospector::class,
+            function($app) {
+                return $app->make('framekit.event.retrospector');
+            }
+        );
 
-        $this->app->singleton('framekit.projector', function ($app) {
-            return new \Framekit\Drivers\Projector($app);
-        });
+        $this->app->singleton(
+            'framekit.projector',
+            function($app) {
+                /* @var \Mrluke\Configuration\Contracts\ArrayHost $config */
+                $config = $app->make(Config::class);
+                $className = $config->get('drivers.projector');
 
-        $this->app->singleton('framekit.event.bus', function ($app) {
-            return new \Framekit\Drivers\EventBus($app);
-        });
+                return new $className(
+                    $app->make(Config::class),
+                    $app->make(ProcessRepository::class),
+                    $app->make(Container::class),
+                    $app->make(Logger::class),
+                    function($connection = null) use ($app) {
+                        return $app->make(Factory::class)->connection($connection);
+                    }
+                );
+            }
+        );
 
-        $this->app->singleton('framekit.event.mapper', function ($app) {
-            return new \Framekit\Drivers\EventMapper($app);
-        });
+        $this->app->singleton(
+            'framekit.event.bus',
+            function($app) {
+                /* @var \Mrluke\Configuration\Contracts\ArrayHost $config */
+                $config = $app->make(Config::class);
+                $className = $config->get('drivers.event_bus');
 
-        $this->app->singleton('framekit.event.store', function ($app) {
+                return new $className(
+                    $app->make(Config::class),
+                    $app->make(ProcessRepository::class),
+                    $app->make(Container::class),
+                    $app->make(Logger::class),
+                    function($connection = null) use ($app) {
+                        return $app->make(Factory::class)->connection($connection);
+                    }
+                );
+            }
+        );
 
-            return new \Framekit\Drivers\EventStore(
-                $app->make(\Framekit\Contracts\Config::class),
-                new \Framekit\Eventing\EventSerializer,
-                $app->make(\Framekit\Contracts\Mapper::class)
-            );
-        });
+        $this->app->singleton(
+            'framekit.event.mapper',
+            function($app) {
+                return new EventMapper($app);
+            }
+        );
 
-        $this->app->singleton('framekit.event.repository', function ($app) {
+        $this->app->singleton(
+            'framekit.event.store',
+            function($app) {
+                /* @var \Mrluke\Configuration\Contracts\ArrayHost $config */
+                $config = $app->make(Config::class);
+                $className = $config->get('drivers.event_store');
 
-            return new \Framekit\Eventing\EventStoreRepository(
-                $app->make('framekit.event.bus'),
-                $app->make('framekit.event.store'),
-                $app->make('framekit.projector')
-            );
-        });
+                return new $className(
+                    $app->make(Config::class),
+                    new EventSerializer,
+                    $app->make(Mapper::class)
+                );
+            }
+        );
 
-        $this->app->singleton('framekit.event.retrospector', function ($app) {
+        $this->app->singleton(
+            'framekit.event.repository',
+            function($app) {
 
-            return new \Framekit\Eventing\Retrospector(
-                $app->make('framekit.event.bus'),
-                $app->make('framekit.event.store'),
-                $app->make('framekit.projector')
-            );
-        });
+                return new EventStoreRepository(
+                    $app->make('framekit.event.bus'),
+                    $app->make('framekit.event.store'),
+                    $app->make('framekit.projector')
+                );
+            }
+        );
+
+        $this->app->singleton(
+            'framekit.event.retrospector',
+            function($app) {
+
+                return new Retrospector(
+                    $app->make('framekit.event.bus'),
+                    $app->make('framekit.event.store'),
+                    $app->make('framekit.projector')
+                );
+            }
+        );
     }
 }

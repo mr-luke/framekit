@@ -2,16 +2,16 @@
 
 namespace Framekit\Facades;
 
-use Illuminate\Support\Facades\Facade;
-
 use Framekit\Contracts\EventBus as Contract;
 use Framekit\Testing\EventBus as Fake;
+use Illuminate\Support\Facades\Facade;
 
 /**
  * @method self assertReactorCalled(string $event, string $reactor)
  * @method self assertReactorHasntCalled(string $event, string $reactor)
  *
- * @method array globalHandlers()
+ * @method static array eventReactors()
+ * @method static array globalReactors()
  * @method array handlers()
  * @method void register(array $stack)
  * @method void replace(array $stack)
@@ -27,9 +27,12 @@ class EventBus extends Facade
      */
     public static function fake(): Contract
     {
-        static::swap(new Fake(
-            static::handlers(), static::globalHandlers()
-        ));
+
+        static::swap(
+            new Fake(
+                static::eventReactors(), static::globalReactors()
+            )
+        );
 
         return static::getFacadeRoot();
     }
@@ -39,7 +42,7 @@ class EventBus extends Facade
      *
      * @return string
      */
-    protected static function getFacadeAccessor()
+    protected static function getFacadeAccessor(): string
     {
         return 'framekit.event.bus';
     }

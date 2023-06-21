@@ -6,38 +6,28 @@ use Illuminate\Database\Migrations\Migration;
 
 use Framekit\Contracts\Config as FramekitConfig;
 
-class CreateSnapshotsTable extends Migration
+return new class extends Migration
 {
-    /**
-     * Instance of EventStore.
-     *
-     * @var \Framekit\Contracts\Config
-     */
-    protected $config;
-
-    public function __construct()
-    {
-        $this->config = app()->make(FramekitConfig::class);
-    }
-
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create($this->config->get('tables.snapshots'), function (Blueprint $table) {
+        $config = app()->make(FramekitConfig::class);
+
+        Schema::create($config->get('tables.snapshots'), function (Blueprint $table) use ($config) {
             $table->increments('id');
-            $table->uuid('stream_id');
+            $table->uuid('stream_id')->index();
             $table->unsignedInteger('event_id');
             $table->text('state');
-            $table->unsignedInteger('commited')->default(0);
+            $table->unsignedInteger('committed')->default(0);
             $table->timestamp('created_at');
 
             $table->foreign('event_id')
                   ->references('id')
-                  ->on($this->config->get('tables.eventstore'))
+                  ->on($config->get('tables.eventstore'))
                   ->onDelete('RESTRICT');
         });
     }
@@ -47,10 +37,11 @@ class CreateSnapshotsTable extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::disableForeignKeyConstraints();
+        $config = app()->make(FramekitConfig::class);
 
-        Schema::dropIfExists($this->config->get('tables.snapshots'));
+        Schema::disableForeignKeyConstraints();
+        Schema::dropIfExists($config->get('tables.snapshots'));
     }
-}
+};

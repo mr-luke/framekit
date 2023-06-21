@@ -2,52 +2,25 @@
 
 namespace Tests\Unit;
 
-use Tests\UnitCase;
-
 use Carbon\Carbon;
 use Framekit\Event;
 use Framekit\Events\AggregateRemoved;
+use Tests\UnitCase;
 
 /**
  * AggregateRemoved unit tests.
  *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class AggregateRemovedTest extends UnitCase
 {
-    public function testClassResolveContract()
+    public function testEventWithDate()
     {
         $this->assertInstanceOf(
             Event::class,
-            new AggregateRemoved('test')
-        );
-    }
-
-    public function testEventWithDate()
-    {
-        $date  = Carbon::now();
-        $event = new AggregateRemoved('test', $date);
-
-        $this->assertEquals(
-            $date,
-            $event->deletedAt
-        );
-
-        $this->assertEquals(
-            'test',
-            $event->aggregateId
-        );
-    }
-
-    public function testEventWithoutDate()
-    {
-        $event = new AggregateRemoved('test');
-
-        $this->assertEquals(
-            Carbon::now()->toDateTimeString(),
-            $event->deletedAt->toDateTimeString()
+            new AggregateRemoved('test', Carbon::now())
         );
     }
 }

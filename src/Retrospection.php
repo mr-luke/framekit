@@ -10,60 +10,59 @@ namespace Framekit;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
- *
+ * @licence   MIT
  * @codeCoverageIgnore
  */
 abstract class Retrospection
 {
     /**
-     * Determine which reactors should be ommitted.
-     *
-     * @var array
-     */
-    public $filterReactors = [];
-
-    /**
-     * Determine which stream should be ommitted.
-     *
-     * @var array
-     */
-    public $filterStreams = [];
-
-    /**
-     * Determine which projections should be ommitted.
-     *
-     * @var array
-     */
-    public $filterProjections = [];
-
-    /**
-     * Deremine if retrospection should project events.
-     *
-     * @var boolean
-     */
-    public $useProjections = true;
-
-    /**
-     * Deremine if retrospection should publish events.
-     *
-     * @var boolean
-     */
-    public $useReactors = true;
-
-    /**
      * Info for retrospection to get only Events since this date
      *
      * @var string|null
      */
-    public $eventsSince = null;
+    public ?string $eventsSince = null;
 
     /**
      * Info for retrospection to get only Events till this date
      *
      * @var string|null
      */
-    public $eventsTill = null;
+    public ?string $eventsTill = null;
+
+    /**
+     * Determine which projections should be omitted.
+     *
+     * @var array
+     */
+    public array $filterProjections = [];
+
+    /**
+     * Determine which reactors should be omitted.
+     *
+     * @var array
+     */
+    public array $filterReactors = [];
+
+    /**
+     * Determine which stream should be omitted.
+     *
+     * @var array
+     */
+    public array $filterStreams = [];
+
+    /**
+     * Determine if retrospection should project events.
+     *
+     * @var boolean
+     */
+    public bool $useProjections = true;
+
+    /**
+     * Determine if retrospection should publish events.
+     *
+     * @var boolean
+     */
+    public bool $useReactors = true;
 
     /**
      * Perform post-action on Event.
@@ -78,8 +77,7 @@ abstract class Retrospection
      * Perform pre-action on Event.
      *
      * @param \Framekit\Event $event
-     *
-     * @return void
+     * @return \Framekit\Event
      */
     abstract public function preAction(Event $event): Event;
 }

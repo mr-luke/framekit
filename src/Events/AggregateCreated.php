@@ -13,29 +13,29 @@ use Framekit\Event;
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class AggregateCreated extends Event
 {
     /**
-     * @var string
+     * @var int|string
      */
-    public $aggregateId;
+    public string|int $aggregateId;
 
     /**
      * @var \Carbon\Carbon
      */
-    public $createdAt;
+    public Carbon $createdAt;
 
     /**
-     * @param string         $aggregateId
-     * @param \Carbon\Carbon $created_at
+     * @param int|string     $aggregateId
+     * @param \Carbon\Carbon $createdAt
      */
-    public function __construct(string $aggregateId, Carbon $created_at = null)
+    public function __construct(int|string $aggregateId, Carbon $createdAt)
     {
         parent::__construct();
-        
+
         $this->aggregateId = $aggregateId;
-        $this->createdAt   = $created_at ?? Carbon::now();
+        $this->createdAt = $createdAt;
     }
 }

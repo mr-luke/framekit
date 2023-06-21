@@ -4,25 +4,23 @@ declare(strict_types=1);
 
 namespace Framekit;
 
-use Framekit\Contracts\DTO;
+use Framekit\Contracts\DataTransferObject;
 use InvalidArgumentException;
 
 /**
- * Data Transfer Object.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
-class TransferObject implements DTO
+class TransferObject implements DataTransferObject
 {
     /**
-     * Attributes of transfered object.
+     * Attributes of transferred object.
      *
      * @var array
      */
-    protected $attributes;
+    protected array $attributes;
 
     /**
      * @param array $attributes
@@ -35,12 +33,12 @@ class TransferObject implements DTO
     /**
      * Return attribute of ValueObject.
      *
-     * @param  string  $name
+     * @param string $name
      * @return mixed
      */
     public function __get(string $name)
     {
-        if (! array_key_exists($name, $this->attributes)) {
+        if (!array_key_exists($name, $this->attributes)) {
             throw new InvalidArgumentException(
                 sprintf('Trying to access non-existing property %s', $name)
             );

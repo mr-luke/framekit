@@ -4,27 +4,25 @@ declare(strict_types=1);
 
 namespace Tests\Components;
 
-use Framekit\Event;
 use Framekit\Reactor;
+use Mrluke\Bus\Contracts\Instruction;
 
 /**
- * DummyReactor class.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @package   mr-luke/framekit
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class DummyReactor extends Reactor
 {
     /**
      * Handle projection.
      *
-     * @param  \Framekit\Event  $event
-     * @return void
+     * @param \Mrluke\Bus\Contracts\Instruction $instruction
+     * @return mixed
      */
-    public function handle(Event $event): void
+    public function handle(Instruction $instruction): mixed
     {
-        $event->dummy();
+        $instruction->dummy();
     }
 }

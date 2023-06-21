@@ -5,57 +5,58 @@ declare(strict_types=1);
 namespace Framekit;
 
 use Framekit\Exceptions\MethodUnknown;
-use Framekit\Event;
+use Mrluke\Bus\Contracts\Handler;
+use Mrluke\Bus\Contracts\Instruction;
 
 /**
- * Projection abstract class.
- *
- * @author    Łukasz Sitnicki (mr-luke)
- * @package   mr-luke/framekit
- * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @author  Łukasz Sitnicki (mr-luke)
+ * @package mr-luke/framekit
+ * @link    http://github.com/mr-luke/framekit
+ * @licence MIT
  */
-abstract class Projection
+abstract class Projection implements Handler
 {
+    protected bool $ignoreUnknownEvents = true;
+
     /**
-     * Return name of method that should be invoke.
+     * Capture all bad calls.
      *
-     * @param  \Framekit\Event $event
+     * @param string $name
+     * @param array  $arguments
+     * @return void
+     * @throws \Framekit\Exceptions\MethodUnknown
+     */
+    public function __call(string $name, array $arguments): void
+    {
+        if (!$this->ignoreUnknownEvents) {
+            throw new MethodUnknown(
+                sprintf('Trying to call unknown method [%s]', $name)
+            );
+        }
+    }
+
+    /**
+     * Return name of method that should be invoked.
+     *
+     * @param \Mrluke\Bus\Contracts\Instruction $instruction
      * @return string
-     *
      * @codeCoverageIgnore
      */
-    public static function detectMethod(Event $event): string
+    public static function detectMethod(Instruction $instruction): string
     {
-        $namespace = explode('\\', get_class($event));
+        $namespace = explode('\\', get_class($instruction));
 
-        return 'when'. end($namespace);
+        return 'when' . end($namespace);
     }
 
     /**
      * Handle projection.
      *
-     * @param  \Framekit\Event  $event
-     * @return void
+     * @param \Mrluke\Bus\Contracts\Instruction $instruction
+     * @return mixed
      */
-    public function handle(Event $event): void
+    public function handle(Instruction $instruction): mixed
     {
-        $method = static::detectMethod($event);
-
-        $this->{$method}($event);
-    }
-
-    /**
-     * Capture all bad calls.
-     *
-     * @param  string $name
-     * @param  array  $arguments
-     * @return \Framekit\Exceptions\MethodUnknown
-     */
-    public function __call(string $name, array $arguments)
-    {
-        throw new MethodUnknown(
-            sprintf('Trying to call unknown method [%s]', $name)
-        );
+        return $this->{static::detectMethod($instruction)}($instruction);
     }
 }

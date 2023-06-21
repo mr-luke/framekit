@@ -2,4 +2,6 @@
 
 namespace Framekit\Exceptions;
 
-class MissingProjection extends \Exception {}
+use Mrluke\Bus\Exceptions\MissingHandler;
+
+class MissingProjection extends MissingHandler { }

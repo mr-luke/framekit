@@ -2,18 +2,15 @@
 
 namespace Tests\Unit;
 
+use Framekit\Contracts\Serializer;
+use Framekit\Entity;
+use Framekit\Eventing\StateSerializer;
 use Tests\UnitCase;
 
-use Framekit\Contracts\Serializer;
-use Framekit\Eventing\StateSerializer;
-use Framekit\State;
-
 /**
- * StateSerializer unit tests.
- *
  * @author    Łukasz Sitnicki (mr-luke)
  * @link      http://github.com/mr-luke/framekit
- * @license   MIT
+ * @licence   MIT
  */
 class StateSerializerTest extends UnitCase
 {
@@ -27,7 +24,7 @@ class StateSerializerTest extends UnitCase
 
     public function testSerializeClass()
     {
-        $mock = $this->getMockBuilder(State::class)
+        $mock = $this->getMockBuilder(Entity::class)
                      ->disableOriginalConstructor()
                      ->getMock();
 
@@ -42,7 +39,7 @@ class StateSerializerTest extends UnitCase
 
     public function testUnserializeClass()
     {
-        $mock = $this->getMockBuilder(State::class)
+        $mock = $this->getMockBuilder(Entity::class)
                      ->disableOriginalConstructor()
                      ->getMock();
         $serilized = serialize($mock);

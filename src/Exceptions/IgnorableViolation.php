@@ -2,4 +2,6 @@
 
 namespace Framekit\Exceptions;
 
-class IgnorableViolation extends \Exception {}
+use Exception;
+
+class IgnorableViolation extends Exception { }
