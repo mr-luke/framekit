@@ -21,7 +21,7 @@ To install through composer, simply put the following in your composer.json file
 ```json
 {
     "require": {
-        "mr-luke/framekit": "~1.0"
+        "mr-luke/framekit": "~2.0"
     }
 }
 ```
@@ -44,8 +44,8 @@ php artisan vendor:publish
 It's main build up component. Due to DDD building blocks it's our root or Model tree. The heart 
 of an aggregate is our Entity model.
 
-### `\Framekit\State`
-This is our Entity abstract, we call it State.
+### `\Framekit\Entity`
+This is our Entity abstract.
 
 ### `\Framekit\Event`
 Every Aggregate uses Events as state flow control blocks.
