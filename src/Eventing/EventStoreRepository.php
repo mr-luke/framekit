@@ -60,7 +60,7 @@ class EventStoreRepository implements EventRepository
 
         $this->eventStore->commitToStream(
             get_class($aggregate),
-            $aggregate->identifier(),
+            $this->resolveIdentifier($aggregate->identifier()),
             $uncommittedEvents
         );
 
@@ -103,7 +103,24 @@ class EventStoreRepository implements EventRepository
 
         return $className::recreateFromStream(
             $aggregateId,
-            $this->eventStore->loadStream($identifier)
+            $this->eventStore->loadStream(
+                $this->resolveIdentifier($identifier)
+            )
         );
+    }
+
+    /**
+     * Retrieve a string from identifier.
+     *
+     * @param int|string|\Framekit\Contracts\AggregateIdentifier $aggregateId
+     * @return string
+     */
+    protected function resolveIdentifier(int|string|AggregateIdentifier $aggregateId): string
+    {
+        if ($aggregateId instanceof AggregateIdentifier) {
+            return $aggregateId->toString();
+        }
+
+        return (string) $aggregateId;
     }
 }
