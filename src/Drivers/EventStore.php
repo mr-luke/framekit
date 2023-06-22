@@ -17,6 +17,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Mrluke\Configuration\Contracts\ArrayHost;
+use stdClass;
 
 /**
  * EventStream driver class for Framekit.
@@ -175,10 +176,10 @@ final class EventStore implements Store
             );
         }
 
-        return $this->getEvents($streamId, $since, $till)->map(function($item) {
-            $item['payload'] = json_decode($item['payload'], true);
-            if (!is_null($item['meta'])) {
-                $item['meta'] = json_decode($item['meta'], true);
+        return $this->getEvents($streamId, $since, $till)->map(function(stdClass $item) {
+            $item->payload = json_decode($item->payload, true);
+            if (!is_null($item->meta)) {
+                $item->meta = json_decode($item->meta, true);
             }
 
             return $item;
