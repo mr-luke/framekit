@@ -177,6 +177,10 @@ final class EventStore implements Store
 
         return $this->getEvents($streamId, $since, $till)->map(function($item) {
             $item['payload'] = json_decode($item['payload'], true);
+            if (!is_null($item['meta'])) {
+                $item['meta'] = json_decode($item['meta'], true);
+            }
+
             return $item;
         })->toArray();
     }
