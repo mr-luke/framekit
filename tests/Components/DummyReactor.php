@@ -19,9 +19,9 @@ class DummyReactor extends Reactor
      * Handle projection.
      *
      * @param \Mrluke\Bus\Contracts\Instruction $instruction
-     * @return mixed
+     * @return void
      */
-    public function handle(Instruction $instruction): mixed
+    public function handle(Instruction $instruction): void
     {
         $instruction->dummy();
     }

@@ -19,7 +19,7 @@ abstract class Reactor implements Handler
      * Apply event to state.
      *
      * @param \Mrluke\Bus\Contracts\Instruction $instruction
-     * @return mixed
+     * @return void
      */
-    abstract public function handle(Instruction $instruction): mixed;
+    abstract public function handle(Instruction $instruction): void;
 }

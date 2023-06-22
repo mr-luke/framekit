@@ -53,10 +53,10 @@ abstract class Projection implements Handler
      * Handle projection.
      *
      * @param \Mrluke\Bus\Contracts\Instruction $instruction
-     * @return mixed
+     * @return void
      */
-    public function handle(Instruction $instruction): mixed
+    public function handle(Instruction $instruction): void
     {
-        return $this->{static::detectMethod($instruction)}($instruction);
+        $this->{static::detectMethod($instruction)}($instruction);
     }
 }
